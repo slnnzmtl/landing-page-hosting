@@ -114,7 +114,7 @@ describe('useSurveys', () => {
       const sweetLoyalty = findSurvey('sweet-loyalty')
       
       if (sweetLoyalty) {
-        expect(sweetLoyalty.title).toBe('Опросный лист для проекта')
+        expect(sweetLoyalty.title).toBe('Опросный лист для проекта Sweet ???')
         expect(sweetLoyalty.description).toContain('разработки')
         expect(sweetLoyalty.questions.length).toBeGreaterThan(0)
         expect(sweetLoyalty.googleForm.action).toBeTruthy()
