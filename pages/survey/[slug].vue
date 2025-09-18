@@ -6,14 +6,14 @@ import Input from '@/components/ui/input.vue';
 import Textarea from '@/components/ui/textarea.vue';
 import RadioGroup from '@/components/ui/radio-group.vue';
 import Label from '@/components/ui/label.vue';
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useRoute, useRouter } from '#app';
 
 const route = useRoute();
 const router = useRouter();
 const slug = route.params.slug as string;
 const { findSurvey, surveys } = useSurveys();
-const { setSurveyResponse, addSurveySlug } = useSurveyResponses();
+const { setSurveyResponse, addSurveySlug, getSurveyResponse } = useSurveyResponses();
 const survey = findSurvey(slug);
 
 if (survey) {
@@ -26,6 +26,32 @@ const isTrending = computed(() => !!survey && surveys.slice(0, TRENDING_COUNT).s
 
 const formState = ref<Record<string, any>>({});
 survey?.questions.forEach(q => { if (q.type !== 'section') formState.value[q.id] = ''; });
+
+const isScrolledToBottom = ref(false);
+
+const handleScroll = () => {
+  const buffer = 100; // px buffer to trigger "at bottom" a bit early
+  const isAtBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - buffer;
+  if (isAtBottom !== isScrolledToBottom.value) {
+    isScrolledToBottom.value = isAtBottom;
+  }
+};
+
+onMounted(() => {
+  if (survey) {
+    const savedResponse = getSurveyResponse(slug);
+    if (savedResponse) {
+      formState.value = { ...formState.value, ...savedResponse };
+    }
+  }
+  window.addEventListener('scroll', handleScroll);
+  handleScroll(); // Initial check
+});
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll);
+});
+
 const submitting = ref(false);
 const submitted = ref(false);
 const errorMsg = ref<string | null>(null);
@@ -56,7 +82,6 @@ async function submit() {
     formData.append('slug', survey.slug);
     
     // Debug: Log what we're sending
-    console.log('FormData being sent:');
     for (const [key, value] of formData.entries()) {
       console.log(`${key}: ${value}`);
     }
@@ -70,8 +95,6 @@ async function submit() {
         // Don't set Content-Type - let browser set it for FormData
       });
       
-      console.log('Response status:', response.status);
-      console.log('Response ok:', response.ok);
       
       if (response.ok) {
         submitted.value = true;
@@ -79,7 +102,6 @@ async function submit() {
         throw new Error(`Server responded with status ${response.status}`);
       }
     } catch (corsError) {
-      console.log('CORS failed, trying no-cors mode:', corsError);
       
       // Fallback to no-cors mode
       await fetch(survey.googleForm.action, {
@@ -88,13 +110,11 @@ async function submit() {
         body: formData,
       });
       
-      // With no-cors, we assume success if no network error occurred
-      console.log('No-cors request completed - assuming success');
+  // With no-cors, we assume success if no network error occurred
       submitted.value = true;
     }
   } catch (error) {
-    console.error('Submit error:', error);
-    errorMsg.value = error instanceof Error ? error.message : 'Submission failed';
+    errorMsg.value = error instanceof Error ? error.message : 'Ошибка при отправке';
   } finally {
     submitting.value = false;
   }
@@ -117,103 +137,125 @@ watch(() => survey, () => {
 });
 </script>
 <template>
-  <div v-if="survey" class="max-w-5xl mx-auto py-10 px-4 space-y-10">
-    <!-- Header -->
-    <div class="space-y-6">
-      <div class="flex items-start justify-between gap-4">
-        <div class="space-y-3">
-          <button @click="goBack" class="group inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition" aria-label="Back to surveys">
-            <svg viewBox="0 0 20 20" fill="none" class="h-3.5 w-3.5 -ml-0.5 transition-transform group-hover:-translate-x-0.5"><path d="M12 15l-5-5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            Back
-          </button>
-          <div class="flex items-center gap-3 flex-wrap">
-            <h1 class="text-3xl font-bold tracking-tight flex items-center gap-3">{{ survey.title }}
-              <span v-if="isTrending" class="inline-flex items-center gap-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2 py-0.5 text-[10px] font-medium ring-1 ring-inset ring-amber-500/30 animate-pulse">
-                <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
-                Trending
-              </span>
-            </h1>
+  <div v-if="survey" class="max-w-7xl mx-auto py-10 px-4">
+    <div class="grid grid-cols-1 md:grid-cols-3 md:gap-10 lg:gap-16">
+      
+      <!-- Main Content (Left Column) -->
+      <div class="md:col-span-2 space-y-10">
+        <!-- Header -->
+        <div class="space-y-6">
+          <div class="flex items-start justify-between gap-4">
+            <div class="space-y-3">
+              <button @click="goBack" class="group inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition" aria-label="Назад к опросам">
+                <svg viewBox="0 0 20 20" fill="none" class="h-3.5 w-3.5 -ml-0.5 transition-transform group-hover:-translate-x-0.5"><path d="M12 15l-5-5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Назад
+              </button>
+              <div class="flex items-center gap-3 flex-wrap">
+                <h1 class="text-3xl font-bold tracking-tight flex items-center gap-3">{{ survey.title }}
+                  <span v-if="isTrending" class="inline-flex items-center gap-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2 py-0.5 text-[10px] font-medium ring-1 ring-inset ring-amber-500/30 animate-pulse">
+                    <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+                    Популярно
+                  </span>
+                </h1>
+              </div>
+              <p class="text-muted-foreground max-w-prose">{{ survey.description }}</p>
+            </div>
+            <!-- Desktop progress removed from here -->
           </div>
-          <p class="text-muted-foreground max-w-prose">{{ survey.description }}</p>
-        </div>
-        <div class="hidden md:flex items-center gap-3">
-          <div class="text-right">
-            <p class="text-xs uppercase tracking-wide text-muted-foreground">Progress</p>
-            <p class="font-semibold text-sm tabular-nums">{{ progress }}%</p>
-          </div>
-          <div class="w-36 h-2 rounded-full bg-muted overflow-hidden">
-            <div class="h-full bg-primary transition-all duration-300" :style="{ width: progress + '%' }"></div>
+          <!-- Mobile progress -->
+          <div class="md:hidden flex items-center gap-3">
+            <div class="flex-1 h-2 rounded-full bg-muted overflow-hidden">
+              <div class="h-full bg-primary transition-all duration-300" :style="{ width: progress + '%' }"></div>
+            </div>
+            <span class="text-xs font-medium tabular-nums">{{ progress }}%</span>
           </div>
         </div>
-      </div>
-      <!-- Mobile progress -->
-      <div class="md:hidden flex items-center gap-3">
-        <div class="flex-1 h-2 rounded-full bg-muted overflow-hidden">
-          <div class="h-full bg-primary transition-all duration-300" :style="{ width: progress + '%' }"></div>
-        </div>
-        <span class="text-xs font-medium tabular-nums">{{ progress }}%</span>
-      </div>
-    </div>
 
-    <!-- Form Card -->
-    <div v-if="!submitted" class="relative rounded-2xl border bg-gradient-to-br from-background to-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
-      <div class="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-border/50"></div>
-      <form @submit.prevent="submit" class="relative p-6 md:p-10 space-y-10">
-        <transition-group name="q-fade" tag="div" class="space-y-10">
-          <template v-for="(q, index) in survey.questions" :key="q.id || 'section-'+index">
-            <!-- Section Block -->
-            <div v-if="q.type === 'section'" class="space-y-2">
+        <!-- Form Card -->
+        <div v-if="!submitted" class="relative rounded-2xl border bg-gradient-to-br from-background to-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
+          <div class="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-border/50"></div>
+          <form @submit.prevent="submit" class="relative p-6 md:p-10 space-y-10">
+            <transition-group name="q-fade" tag="div" class="space-y-10">
+              <template v-for="(q, index) in survey.questions" :key="q.id || 'section-'+index">
+                <!-- Section Block -->
+                <div v-if="q.type === 'section'" class="space-y-2">
+                  <div class="flex items-center gap-3">
+                    <div class="h-7 w-7 rounded-md bg-primary/10 flex items-center justify-center text-primary text-xs font-semibold">{{ (index+1) }}</div>
+                    <h2 class="text-lg font-semibold tracking-tight">{{ q.title }}</h2>
+                  </div>
+                  <p v-if="q.description" class="text-sm text-muted-foreground ml-10">{{ q.description }}</p>
+                  <div class="h-px bg-border/70 mt-4"></div>
+                </div>
+                <!-- Field Block -->
+                <div v-else class="group space-y-3 rounded-lg p-4 -m-1 hover:bg-accent/40 focus-within:bg-accent/40 transition">
+                  <div class="flex items-center gap-2">
+                    <Label :for-id="q.id" class="flex-1">{{ q.label }} <span v-if="q.required" class="text-destructive" aria-hidden="true">*</span></Label>
+                    <span class="text-[10px] uppercase tracking-wide text-muted-foreground">{{ answeredCount }}/{{ totalAnswerables }}</span>
+                  </div>
+                  <component
+                    :is="q.type === 'textarea' ? Textarea : q.type === 'radio' ? RadioGroup : Input"
+                    v-model="formState[q.id]"
+                    :id="q.id"
+                    :name="q.id"
+                    :placeholder="q.placeholder"
+                    :options="q.type==='radio' ? (q as any).options : undefined"
+                    :required="q.required"
+                    :data-autofocus="index===0 ? true : undefined"
+                    :type="q.type === 'email' ? 'email' : 'text'"
+                  />
+                </div>
+              </template>
+            </transition-group>
+          </form>
+        </div>
+
+        <!-- Submitted State (Main Column) -->
+        <div v-else class="relative rounded-2xl border bg-gradient-to-br from-background to-background/80 backdrop-blur p-10 text-center space-y-6">
+          <div class="mx-auto h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+            <svg viewBox="0 0 20 20" fill="none" class="h-7 w-7"><path d="M4.5 10.5L8 14l7.5-8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <h2 class="text-2xl font-semibold tracking-tight">Спасибо!</h2>
+          <p class="text-muted-foreground max-w-md mx-auto">Ваши ответы были записаны. Мы ценим ваше время и мнение — это напрямую влияет на будущие улучшения.</p>
+          <div class="flex flex-col sm:flex-row gap-3 justify-center">
+            <Button variant="secondary" @click="router.push('/survey')">Назад к опросам</Button>
+            <Button variant="outline" @click="resetForm">Заполнить снова</Button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar (Right Column) -->
+      <div class="hidden md:block md:col-span-1">
+        <div class="sticky top-24 space-y-6">
+          <!-- Progress Card -->
+          <div class="rounded-2xl border bg-gradient-to-br from-background to-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 p-6 shadow-sm">
+            <div class="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-border/50"></div>
+            <div class="relative space-y-4">
+              <p class="text-sm font-medium">Прогресс</p>
               <div class="flex items-center gap-3">
-                <div class="h-7 w-7 rounded-md bg-primary/10 flex items-center justify-center text-primary text-xs font-semibold">{{ (index+1) }}</div>
-                <h2 class="text-lg font-semibold tracking-tight">{{ q.title }}</h2>
+                <div class="flex-1 h-2 rounded-full bg-muted overflow-hidden">
+                  <div class="h-full bg-primary transition-all duration-300" :style="{ width: progress + '%' }"></div>
+                </div>
+                <span class="text-sm font-semibold tabular-nums">{{ progress }}%</span>
               </div>
-              <p v-if="q.description" class="text-sm text-muted-foreground ml-10">{{ q.description }}</p>
-              <div class="h-px bg-border/70 mt-4"></div>
             </div>
-            <!-- Field Block -->
-            <div v-else class="group space-y-3 rounded-lg p-4 -m-1 hover:bg-accent/40 focus-within:bg-accent/40 transition">
-              <div class="flex items-center gap-2">
-                <Label :for-id="q.id" class="flex-1">{{ q.label }} <span v-if="q.required" class="text-destructive" aria-hidden="true">*</span></Label>
-                <span class="text-[10px] uppercase tracking-wide text-muted-foreground">{{ answeredCount }}/{{ totalAnswerables }}</span>
-              </div>
-              <component
-                :is="q.type === 'textarea' ? Textarea : q.type === 'radio' ? RadioGroup : Input"
-                v-model="formState[q.id]"
-                :id="q.id"
-                :name="q.id"
-                :placeholder="q.placeholder"
-                :options="q.type==='radio' ? (q as any).options : undefined"
-                :required="q.required"
-                :data-autofocus="index===0 ? true : undefined"
-                :type="q.type === 'email' ? 'email' : 'text'"
-              />
-            </div>
-          </template>
-        </transition-group>
+          </div>
 
-        <div class="flex flex-col sm:flex-row sm:items-center gap-4 pt-4">
-          <Button :disabled="!canSubmit || submitting" type="submit" class="sm:w-auto w-full">
-            <span v-if="!submitting">Submit Survey</span>
-            <span v-else class="inline-flex items-center gap-2">Submitting
-              <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/></svg>
-            </span>
-          </Button>
-          <p v-if="errorMsg" class="text-sm text-destructive">{{ errorMsg }}</p>
-          <p v-else class="text-xs text-muted-foreground">All data submitted anonymously unless specified.</p>
+          <!-- Submit Card -->
+          <div v-if="!submitted" class="rounded-2xl border bg-gradient-to-br from-background to-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 p-6 shadow-sm">
+            <div class="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-border/50"></div>
+            <div class="relative space-y-4">
+              <Button @click="submit" :disabled="!canSubmit || submitting || !isScrolledToBottom" type="button" class="w-full">
+                <span v-if="!submitting">Отправить</span>
+                <span v-else class="inline-flex items-center gap-2">Отправка
+                  <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/></svg>
+                </span>
+              </Button>
+              <p v-if="!isScrolledToBottom" class="text-xs text-muted-foreground text-center">Прокрутите страницу до конца, чтобы отправить.</p>
+              <p v-else-if="errorMsg" class="text-sm text-destructive text-center">{{ errorMsg }}</p>
+              <p v-else class="text-xs text-muted-foreground text-center">Данные отправляются анонимно, если не указано иное.</p>
+            </div>
+          </div>
         </div>
-      </form>
-    </div>
-
-    <!-- Submitted State -->
-    <div v-else class="relative rounded-2xl border bg-gradient-to-br from-background to-background/80 backdrop-blur p-10 text-center space-y-6">
-      <div class="mx-auto h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-        <svg viewBox="0 0 20 20" fill="none" class="h-7 w-7"><path d="M4.5 10.5L8 14l7.5-8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </div>
-      <h2 class="text-2xl font-semibold tracking-tight">Thank you!</h2>
-      <p class="text-muted-foreground max-w-md mx-auto">Your responses have been recorded. We appreciate your time and input—it directly shapes future improvements.</p>
-      <div class="flex flex-col sm:flex-row gap-3 justify-center">
-        <Button variant="secondary" @click="router.push('/survey')">Back to Surveys</Button>
-        <Button variant="outline" @click="resetForm">Fill Again</Button>
       </div>
     </div>
   </div>
@@ -222,9 +264,9 @@ watch(() => survey, () => {
     <div class="mx-auto h-14 w-14 rounded-full bg-destructive/10 flex items-center justify-center text-destructive">
       <svg viewBox="0 0 20 20" fill="none" class="h-7 w-7"><path d="M10 6v4m0 4h.01M10 2a8 8 0 100 16 8 8 0 000-16z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
-    <h1 class="text-3xl font-bold tracking-tight">Survey Not Found</h1>
-    <p class="text-muted-foreground">The survey you are looking for may have been removed or the link is incorrect.</p>
-    <Button variant="outline" @click="router.push('/survey')">Return to list</Button>
+    <h1 class="text-3xl font-bold tracking-tight">Опрос не найден</h1>
+    <p class="text-muted-foreground">Возможно, опрос был удалён или ссылка некорректна.</p>
+    <Button variant="outline" @click="router.push('/survey')">Вернуться к списку</Button>
   </div>
 </template>
 

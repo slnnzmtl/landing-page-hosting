@@ -44,6 +44,17 @@ export const useSurveyResponses = () => {
     localStorage.setItem("surveyResponses", JSON.stringify(responses));
   };
 
+  const getSurveyResponse = (slug: string) => {
+    if (typeof window === "undefined") {
+      return null;
+    }
+    const responses = getSurveyResponses();
+    const response = responses.find(
+      (r: z.infer<typeof surveyResponseSchema>) => r.slug === slug
+    );
+    return response ? response.response : null;
+  };
+
   const addSurveySlug = (slug: string) => {
     if (typeof window === "undefined") {
       return;
@@ -62,5 +73,6 @@ export const useSurveyResponses = () => {
     getSurveyResponses,
     setSurveyResponse,
     addSurveySlug,
+    getSurveyResponse,
   };
 };

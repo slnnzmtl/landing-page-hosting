@@ -1,8 +1,8 @@
 [
   {
     "slug": "customer-satisfaction",
-    "title": "Customer Satisfaction Survey",
-    "description": "Help us improve by answering a few quick questions.",
+  "title": "Опрос удовлетворённости клиентов",
+  "description": "Помогите нам стать лучше, ответив на несколько коротких вопросов.",
     "googleForm": {
       "formId": "YOUR_GOOGLE_FORM_ID", 
       "action": "https://docs.google.com/forms/d/e/YOUR_GOOGLE_FORM_ID/formResponse",
@@ -29,8 +29,8 @@
   },
   {
     "slug": "product-feedback",
-    "title": "Product Feedback Survey",
-    "description": "Tell us what you think about our product.",
+  "title": "Опрос отзывов о продукте",
+  "description": "Расскажите, что вы думаете о нашем продукте.",
     "googleForm": {
       "formId": "ANOTHER_FORM_ID",
       "action": "https://docs.google.com/forms/d/e/ANOTHER_FORM_ID/formResponse",
