@@ -70,7 +70,6 @@ async function submit() {
   submitting.value = true;
   errorMsg.value = null;
   try {
-    setSurveyResponse(survey.slug, formState.value);
     const formData = new FormData();
     for (const [field, value] of Object.entries(formState.value)) {
       if (value) { // Only include non-empty values
@@ -97,6 +96,7 @@ async function submit() {
       
       
       if (response.ok) {
+        setSurveyResponse(survey.slug, formState.value);
         submitted.value = true;
       } else {
         throw new Error(`Server responded with status ${response.status}`);
