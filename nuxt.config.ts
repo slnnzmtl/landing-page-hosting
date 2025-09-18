@@ -9,6 +9,7 @@ export default defineNuxtConfig({
     prerender: {
       // Pre-render all routes by default
       crawl: true,
+      routes: ['/survey/sweet-loyalty']
     },
   },
   modules: ['@nuxtjs/tailwindcss'],
