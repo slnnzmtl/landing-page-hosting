@@ -37,15 +37,21 @@ export const useSurveys = () => {
   const modules = import.meta.glob('~/pages/survey/data/*.json', {
     eager: true,
   });
+  
   // Extract default export (parsed JSON) from each module and cast
   const surveys = Object.values(modules).map(
     (m: any) => (m as any).default || m
   ) as SurveyDef[];
+  
   // (Optional) sort by title for consistent ordering
   surveys.sort((a, b) => a.title.localeCompare(b.title));
 
   const findSurvey = (slug: string) => {
-    return surveys.find(s => s.slug === slug);
+    const found = surveys.find(s => s.slug === slug);
+    if (!found) {
+      console.warn(`Survey with slug "${slug}" not found. Available surveys:`, surveys.map(s => s.slug));
+    }
+    return found;
   };
 
   return {
