@@ -11,4 +11,6 @@ export default defineNuxtConfig({
       crawl: true,
     },
   },
+  modules: ['@nuxtjs/tailwindcss'],
+  css: ['@/assets/main.css'],
 });

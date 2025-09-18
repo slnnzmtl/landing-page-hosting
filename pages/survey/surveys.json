@@ -1,0 +1,56 @@
+[
+  {
+    "slug": "customer-satisfaction",
+    "title": "Customer Satisfaction Survey",
+    "description": "Help us improve by answering a few quick questions.",
+    "googleForm": {
+      "formId": "YOUR_GOOGLE_FORM_ID", 
+      "action": "https://docs.google.com/forms/d/e/YOUR_GOOGLE_FORM_ID/formResponse",
+      "entryMap": {
+        "name": "entry.123456",
+        "email": "entry.234567",
+        "satisfaction": "entry.345678",
+        "comments": "entry.456789"
+      }
+    },
+    "questions": [
+      { "id": "name", "label": "Name", "type": "text", "required": true, "placeholder": "Your full name" },
+      { "id": "email", "label": "Email", "type": "email", "required": true, "placeholder": "your@email.com" },
+      { "id": "satisfaction", "label": "How satisfied are you?", "type": "radio", "required": true, "options": [
+          { "label": "Very Satisfied", "value": "very-satisfied" },
+          { "label": "Satisfied", "value": "satisfied" },
+          { "label": "Neutral", "value": "neutral" },
+          { "label": "Dissatisfied", "value": "dissatisfied" },
+          { "label": "Very Dissatisfied", "value": "very-dissatisfied" }
+        ]
+      },
+      { "id": "comments", "label": "Comments", "type": "textarea", "required": false, "placeholder": "Additional feedback" }
+    ]
+  },
+  {
+    "slug": "product-feedback",
+    "title": "Product Feedback Survey",
+    "description": "Tell us what you think about our product.",
+    "googleForm": {
+      "formId": "ANOTHER_FORM_ID",
+      "action": "https://docs.google.com/forms/d/e/ANOTHER_FORM_ID/formResponse",
+      "entryMap": {
+        "email": "entry.111111",
+        "usageFrequency": "entry.222222",
+        "favouriteFeature": "entry.333333",
+        "improvements": "entry.444444"
+      }
+    },
+    "questions": [
+      { "id": "email", "label": "Email", "type": "email", "required": true },
+      { "id": "usageFrequency", "label": "How often do you use the product?", "type": "radio", "required": true, "options": [
+        { "label": "Daily", "value": "daily" },
+        { "label": "Weekly", "value": "weekly" },
+        { "label": "Monthly", "value": "monthly" },
+        { "label": "Rarely", "value": "rarely" }
+      ] },
+      { "id": "favouriteFeature", "label": "Favourite Feature", "type": "text", "required": false },
+      { "id": "improvements", "label": "Improvements", "type": "textarea", "required": false }
+    ]
+  }
+]
