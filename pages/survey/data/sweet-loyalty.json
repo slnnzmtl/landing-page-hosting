@@ -14,10 +14,6 @@
       "description": "Вопросы, касающиеся технических аспектов интеграции систем."
     },
     {
-      "type": "section",
-      "title": "Подраздел: API для 1С"
-    },
-    {
       "id": "1c-api",
       "label": "Предоставляет ли ваша система 1С готовый HTTP API для выгрузки чеков?",
       "type": "radio",
@@ -46,50 +42,9 @@
       ]
     },
     {
-      "id": "1c-test-env",
-      "label": "Будет ли предоставлен доступ к тестовому контуру (песочнице) 1С для отладки интеграции?",
-      "type": "radio",
-      "options": [
-        { "label": "Да", "value": "yes" },
-        { "label": "Нет", "value": "no" }
-      ]
-    },
-    {
-      "type": "section",
-      "title": "Подраздел: Система Chameleon (Касса)"
-    },
-    {
       "id": "chameleon-integration",
       "label": "Каковы технические возможности по интеграции? Может ли кассовое ПО отправить HTTP-запрос в n8n?",
       "type": "textarea"
-    },
-    {
-      "id": "chameleon-specialist",
-      "label": "Кто ответственный специалист по доработке Chameleon?",
-      "type": "text"
-    },
-    {
-      "type": "section",
-      "title": "Подраздел: Инфраструктура"
-    },
-    {
-      "id": "n8n-server",
-      "label": "Предоставляется ли сервер для развертывания n8n?",
-      "type": "radio",
-      "options": [
-        { "label": "Да", "value": "yes" },
-        { "label": "Нет", "value": "no" }
-      ]
-    },
-    {
-      "id": "server-specs",
-      "label": "Какие его характеристики (ОС, CPU, RAM)?",
-      "type": "text"
-    },
-    {
-      "id": "server-admin",
-      "label": "Кто будет отвечать за администрирование и поддержку сервера?",
-      "type": "text"
     },
     {
       "type": "section",
@@ -105,15 +60,6 @@
       ]
     },
     {
-      "id": "llm-api-key",
-      "label": "Предоставляется ли API-ключ для LLM (ChatGPT)?",
-      "type": "radio",
-      "options": [
-        { "label": "Да", "value": "yes" },
-        { "label": "Нет", "value": "no" }
-      ]
-    },
-    {
       "id": "llm-style",
       "label": "Есть ли требования к стилю текста от LLM?",
       "type": "textarea"
@@ -122,10 +68,6 @@
       "type": "section",
       "title": "Section 2 of 2: Пользовательский Опыт",
       "description": "Вопросы, касающиеся взаимодействия с конечными пользователями."
-    },
-    {
-      "type": "section",
-      "title": "Подраздел: Данные и Коммуникации"
     },
     {
       "id": "customer-data",
