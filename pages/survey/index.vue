@@ -39,23 +39,26 @@ const isEmpty = computed(() => filtered.value.length === 0);
 
 // Set of slugs that have saved local responses
 const savedSlugs = computed(() => new Set(getSurveyResponses().map(r => r.slug)));
-
 </script>
 <template>
   <div class="max-w-6xl mx-auto py-10 px-4 space-y-8">
     <!-- Header -->
     <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div>
-  <h1 class="text-3xl font-bold tracking-tight">Kazansky.dev</h1>
-  <p class="text-muted-foreground mt-2 max-w-prose">Доступные формы:</p>
+  <a href="https://kazansky.dev" target="_blank" rel="noopener" class="hover:underline ">
+    <h1 class="text-3xl font-bold tracking-tight">Kazansky.dev</h1>
+  </a>
+  <p class="text-muted-foreground mt-2 max-w-prose">
+    Короткие брифы для проектов по разработке ПО.  сохранённые ответы доступны для редактирования.
+  </p>
       </div>
       <div class="flex gap-2 w-full sm:w-auto">
         <div class="relative flex-1 sm:w-72">
           <input
             v-model="query"
             type="text"
-            placeholder="Поиск опросов..."
-            aria-label="Поиск опросов"
+            placeholder="Поиск брифов..."
+            aria-label="Поиск брифов"
             class="w-full rounded-md border bg-background/60 backdrop-blur px-3 py-2 pr-9 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition"
           />
           <span class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground/60 text-sm">⌘K</span>
@@ -87,23 +90,9 @@ const savedSlugs = computed(() => new Set(getSurveyResponses().map(r => r.slug))
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2">
                 <h2 class="text-base font-semibold leading-tight truncate">{{ s.title }}</h2>
-                <span
-                  v-if="i < TRENDING_COUNT"
-                  class="inline-flex items-center gap-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2 py-0.5 text-[10px] font-medium ring-1 ring-inset ring-amber-500/30 animate-pulse"
-                >
-                  <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
-                  Популярно
-                </span>
               </div>
               <p class="mt-1 text-muted-foreground text-xs line-clamp-2">{{ s.description }}</p>
             </div>
-          </div>
-            <div class="mt-4 flex items-center gap-2 text-[11px] text-muted-foreground">
-            <span class="inline-flex items-center gap-1">
-              <svg viewBox="0 0 20 20" fill="none" class="h-3.5 w-3.5"><path stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M3.5 10.5L8 15l8.5-10" /></svg>
-              Короткий</span>
-            <span>•</span>
-            <span>~5 мин</span>
           </div>
           <div class="mt-5 flex items-center gap-2 text-xs font-medium text-primary group-hover:translate-x-0.5 transition-transform">
             <span>{{ savedSlugs.has(s.slug) ? 'Изменить ответы' : 'Начать' }}</span>

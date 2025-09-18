@@ -1,13 +1,32 @@
+<script setup lang="ts">
+// Server-side 301 redirect to external site, with client-side fallback.
+if (import.meta.server) {
+  const { sendRedirect } = await import('h3')
+  // Use the event-based Nitro redirect when possible
+  // In a page component we don't have the request event directly, so use navigateTo redirect via route rules.
+  // Fallback: set location through useNitro and sendRedirect on the server side by creating an event handler.
+  // Simpler approach: throw a navigation redirect using useRequestEvent if available.
+  try {
+    // try to obtain the current event and send a 301
+    // @ts-ignore - useNuxtApp to access event
+    const nuxtApp = (globalThis as any).nuxtApp || undefined
+    if (nuxtApp && nuxtApp.ssrContext && nuxtApp.ssrContext.event) {
+      sendRedirect(nuxtApp.ssrContext.event, 'https://kazansky.dev', 301)
+    }
+  } catch (e) {
+    // ignore - client will still redirect below
+  }
+}
+
+// Client-side immediate redirect as a fallback
+if (process.client) {
+  window.location.replace('https://kazansky.dev')
+}
+</script>
+
 <template>
   <div class="max-w-3xl mx-auto py-16 px-6 text-center">
-    <h1 class="text-4xl font-bold tracking-tight">Kazansky.dev</h1>
-    <p class="mt-3 text-muted-foreground">Выберите опрос и начните — ваши ответы помогают улучшать продукт.</p>
-    <div class="mt-8">
-      <NuxtLink to="/survey" class="inline-flex items-center gap-2 rounded-md bg-primary text-primary-foreground px-5 py-3 font-medium shadow hover:bg-primary/90">
-        К списку опросов
-        <svg viewBox="0 0 20 20" fill="none" class="h-4 w-4"><path d="M7 5l6 5-6 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </NuxtLink>
-    </div>
+    <p class="text-muted-foreground">Redirecting to https://kazansky.dev…</p>
+    <p class="mt-3 text-sm text-muted-foreground">If you are not redirected automatically, <a href="https://kazansky.dev" class="underline">click here</a>.</p>
   </div>
-  
 </template>
