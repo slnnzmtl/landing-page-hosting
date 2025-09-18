@@ -39,7 +39,7 @@ export const useSurveys = () => {
   });
   // Extract default export (parsed JSON) from each module and cast
   const surveys = Object.values(modules).map(
-    (m: any) => m.default || m
+    (m: any) => (m as any).default || m
   ) as SurveyDef[];
   // (Optional) sort by title for consistent ordering
   surveys.sort((a, b) => a.title.localeCompare(b.title));

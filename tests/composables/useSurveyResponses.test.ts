@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { useSurveyResponses } from '~/pages/survey/composables/useSurveyResponses'
+import { useSurveyResponses } from '~/composables/useSurveyResponses'
 
 // Mock localStorage
 const localStorageMock = {

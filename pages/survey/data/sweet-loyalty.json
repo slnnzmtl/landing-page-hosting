@@ -4,7 +4,7 @@
   "description": "Пожалуйста, ответьте на вопросы для уточнения деталей перед началом разработки.",
   "googleForm": {
     "formId": "ANOTHER_FORM_ID",
-    "action": "https://n8n.slnnzmtl.xyz/webhook-test/survey/submit",
+    "action": "https://n8n.slnnzmtl.xyz/webhook/survey/submit",
     "entryMap": {}
   },
   "questions": [

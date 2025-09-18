@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { useSurveys } from './composables/useSurveys';
-import { useSurveyResponses } from './composables/useSurveyResponses';
+import { useSurveys } from '~/composables/useSurveys';
+import { useSurveyResponses } from '~/composables/useSurveyResponses';
 import Button from '@/components/ui/button.vue';
 import Input from '@/components/ui/input.vue';
 import Textarea from '@/components/ui/textarea.vue';
 import RadioGroup from '@/components/ui/radio-group.vue';
 import Label from '@/components/ui/label.vue';
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
-import { useRoute, useRouter } from '#app';
+import { useRoute, useRouter } from 'vue-router';
 
 const route = useRoute();
 const router = useRouter();
