@@ -1,8 +1,14 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+// https://nuxt.com/docs/api/configuration/nuxt-config
+import { defineNuxtConfig } from 'nuxt/config'
+
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  routeRules: {
-    // prerender index route by default
-    '/': { prerender: true },
+  ssr: true,
+  nitro: {
+    prerender: {
+      // Pre-render all routes by default
+      crawl: true,
+    },
   },
 });
