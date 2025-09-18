@@ -37,6 +37,9 @@ const filtered = computed(() => {
 
 const isEmpty = computed(() => filtered.value.length === 0);
 
+// Set of slugs that have saved local responses
+const savedSlugs = computed(() => new Set(getSurveyResponses().map(r => r.slug)));
+
 </script>
 <template>
   <div class="max-w-6xl mx-auto py-10 px-4 space-y-8">
@@ -103,7 +106,7 @@ const isEmpty = computed(() => filtered.value.length === 0);
             <span>~5 мин</span>
           </div>
           <div class="mt-5 flex items-center gap-2 text-xs font-medium text-primary group-hover:translate-x-0.5 transition-transform">
-            <span>Начать</span>
+            <span>{{ savedSlugs.has(s.slug) ? 'Изменить ответы' : 'Начать' }}</span>
             <svg viewBox="0 0 20 20" fill="none" class="h-4 w-4"><path d="M7 5l6 5-6 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </div>
         </NuxtLink>

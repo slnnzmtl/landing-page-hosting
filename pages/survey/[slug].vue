@@ -151,12 +151,7 @@ watch(() => survey, () => {
                 Назад
               </button>
               <div class="flex items-center gap-3 flex-wrap">
-                <h1 class="text-3xl font-bold tracking-tight flex items-center gap-3">{{ survey.title }}
-                  <span v-if="isTrending" class="inline-flex items-center gap-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2 py-0.5 text-[10px] font-medium ring-1 ring-inset ring-amber-500/30 animate-pulse">
-                    <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
-                    Популярно
-                  </span>
-                </h1>
+                <h1 class="text-3xl font-bold tracking-tight flex items-center gap-3">{{ survey.title }}</h1>
               </div>
               <p class="text-muted-foreground max-w-prose">{{ survey.description }}</p>
             </div>
