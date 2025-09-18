@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useSurveys } from '~/composables/useSurveys';
+import { useSurveyResponses } from '~/composables/useSurveyResponses';
 import Button from '@/components/ui/button.vue';
 import Input from '@/components/ui/input.vue';
 import Textarea from '@/components/ui/textarea.vue';
@@ -12,7 +13,12 @@ const route = useRoute();
 const router = useRouter();
 const slug = route.params.slug as string;
 const { findSurvey, surveys } = useSurveys();
+const { setSurveyResponse, addSurveySlug } = useSurveyResponses();
 const survey = findSurvey(slug);
+
+if (survey) {
+  addSurveySlug(slug);
+}
 
 // Trending heuristic shared with list page (first 3)
 const TRENDING_COUNT = 3;
@@ -38,22 +44,61 @@ async function submit() {
   submitting.value = true;
   errorMsg.value = null;
   try {
+    setSurveyResponse(survey.slug, formState.value);
     const formData = new FormData();
     for (const [field, value] of Object.entries(formState.value)) {
-      const entryKey = survey.googleForm.entryMap[field];
-      if (entryKey) formData.append(entryKey, value as any);
+      if (value) { // Only include non-empty values
+        const entryKey = survey.googleForm.entryMap[field] || field; // Use field ID as fallback
+        formData.append(entryKey, value as any);
+      }
     }
-    await fetch(survey.googleForm.action, {
-      method: 'POST',
-      mode: 'no-cors',
-      body: formData,
-    });
-    submitted.value = true;
-  } catch (e: any) {
-    errorMsg.value = e.message || 'Submission failed';
+
+    formData.append('slug', survey.slug);
+    
+    // Debug: Log what we're sending
+    console.log('FormData being sent:');
+    for (const [key, value] of formData.entries()) {
+      console.log(`${key}: ${value}`);
+    }
+    
+    // First, try with CORS to get proper response
+    try {
+      const response = await fetch(survey.googleForm.action, {
+        method: 'POST',
+        mode: 'cors',
+        body: formData,
+        // Don't set Content-Type - let browser set it for FormData
+      });
+      
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+      
+      if (response.ok) {
+        submitted.value = true;
+      } else {
+        throw new Error(`Server responded with status ${response.status}`);
+      }
+    } catch (corsError) {
+      console.log('CORS failed, trying no-cors mode:', corsError);
+      
+      // Fallback to no-cors mode
+      await fetch(survey.googleForm.action, {
+        method: 'POST',
+        mode: 'no-cors',
+        body: formData,
+      });
+      
+      // With no-cors, we assume success if no network error occurred
+      console.log('No-cors request completed - assuming success');
+      submitted.value = true;
+    }
+  } catch (error) {
+    console.error('Submit error:', error);
+    errorMsg.value = error instanceof Error ? error.message : 'Submission failed';
   } finally {
     submitting.value = false;
   }
+
 }
 
 function goBack() { router.push('/survey'); }

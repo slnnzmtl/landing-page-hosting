@@ -4,7 +4,7 @@
   "description": "Вопросы, касающиеся технических аспектов интеграции систем.",
   "googleForm": {
     "formId": "ANOTHER_FORM_ID",
-    "action": "https://n8n.slnnzmtl.xyz/webhook-test/f3dbd592-ce29-4fe6-9a00-0f8df021e011",
+    "action": "https://n8n.slnnzmtl.xyz/webhook-test/survey/submit",
     "entryMap": {}
   },
   "questions": [

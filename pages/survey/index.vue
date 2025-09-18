@@ -1,8 +1,16 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useSurveys } from '~/composables/useSurveys';
+import { useSurveyResponses } from '~/composables/useSurveyResponses';
 
 const { surveys: rawSurveys } = useSurveys();
+const { getSurveyResponses } = useSurveyResponses();
+
+const surveys = computed(() => {
+  const responses = getSurveyResponses();
+  const slugs = responses.map(r => r.slug);
+  return rawSurveys.filter(s => slugs.includes(s.slug));
+});
 
 // Basic heuristic: trending = first 3 (placeholder for future metrics)
 const TRENDING_COUNT = 3;
@@ -12,7 +20,7 @@ const query = ref('');
 const activeFilter = ref<'all' | 'trending'>('all');
 
 const filtered = computed(() => {
-  let list = [...rawSurveys];
+  let list = [...surveys.value];
   if (activeFilter.value === 'trending') {
     list = list.slice(0, TRENDING_COUNT);
   }
