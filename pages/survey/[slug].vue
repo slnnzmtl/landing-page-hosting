@@ -170,7 +170,7 @@ watch(() => survey, () => {
         <div v-if="!submitted" class="relative rounded-2xl border bg-gradient-to-br from-background to-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
           <div class="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-border/50"></div>
           <form @submit.prevent="submit" class="relative p-6 md:p-10 space-y-10">
-            <transition-group name="q-fade" tag="div" class="space-y-10">
+            <div class="space-y-10">
               <template v-for="(q, index) in survey.questions" :key="q.id || 'section-'+index">
                 <!-- Section Block -->
                 <div v-if="q.type === 'section'" class="space-y-2">
@@ -200,7 +200,7 @@ watch(() => survey, () => {
                   />
                 </div>
               </template>
-            </transition-group>
+            </div>
           </form>
         </div>
 
@@ -265,7 +265,4 @@ watch(() => survey, () => {
   </div>
 </template>
 
-<style scoped>
-.q-fade-enter-active, .q-fade-leave-active { transition: all 260ms cubic-bezier(.4,0,.2,1); }
-.q-fade-enter-from, .q-fade-leave-to { opacity: 0; transform: translateY(4px); }
-</style>
+
