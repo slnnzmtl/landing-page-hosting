@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import surveys from './surveys.json';
-interface SurveyMeta { slug: string; title: string; description: string; }
-const surveyList = (surveys as any as SurveyMeta[]);
+import { useSurveys } from '~/composables/useSurveys';
+const { surveys: surveyList } = useSurveys();
 </script>
 <template>
   <div class="max-w-3xl mx-auto py-10 px-4 space-y-6">

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import surveys from './surveys.json';
+import { useSurveys } from '~/composables/useSurveys';
 import Button from '@/components/ui/button.vue';
 import Input from '@/components/ui/input.vue';
 import Textarea from '@/components/ui/textarea.vue';
@@ -8,31 +8,33 @@ import Label from '@/components/ui/label.vue';
 import { ref, computed } from 'vue';
 import { useRoute } from '#app';
 
-interface QuestionBase { id: string; label: string; type: string; required?: boolean; placeholder?: string; }
-interface TextQ extends QuestionBase { type: 'text' | 'email'; }
-interface TextareaQ extends QuestionBase { type: 'textarea'; }
-interface RadioQ extends QuestionBase { type: 'radio'; options: { label: string; value: string }[] }
-interface SurveyDef { slug: string; title: string; description: string; questions: (TextQ|TextareaQ|RadioQ)[]; googleForm: { action: string; entryMap: Record<string,string>; formId: string } }
-
 const route = useRoute();
 const slug = route.params.slug as string;
-const survey = (surveys as any as SurveyDef[]).find(s => s.slug === slug);
-const notFound = !survey;
+const { findSurvey } = useSurveys();
+const survey = findSurvey(slug);
 
 const formState = ref<Record<string, any>>({});
-survey?.questions.forEach(q => { formState.value[q.id] = ''; });
+survey?.questions.forEach(q => {
+  if (q.type !== 'section') {
+    formState.value[q.id] = '';
+  }
+});
 const submitting = ref(false);
 const submitted = ref(false);
 const errorMsg = ref<string | null>(null);
 
 const canSubmit = computed(() => {
   if (!survey) return false;
-  return survey.questions.every(q => !q.required || formState.value[q.id]);
+  return survey.questions.every(q => {
+    if (q.type === 'section') return true;
+    return !q.required || formState.value[q.id];
+  });
 });
 
 async function submit() {
   if (!survey) return;
-  submitting.value = true; errorMsg.value = null;
+  submitting.value = true;
+  errorMsg.value = null;
   try {
     const formData = new FormData();
     for (const [field, value] of Object.entries(formState.value)) {
@@ -40,10 +42,14 @@ async function submit() {
       if (entryKey) formData.append(entryKey, value as any);
     }
     // Google forms expects an empty 'fvv' and 'partialResponse' etc sometimes; minimal works with the mapped entries.
-    const res = await fetch(survey.googleForm.action, { method: 'POST', mode: 'no-cors', body: formData });
+    const res = await fetch(survey.googleForm.action, {
+      method: 'POST',
+      mode: 'no-cors',
+      body: formData,
+    });
     // mode:no-cors will opaque the response; assume success
     submitted.value = true;
-  } catch (e:any) {
+  } catch (e: any) {
     errorMsg.value = e.message || 'Submission failed';
   } finally {
     submitting.value = false;
@@ -51,28 +57,35 @@ async function submit() {
 }
 </script>
 <template>
-  <div class="max-w-3xl mx-auto py-10 px-4" v-if="!notFound">
+  <div class="max-w-3xl mx-auto py-10 px-4" v-if="survey">
     <div class="space-y-2 mb-8">
       <h1 class="text-3xl font-bold tracking-tight">{{ survey.title }}</h1>
       <p class="text-muted-foreground">{{ survey.description }}</p>
     </div>
 
     <form v-if="!submitted" class="space-y-6" @submit.prevent="submit">
-      <div v-for="q in survey.questions" :key="q.id" class="space-y-2">
-        <Label :for-id="q.id">{{ q.label }} <span v-if="q.required" class="text-destructive">*</span></Label>
-        <component :is="
-            q.type === 'textarea' ? Textarea :
-            q.type === 'radio' ? RadioGroup : Input
-          "
-          v-model="formState[q.id]"
-          :id="q.id"
-          :name="q.id"
-          :placeholder="q.placeholder"
-          :options="q.type==='radio' ? (q as any).options : undefined"
-          :required="q.required"
-          :type="q.type === 'email' ? 'email' : 'text'"
-        />
-      </div>
+      <template v-for="(q, index) in survey.questions" :key="q.id || `section-${index}`">
+        <div v-if="q.type === 'section'" class="pt-6">
+          <h2 class="text-xl font-semibold">{{ q.title }}</h2>
+          <p v-if="q.description" class="text-muted-foreground mt-1">{{ q.description }}</p>
+        </div>
+        <div v-else class="space-y-2">
+          <Label :for-id="q.id">{{ q.label }} <span v-if="q.required" class="text-destructive">*</span></Label>
+          <component
+            :is="
+              q.type === 'textarea' ? Textarea :
+              q.type === 'radio' ? RadioGroup : Input
+            "
+            v-model="formState[q.id]"
+            :id="q.id"
+            :name="q.id"
+            :placeholder="q.placeholder"
+            :options="q.type==='radio' ? (q as any).options : undefined"
+            :required="q.required"
+            :type="q.type === 'email' ? 'email' : 'text'"
+          />
+        </div>
+      </template>
       <div class="flex items-center gap-4">
         <Button :disabled="!canSubmit || submitting" type="submit">{{ submitting ? 'Submitting...' : 'Submit' }}</Button>
         <p v-if="errorMsg" class="text-sm text-destructive">{{ errorMsg }}</p>
