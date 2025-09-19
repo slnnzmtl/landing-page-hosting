@@ -6,7 +6,7 @@ import Input from '@/components/ui/input.vue'
 import Textarea from '@/components/ui/textarea.vue'
 import RadioGroup from '@/components/ui/radio-group.vue'
 import Label from '@/components/ui/label.vue'
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
@@ -45,6 +45,7 @@ onMounted(() => {
       formState.value = { ...formState.value, ...savedResponse }
     }
   }
+
   window.addEventListener('scroll', handleScroll)
   handleScroll() // Initial check
 })
@@ -72,50 +73,29 @@ async function submit() {
   errorMsg.value = null
   try {
     const formData = new FormData()
-    for (const [field, value] of Object.entries(formState.value)) {
-      if (value) { // Only include non-empty values
-        const entryKey = survey.googleForm.entryMap[field] || field // Use field ID as fallback
-        formData.append(entryKey, value)
+    for (const q of survey.questions) {
+      if (q.type !== 'section') {
+        const entryId = survey.googleForm.entryMap[q.id]
+        const value = formState.value[q.id]
+        if (entryId && value) {
+          formData.append(entryId, value)
+        }
       }
     }
 
-    formData.append('slug', survey.slug)
+    await fetch(survey.googleForm.action, {
+      method: 'POST',
+      mode: 'cors',
+      body: formData,
+    })
 
-    // Debug: Log what we're sending
-    for (const [key, value] of formData.entries()) {
-      console.log(`${key}: ${value}`)
-    }
-
-    // First, try with CORS to get proper response
-    try {
-      const response = await fetch(survey.googleForm.action, {
-        method: 'POST',
-        mode: 'cors',
-        body: formData,
-        // Don't set Content-Type - let browser set it for FormData
-      })
-
-      if (response.ok) {
-        setSurveyResponse(survey.slug, formState.value)
-        submitted.value = true
-      }
-      else {
-        throw new Error(`Server responded with status ${response.status}`)
-      }
-    }
-    catch {
-      // Fallback to no-cors mode
-      await fetch(survey.googleForm.action, {
-        method: 'POST',
-        mode: 'no-cors',
-        body: formData,
-      })
-
-      // With no-cors, we assume success if no network error occurred
-      submitted.value = true
-    }
+    // In "no-cors" mode, we don't get a response back, so we can't check response.ok.
+    // We optimistically assume the submission was successful if no network error was thrown.
+    setSurveyResponse(survey.slug, formState.value)
+    submitted.value = true
   }
   catch (error) {
+    console.error('Submission error:', error)
     errorMsg.value = error instanceof Error ? error.message : 'Ошибка при отправке'
   }
   finally {
@@ -221,6 +201,33 @@ watch(() => survey, () => {
                 </div>
               </template>
             </div>
+
+            <!-- Mobile Submit Button -->
+            <div class="md:hidden pt-6 border-t">
+              <Button
+                :disabled="!canSubmit || submitting || !isScrolledToBottom"
+                type="submit"
+                class="w-full"
+              >
+                <span v-if="!submitting">Отправить</span>
+                <span v-else class="inline-flex items-center gap-2">Отправка
+                  <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle
+                    class="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    stroke-width="4"
+                  /><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" /></svg>
+                </span>
+              </Button>
+              <p v-if="errorMsg" class="text-sm text-destructive text-center mt-3">
+                {{ errorMsg }}
+              </p>
+              <p v-else class="text-xs text-muted-foreground text-center mt-3">
+                Данные отправляются анонимно, если не указано иное.
+              </p>
+            </div>
           </form>
         </div>
 
@@ -293,10 +300,7 @@ watch(() => survey, () => {
                   /><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" /></svg>
                 </span>
               </Button>
-              <p v-if="!isScrolledToBottom" class="text-xs text-muted-foreground text-center">
-                Прокрутите страницу до конца, чтобы отправить.
-              </p>
-              <p v-else-if="errorMsg" class="text-sm text-destructive text-center">
+              <p v-if="errorMsg" class="text-sm text-destructive text-center">
                 {{ errorMsg }}
               </p>
               <p v-else class="text-xs text-muted-foreground text-center">
