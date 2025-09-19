@@ -4,8 +4,16 @@ import { defineNuxtConfig } from 'nuxt/config'
 import { getSurveyRoutes } from './utils/survey-routes'
 
 export default defineNuxtConfig({
-  devtools: { enabled: true },
+  modules: ['@nuxtjs/tailwindcss'],
   ssr: true,
+  devtools: { enabled: true },
+  css: ['@/assets/main.css'],
+  routeRules: {
+    'survey/**': {
+      ssr: true,
+      headers: { 'X-Robots-Tag': 'noindex, nofollow' },
+    },
+  },
   nitro: {
     prerender: {
       // Explicitly add dynamic survey routes since the root page redirects externally
@@ -13,12 +21,4 @@ export default defineNuxtConfig({
       routes: ['/survey', ...getSurveyRoutes()],
     },
   },
-  modules: ['@nuxtjs/tailwindcss'],
-  css: ['@/assets/main.css'],
-  routeRules: { 
-    'survey/**': {
-      ssr: true,
-      headers: { 'X-Robots-Tag': 'noindex, nofollow' },
-     }
-  }
-});
+})
