@@ -13,13 +13,15 @@ export function getSurveyRoutes(): string[] {
       try {
         const json = JSON.parse(readFileSync(join(dir, f), 'utf-8'))
         return json?.slug as string | undefined
-      } catch (e) {
+      }
+      catch (e) {
         console.warn(`[survey-routes] Failed to parse survey JSON: ${f}`, e)
         return undefined
       }
     }).filter((s): s is string => Boolean(s))
-    return slugs.map((s) => `/survey/${s}`)
-  } catch (e) {
+    return slugs.map(s => `/survey/${s}`)
+  }
+  catch (e) {
     console.warn('[survey-routes] Failed to compute survey routes', e)
     return []
   }

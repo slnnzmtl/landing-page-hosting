@@ -8,25 +8,29 @@ if (import.meta.server) {
   // Simpler approach: throw a navigation redirect using useRequestEvent if available.
   try {
     // try to obtain the current event and send a 301
-    // @ts-ignore - useNuxtApp to access event
-    const nuxtApp = (globalThis as any).nuxtApp || undefined
+    const nuxtApp = (globalThis as { nuxtApp?: { ssrContext?: { event?: unknown } } }).nuxtApp || undefined
     if (nuxtApp && nuxtApp.ssrContext && nuxtApp.ssrContext.event) {
-      sendRedirect(nuxtApp.ssrContext.event, 'https://kazansky.dev', 301)
+      sendRedirect(nuxtApp.ssrContext.event as Parameters<typeof sendRedirect>[0], 'https://kazansky.dev', 301)
     }
-  } catch (e) {
+  }
+  catch {
     // ignore - client will still redirect below
   }
 }
 
 // Client-side immediate redirect as a fallback
-if (process.client) {
+if (import.meta.client) {
   window.location.replace('https://kazansky.dev')
 }
 </script>
 
 <template>
   <div class="max-w-3xl mx-auto py-16 px-6 text-center">
-    <p class="text-muted-foreground">Redirecting to https://kazansky.dev…</p>
-    <p class="mt-3 text-sm text-muted-foreground">If you are not redirected automatically, <a href="https://kazansky.dev" class="underline">click here</a>.</p>
+    <p class="text-muted-foreground">
+      Redirecting to https://kazansky.dev…
+    </p>
+    <p class="mt-3 text-sm text-muted-foreground">
+      If you are not redirected automatically, <a href="https://kazansky.dev" class="underline">click here</a>.
+    </p>
   </div>
 </template>

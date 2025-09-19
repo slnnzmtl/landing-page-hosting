@@ -1,7 +1,8 @@
 <script setup lang="ts">
-const props = defineProps<{ modelValue?: string | number; type?: string; placeholder?: string; required?: boolean }>();
-const emit = defineEmits<{ (e:'update:modelValue', v:string|number|undefined):void }>();
+const props = defineProps<{ modelValue?: string | number, type?: string, placeholder?: string, required?: boolean }>()
+const emit = defineEmits<{ (e: 'update:modelValue', v: string | number | undefined): void }>()
 </script>
+
 <template>
   <input
     :type="props.type || 'text'"

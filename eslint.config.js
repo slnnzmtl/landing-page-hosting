@@ -11,6 +11,17 @@ export default createConfigForNuxt({
   },
 }).append(
   {
+    ignores: [
+      'node_modules/',
+      '.nuxt/',
+      '.output/',
+      'dist/',
+      '.env*',
+      '.eslintcache',
+      '.DS_Store',
+    ],
+  },
+  {
     files: ['**/*.vue'],
     rules: {
       // Vue-specific rules

@@ -1,7 +1,8 @@
 <script setup lang="ts">
-const props = defineProps<{ modelValue?: string; placeholder?: string; required?: boolean; rows?: number }>();
-const emit = defineEmits<{ (e:'update:modelValue', v:string|undefined):void }>();
+const props = defineProps<{ modelValue?: string, placeholder?: string, required?: boolean, rows?: number }>()
+const emit = defineEmits<{ (e: 'update:modelValue', v: string | undefined): void }>()
 </script>
+
 <template>
   <textarea
     :rows="props.rows || 4"
