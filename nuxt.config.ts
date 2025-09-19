@@ -15,4 +15,10 @@ export default defineNuxtConfig({
   },
   modules: ['@nuxtjs/tailwindcss'],
   css: ['@/assets/main.css'],
+  routeRules: { 
+    'survey/**': {
+      ssr: true,
+      headers: { 'X-Robots-Tag': 'noindex, nofollow' },
+     }
+  }
 });
