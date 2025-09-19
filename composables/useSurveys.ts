@@ -26,11 +26,7 @@ export interface SurveyDef {
   title: string
   description: string
   questions: (TextQ | TextareaQ | RadioQ | SectionQ)[]
-  googleForm: {
-    action: string
-    entryMap: Record<string, string>
-    formId: string
-  }
+  action: string
 }
 export const useSurveys = () => {
   // Eagerly import all JSON survey definition files in data directory

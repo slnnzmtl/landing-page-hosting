@@ -23,16 +23,7 @@ const mockSurvey = {
       ],
     },
   ],
-  googleForm: {
-    action: 'https://docs.google.com/forms/test',
-    entryMap: {
-      name: 'entry.123',
-      email: 'entry.456',
-      feedback: 'entry.789',
-      rating: 'entry.999',
-    },
-    formId: 'test-form',
-  },
+  action: 'https://docs.google.com/forms/test',
 }
 
 // Test the survey detail page logic in isolation
@@ -191,21 +182,31 @@ describe('Survey Detail Page Logic', () => {
       formState.value.rating = 'excellent'
       formState.value.feedback = 'Great survey!'
 
-      // Simulate FormData creation logic
-      const formData = new Map()
-      for (const [field, value] of Object.entries(formState.value)) {
-        if (value) {
-          const entryKey = (mockSurvey.googleForm.entryMap as any)[field] || field
-          formData.set(entryKey, value)
+      // Simulate new JSON payload creation logic
+      const questions = []
+      for (const q of mockSurvey.questions) {
+        if (q.type !== 'section') {
+          const value = formState.value[(q as any).id]
+          if (value) {
+            questions.push({
+              question: (q as any).label,
+              answer: value,
+            })
+          }
         }
       }
-      formData.set('slug', mockSurvey.slug)
 
-      expect(formData.get('entry.123')).toBe('John Doe')
-      expect(formData.get('entry.456')).toBe('john@example.com')
-      expect(formData.get('entry.999')).toBe('excellent')
-      expect(formData.get('entry.789')).toBe('Great survey!')
-      expect(formData.get('slug')).toBe('test-survey')
+      const payload = {
+        slug: mockSurvey.slug,
+        questions: questions,
+      }
+
+      expect(payload.slug).toBe('test-survey')
+      expect(payload.questions).toHaveLength(4)
+      expect(payload.questions[0]).toEqual({ question: 'Full Name', answer: 'John Doe' })
+      expect(payload.questions[1]).toEqual({ question: 'Email', answer: 'john@example.com' })
+      expect(payload.questions[2]).toEqual({ question: 'Feedback', answer: 'Great survey!' })
+      expect(payload.questions[3]).toEqual({ question: 'Overall Rating', answer: 'excellent' })
     })
   })
 
@@ -215,16 +216,13 @@ describe('Survey Detail Page Logic', () => {
       expect(mockSurvey).toHaveProperty('title')
       expect(mockSurvey).toHaveProperty('description')
       expect(mockSurvey).toHaveProperty('questions')
-      expect(mockSurvey).toHaveProperty('googleForm')
+      expect(mockSurvey).toHaveProperty('action')
     })
 
-    it('should have valid Google Form configuration', () => {
-      expect(mockSurvey.googleForm).toHaveProperty('action')
-      expect(mockSurvey.googleForm).toHaveProperty('entryMap')
-      expect(mockSurvey.googleForm).toHaveProperty('formId')
-
-      expect(mockSurvey.googleForm.action).toBeTruthy()
-      expect(Object.keys(mockSurvey.googleForm.entryMap).length).toBeGreaterThan(0)
+    it('should have valid action URL', () => {
+      expect(mockSurvey.action).toBeTruthy()
+      expect(typeof mockSurvey.action).toBe('string')
+      expect(mockSurvey.action.startsWith('http')).toBe(true)
     })
 
     it('should have questions with proper structure', () => {

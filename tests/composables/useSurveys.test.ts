@@ -26,16 +26,13 @@ describe('useSurveys', () => {
         expect(survey).toHaveProperty('title')
         expect(survey).toHaveProperty('description')
         expect(survey).toHaveProperty('questions')
-        expect(survey).toHaveProperty('googleForm')
+        expect(survey).toHaveProperty('action')
 
         expect(typeof survey.slug).toBe('string')
         expect(typeof survey.title).toBe('string')
         expect(typeof survey.description).toBe('string')
         expect(Array.isArray(survey.questions)).toBe(true)
-
-        expect(survey.googleForm).toHaveProperty('action')
-        expect(survey.googleForm).toHaveProperty('entryMap')
-        expect(survey.googleForm).toHaveProperty('formId')
+        expect(typeof survey.action).toBe('string')
       })
     })
 
@@ -118,7 +115,7 @@ describe('useSurveys', () => {
         expect(sweetLoyalty.title).toBe('Опросный лист для проекта Sweet ???')
         expect(sweetLoyalty.description).toContain('разработки')
         expect(sweetLoyalty.questions.length).toBeGreaterThan(0)
-        expect(sweetLoyalty.googleForm.action).toBeTruthy()
+        expect(sweetLoyalty.action).toBeTruthy()
       }
     })
   })

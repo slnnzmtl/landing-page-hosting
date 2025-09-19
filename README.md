@@ -67,16 +67,7 @@ Add an object to `surveys.json`:
 	"slug": "customer-satisfaction",
 	"title": "Customer Satisfaction Survey",
 	"description": "Help us improve.",
-	"googleForm": {
-		"formId": "FORM_ID",
-		"action": "https://docs.google.com/forms/d/e/FORM_ID/formResponse",
-		"entryMap": {
-			"name": "entry.123456",
-			"email": "entry.234567",
-			"satisfaction": "entry.345678",
-			"comments": "entry.456789"
-		}
-	},
+	"action": "https://docs.google.com/forms/d/e/FORM_ID/formResponse",
 	"questions": [
 		{ "id": "name", "label": "Name", "type": "text", "required": true },
 		{ "id": "email", "label": "Email", "type": "email", "required": true },

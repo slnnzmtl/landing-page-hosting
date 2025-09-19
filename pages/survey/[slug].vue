@@ -72,21 +72,32 @@ async function submit() {
   submitting.value = true
   errorMsg.value = null
   try {
-    const formData = new FormData()
+    // Build structured payload with slug and question-answer pairs
+    const questions = []
     for (const q of survey.questions) {
       if (q.type !== 'section') {
-        const entryId = survey.googleForm.entryMap[q.id]
         const value = formState.value[q.id]
-        if (entryId && value) {
-          formData.append(entryId, value)
+        if (value) {
+          questions.push({
+            question: q.label,
+            answer: value,
+          })
         }
       }
     }
 
-    await fetch(survey.googleForm.action, {
+    const payload = {
+      slug: survey.slug,
+      questions: questions,
+    }
+
+    await fetch(survey.action, {
       method: 'POST',
       mode: 'cors',
-      body: formData,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
     })
 
     // In "no-cors" mode, we don't get a response back, so we can't check response.ok.
