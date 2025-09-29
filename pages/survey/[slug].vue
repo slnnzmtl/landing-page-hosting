@@ -20,6 +20,16 @@ if (survey) {
   addSurveySlug(slug)
 }
 
+useHead(() => ({
+  title: survey ? `${survey.title} | Kazansky.dev` : 'Survey | Kazansky.dev',
+  meta: [
+    {
+      name: 'robots',
+      content: 'noindex, nofollow',
+    },
+  ],
+}))
+
 // Trending heuristic shared with list page (first 3)
 
 const formState = ref<Record<string, string>>({})

@@ -6,6 +6,16 @@ import { useSurveyResponses } from '~/composables/useSurveyResponses'
 const { surveys: rawSurveys } = useSurveys()
 const { getSurveyResponses } = useSurveyResponses()
 
+useHead({
+  title: 'Project Briefs | Kazansky.dev',
+  meta: [
+    {
+      name: 'robots',
+      content: 'noindex, nofollow',
+    },
+  ],
+})
+
 // Client-side only state to prevent hydration mismatch
 const clientSurveyResponses = ref<Array<{ slug: string, response: Record<string, string>, isSubmitted: boolean, submissionId?: string }>>([])
 // Mounted flag for guarding client-only UI bits
