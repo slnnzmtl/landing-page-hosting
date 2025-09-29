@@ -26,3 +26,20 @@ export function getSurveyRoutes(): string[] {
     return []
   }
 }
+
+/**
+ * Discover page routes by reading Vue files from pages/page directory
+ * Used for Nuxt static generation to prerender static page routes
+ */
+export function getPageRoutes(): string[] {
+  try {
+    const dir = join(process.cwd(), 'pages', 'page')
+    const files = readdirSync(dir).filter(f => f.endsWith('.vue'))
+    const slugs = files.map(f => f.replace(/\.vue$/, ''))
+    return slugs.map(s => `/page/${s}`)
+  }
+  catch (e) {
+    console.warn('[page-routes] Failed to compute page routes', e)
+    return []
+  }
+}

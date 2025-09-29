@@ -1,7 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import { defineNuxtConfig } from 'nuxt/config'
-import { getSurveyRoutes } from './utils/survey-routes'
+import { getSurveyRoutes, getPageRoutes } from './utils/survey-routes'
 
 export default defineNuxtConfig({
   modules: ['@nuxtjs/tailwindcss'],
@@ -18,7 +18,7 @@ export default defineNuxtConfig({
     prerender: {
       // Explicitly add dynamic survey routes since the root page redirects externally
       crawlLinks: false,
-      routes: ['/survey', ...getSurveyRoutes()],
+      routes: ['/survey', ...getSurveyRoutes(), ...getPageRoutes()],
     },
   },
 })
