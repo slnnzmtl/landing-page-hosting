@@ -13,7 +13,7 @@ const route = useRoute()
 const router = useRouter()
 const slug = route.params.slug as string
 const { findSurvey } = useSurveys()
-const { setSurveyResponse, addSurveySlug, getSurveyResponse } = useSurveyResponses()
+const { setSurveyResponse, addSurveySlug, getSurveyResponse, getSurveySubmissionId, isSurveySubmitted } = useSurveyResponses()
 const survey = findSurvey(slug)
 
 if (survey) {
@@ -57,6 +57,26 @@ onUnmounted(() => {
 const submitting = ref(false)
 const submitted = ref(false)
 const errorMsg = ref<string | null>(null)
+const existingSubmissionId = ref<string | null>(null)
+const isEditingSubmission = ref(false)
+
+onMounted(() => {
+  // Check if this survey was already submitted - only on client
+  if (survey) {
+    existingSubmissionId.value = getSurveySubmissionId(survey.slug)
+    isEditingSubmission.value = isSurveySubmitted(survey.slug)
+  }
+
+  if (survey) {
+    const savedResponse = getSurveyResponse(slug)
+    if (savedResponse) {
+      formState.value = { ...formState.value, ...savedResponse }
+    }
+  }
+
+  window.addEventListener('scroll', handleScroll)
+  handleScroll() // Initial check
+})
 
 const totalAnswerables = computed(() => survey ? survey.questions.filter(q => q.type !== 'section').length : 0)
 const answeredCount = computed(() => survey ? survey.questions.filter(q => q.type !== 'section' && formState.value[q.id]).length : 0)
@@ -71,6 +91,7 @@ async function submit() {
   if (!survey || submitting.value || !canSubmit.value) return
   submitting.value = true
   errorMsg.value = null
+
   try {
     // Build structured payload with slug and question-answer pairs
     const questions = []
@@ -86,12 +107,23 @@ async function submit() {
       }
     }
 
-    const payload = {
+    const payload: {
+      slug: string
+      questions: Array<{ question: string, answer: string }>
+      submissionId?: string
+      isUpdate?: boolean
+    } = {
       slug: survey.slug,
       questions: questions,
     }
 
-    await fetch(survey.action, {
+    // If this is an update to existing submission, include the submission ID
+    if (existingSubmissionId.value && isEditingSubmission.value) {
+      payload.submissionId = existingSubmissionId.value
+      payload.isUpdate = true
+    }
+
+    const response = await fetch(survey.action, {
       method: 'POST',
       mode: 'cors',
       headers: {
@@ -100,9 +132,23 @@ async function submit() {
       body: JSON.stringify(payload),
     })
 
-    // In "no-cors" mode, we don't get a response back, so we can't check response.ok.
-    // We optimistically assume the submission was successful if no network error was thrown.
-    setSurveyResponse(survey.slug, formState.value)
+    // Try to parse the response to get submission ID
+    let submissionId = existingSubmissionId.value
+    try {
+      if (response.ok) {
+        const responseData = await response.json()
+        if (responseData.submissionId) {
+          submissionId = responseData.submissionId
+        }
+      }
+    }
+    catch (parseError) {
+      // If we can't parse response or no submission ID, continue with existing flow
+      console.log('Could not parse webhook response for submission ID:', parseError)
+    }
+
+    // Save the response with submission ID and mark as submitted
+    setSurveyResponse(survey.slug, formState.value, submissionId || undefined, true)
     submitted.value = true
   }
   catch (error) {
@@ -118,9 +164,12 @@ function goBack() {
   router.push('/survey')
 }
 
-function resetForm() {
+function editResponses() {
   submitted.value = false
-  Object.keys(formState.value).forEach(k => (formState.value[k] = ''))
+  if (survey) {
+    existingSubmissionId.value = getSurveySubmissionId(survey.slug)
+    isEditingSubmission.value = isSurveySubmitted(survey.slug)
+  }
 }
 
 // Optional auto-focus first input
@@ -159,6 +208,12 @@ watch(() => survey, () => {
               <p class="text-muted-foreground max-w-prose">
                 {{ survey.description }}
               </p>
+              <div v-if="isEditingSubmission" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 text-sm font-medium">
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.828-2.828z" />
+                </svg>
+                Редактирование ранее отправленного опроса
+              </div>
             </div>
             <!-- Desktop progress removed from here -->
           </div>
@@ -220,8 +275,11 @@ watch(() => survey, () => {
                 type="submit"
                 class="w-full"
               >
-                <span v-if="!submitting">Отправить</span>
-                <span v-else class="inline-flex items-center gap-2">Отправка
+                <span v-if="!submitting">
+                  {{ isEditingSubmission ? 'Обновить ответы' : 'Отправить' }}
+                </span>
+                <span v-else class="inline-flex items-center gap-2">
+                  {{ isEditingSubmission ? 'Обновление...' : 'Отправка...' }}
                   <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle
                     class="opacity-25"
                     cx="12"
@@ -263,8 +321,8 @@ watch(() => survey, () => {
             <Button variant="secondary" @click="router.push('/survey')">
               Назад к опросам
             </Button>
-            <Button variant="outline" @click="resetForm">
-              Заполнить снова
+            <Button variant="outline" @click="editResponses">
+              Изменить ответы
             </Button>
           </div>
         </div>
@@ -299,8 +357,11 @@ watch(() => survey, () => {
                 class="w-full"
                 @click="submit"
               >
-                <span v-if="!submitting">Отправить</span>
-                <span v-else class="inline-flex items-center gap-2">Отправка
+                <span v-if="!submitting">
+                  {{ isEditingSubmission ? 'Обновить ответы' : 'Отправить' }}
+                </span>
+                <span v-else class="inline-flex items-center gap-2">
+                  {{ isEditingSubmission ? 'Обновление...' : 'Отправка...' }}
                   <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle
                     class="opacity-25"
                     cx="12"

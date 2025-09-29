@@ -31,7 +31,7 @@ describe('useSurveyResponses', () => {
 
     it('should return parsed responses from localStorage', () => {
       const mockResponses = [
-        { slug: 'test-survey', response: { q1: 'answer1' } },
+        { slug: 'test-survey', response: { q1: 'answer1' }, isSubmitted: false },
       ]
       localStorageMock.getItem.mockReturnValue(JSON.stringify(mockResponses))
 
@@ -78,13 +78,13 @@ describe('useSurveyResponses', () => {
 
       expect(localStorageMock.setItem).toHaveBeenCalledWith(
         'surveyResponses',
-        JSON.stringify([{ slug: 'test-survey', response: { q1: 'answer1' } }]),
+        JSON.stringify([{ slug: 'test-survey', response: { q1: 'answer1' }, isSubmitted: false }]),
       )
     })
 
     it('should update existing survey response', () => {
       const existingResponses = [
-        { slug: 'test-survey', response: { q1: 'old-answer' } },
+        { slug: 'test-survey', response: { q1: 'old-answer' }, isSubmitted: false },
       ]
       localStorageMock.getItem.mockReturnValue(JSON.stringify(existingResponses))
 
@@ -93,7 +93,7 @@ describe('useSurveyResponses', () => {
 
       expect(localStorageMock.setItem).toHaveBeenCalledWith(
         'surveyResponses',
-        JSON.stringify([{ slug: 'test-survey', response: { q1: 'new-answer' } }]),
+        JSON.stringify([{ slug: 'test-survey', response: { q1: 'new-answer' }, isSubmitted: false }]),
       )
     })
 
@@ -161,13 +161,13 @@ describe('useSurveyResponses', () => {
 
       expect(localStorageMock.setItem).toHaveBeenCalledWith(
         'surveyResponses',
-        JSON.stringify([{ slug: 'new-survey', response: {} }]),
+        JSON.stringify([{ slug: 'new-survey', response: {}, isSubmitted: false }]),
       )
     })
 
     it('should not add duplicate survey slug', () => {
       const existingResponses = [
-        { slug: 'existing-survey', response: { q1: 'answer' } },
+        { slug: 'existing-survey', response: { q1: 'answer' }, isSubmitted: false },
       ]
       localStorageMock.getItem.mockReturnValue(JSON.stringify(existingResponses))
 
@@ -190,6 +190,76 @@ describe('useSurveyResponses', () => {
 
       // Restore window
       global.window = originalWindow
+    })
+  })
+
+  describe('getSurveySubmissionId', () => {
+    it('should return submission ID for existing survey', () => {
+      const mockResponses = [
+        { slug: 'test-survey', response: { q1: 'answer1' }, isSubmitted: true, submissionId: 'sub-123' },
+      ]
+      localStorageMock.getItem.mockReturnValue(JSON.stringify(mockResponses))
+
+      const { getSurveySubmissionId } = useSurveyResponses()
+      const result = getSurveySubmissionId('test-survey')
+
+      expect(result).toBe('sub-123')
+    })
+
+    it('should return null for survey without submission ID', () => {
+      const mockResponses = [
+        { slug: 'test-survey', response: { q1: 'answer1' }, isSubmitted: false },
+      ]
+      localStorageMock.getItem.mockReturnValue(JSON.stringify(mockResponses))
+
+      const { getSurveySubmissionId } = useSurveyResponses()
+      const result = getSurveySubmissionId('test-survey')
+
+      expect(result).toBe(null)
+    })
+
+    it('should return null for non-existent survey', () => {
+      localStorageMock.getItem.mockReturnValue('[]')
+
+      const { getSurveySubmissionId } = useSurveyResponses()
+      const result = getSurveySubmissionId('non-existent')
+
+      expect(result).toBe(null)
+    })
+  })
+
+  describe('isSurveySubmitted', () => {
+    it('should return true for submitted survey', () => {
+      const mockResponses = [
+        { slug: 'test-survey', response: { q1: 'answer1' }, isSubmitted: true },
+      ]
+      localStorageMock.getItem.mockReturnValue(JSON.stringify(mockResponses))
+
+      const { isSurveySubmitted } = useSurveyResponses()
+      const result = isSurveySubmitted('test-survey')
+
+      expect(result).toBe(true)
+    })
+
+    it('should return false for non-submitted survey', () => {
+      const mockResponses = [
+        { slug: 'test-survey', response: { q1: 'answer1' }, isSubmitted: false },
+      ]
+      localStorageMock.getItem.mockReturnValue(JSON.stringify(mockResponses))
+
+      const { isSurveySubmitted } = useSurveyResponses()
+      const result = isSurveySubmitted('test-survey')
+
+      expect(result).toBe(false)
+    })
+
+    it('should return false for non-existent survey', () => {
+      localStorageMock.getItem.mockReturnValue('[]')
+
+      const { isSurveySubmitted } = useSurveyResponses()
+      const result = isSurveySubmitted('non-existent')
+
+      expect(result).toBe(false)
     })
   })
 })

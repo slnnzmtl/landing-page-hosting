@@ -1,16 +1,18 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useSurveys } from '~/composables/useSurveys'
 import { useSurveyResponses } from '~/composables/useSurveyResponses'
 
 const { surveys: rawSurveys } = useSurveys()
 const { getSurveyResponses } = useSurveyResponses()
 
-const surveys = computed(() => {
-  const responses = getSurveyResponses()
-  const slugs = responses.map(r => r.slug)
-  return rawSurveys.filter(s => slugs.includes(s.slug))
-})
+// Client-side only state to prevent hydration mismatch
+const clientSurveyResponses = ref<Array<{ slug: string, response: Record<string, string>, isSubmitted: boolean, submissionId?: string }>>([])
+// Mounted flag for guarding client-only UI bits
+const mounted = ref(false)
+
+// Always render the same list on SSR and client to avoid hydration diffs
+const surveys = computed(() => rawSurveys)
 
 // Basic heuristic: trending = first 3 (placeholder for future metrics)
 const TRENDING_COUNT = 3
@@ -38,7 +40,16 @@ const filtered = computed(() => {
 const isEmpty = computed(() => filtered.value.length === 0)
 
 // Set of slugs that have saved local responses
-const savedSlugs = computed(() => new Set(getSurveyResponses().map(r => r.slug)))
+const savedSlugs = computed(() => {
+  if (!import.meta.client) return new Set()
+  return new Set(clientSurveyResponses.value.map(r => r.slug))
+})
+
+onMounted(() => {
+  // Load survey responses only on client to prevent hydration mismatch
+  clientSurveyResponses.value = getSurveyResponses()
+  mounted.value = true
+})
 </script>
 
 <template>
@@ -115,7 +126,7 @@ const savedSlugs = computed(() => new Set(getSurveyResponses().map(r => r.slug))
     </TransitionGroup>
 
     <!-- Empty State -->
-    <div v-if="isEmpty" class="text-center py-20 border-2 border-dashed rounded-xl">
+    <div v-if="mounted && isEmpty" class="text-center py-20 border-2 border-dashed rounded-xl">
       <p class="text-sm text-muted-foreground">
         Ничего не найдено по вашему запросу.
       </p>

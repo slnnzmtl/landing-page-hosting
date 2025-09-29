@@ -3,6 +3,8 @@ import { z } from 'zod'
 const surveyResponseSchema = z.object({
   slug: z.string(),
   response: z.record(z.string(), z.string()),
+  submissionId: z.string().optional(),
+  isSubmitted: z.boolean().default(false),
 })
 
 const surveyResponsesSchema = z.array(surveyResponseSchema)
@@ -28,12 +30,14 @@ export const useSurveyResponses = () => {
   const setSurveyResponse = (
     slug: string,
     response: Record<string, string>,
+    submissionId?: string,
+    isSubmitted = false,
   ) => {
     if (typeof window === 'undefined') {
       return
     }
     const responses = getSurveyResponses()
-    const newResponse = { slug, response }
+    const newResponse = { slug, response, submissionId, isSubmitted }
     const existingResponseIndex = responses.findIndex(
       (r: z.infer<typeof surveyResponseSchema>) => r.slug === slug,
     )
@@ -57,6 +61,28 @@ export const useSurveyResponses = () => {
     return response ? response.response : null
   }
 
+  const getSurveySubmissionId = (slug: string) => {
+    if (typeof window === 'undefined') {
+      return null
+    }
+    const responses = getSurveyResponses()
+    const response = responses.find(
+      (r: z.infer<typeof surveyResponseSchema>) => r.slug === slug,
+    )
+    return response?.submissionId || null
+  }
+
+  const isSurveySubmitted = (slug: string) => {
+    if (typeof window === 'undefined') {
+      return false
+    }
+    const responses = getSurveyResponses()
+    const response = responses.find(
+      (r: z.infer<typeof surveyResponseSchema>) => r.slug === slug,
+    )
+    return response?.isSubmitted || false
+  }
+
   const addSurveySlug = (slug: string) => {
     if (typeof window === 'undefined') {
       return
@@ -66,7 +92,7 @@ export const useSurveyResponses = () => {
       (r: z.infer<typeof surveyResponseSchema>) => r.slug === slug,
     )
     if (!existingResponse) {
-      responses.push({ slug, response: {} })
+      responses.push({ slug, response: {}, isSubmitted: false })
       localStorage.setItem('surveyResponses', JSON.stringify(responses))
     }
   }
@@ -76,5 +102,7 @@ export const useSurveyResponses = () => {
     setSurveyResponse,
     addSurveySlug,
     getSurveyResponse,
+    getSurveySubmissionId,
+    isSurveySubmitted,
   }
 }
