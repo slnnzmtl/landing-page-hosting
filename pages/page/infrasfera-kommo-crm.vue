@@ -3,7 +3,7 @@
     <header class="bg-blue-700 text-white py-16 px-4 sm:px-6 lg:px-8">
       <div class="max-w-4xl mx-auto text-center">
         <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mb-4">
-          🚀 Впровадження Оновлень в Kommo CRM для Infrasfera
+          🚀 Впровадження Kommo CRM для Infrasfera
         </h1>
         <p class="text-xl sm:text-2xl font-light mb-8 opacity-90">
           Створення ефективної CRM-екосистеми: об'єднання роботи з <strong>холодною базою, генерації КП</strong> та <strong>аналітики</strong> в одну логічну систему.
@@ -379,7 +379,7 @@ import { useHead } from '#imports'
 useHead({
   title: 'Впровадження Kommo CRM — Infrasfera',
   meta: [
-    { name: 'description', content: 'Впровадження оновлень Kommo CRM для Infrasfera: автоматизація КП, упорядкування бази та аналітика.' },
+    { name: 'description', content: 'Впровадження Kommo CRM для Infrasfera: автоматизація КП, упорядкування бази та аналітика.' },
   ],
 })
 </script>
