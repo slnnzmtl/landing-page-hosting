@@ -126,12 +126,6 @@
       "placeholder": "Имя и должность контактного лица"
     },
     {
-      "id": "dns-contact-email",
-      "label": "Email контактного лица по DNS",
-      "type": "email",
-      "placeholder": "email@example.com"
-    },
-    {
       "id": "team-size",
       "label": "Команда и роли: Сколько пользователей будут работать с системой?",
       "type": "text",
