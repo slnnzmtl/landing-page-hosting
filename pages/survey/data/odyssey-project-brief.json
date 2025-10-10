@@ -44,6 +44,47 @@
       "placeholder": "Введите URL-адреса сайтов, по одному на строку..."
     },
     {
+      "id": "site-pages",
+      "label": "Структура сайта: Какие страницы должны быть на сайте?",
+      "type": "textarea",
+      "required": true,
+      "placeholder": "Например: Главная, О нас, Услуги, Контакты..."
+    },
+    {
+      "id": "categorization-needed",
+      "label": "Нужна ли категоризация и фильтрация лендингов?",
+      "type": "radio",
+      "required": true,
+      "options": [
+        { "label": "Да, нужна категоризация и фильтрация", "value": "yes" },
+        { "label": "Нет, не требуется", "value": "no" },
+        { "label": "Не уверен", "value": "unsure" }
+      ]
+    },
+    {
+      "id": "categorization-details",
+      "label": "Если да, опишите какие категории и фильтры вы видите",
+      "type": "textarea",
+      "placeholder": "Например: по отраслям, по типу продукта, по целевой аудитории..."
+    },
+    {
+      "id": "design-availability",
+      "label": "Дизайн: Есть ли дизайн?",
+      "type": "radio",
+      "required": true,
+      "options": [
+        { "label": "Да, дизайн готов", "value": "ready" },
+        { "label": "Дизайн в процессе разработки", "value": "in-progress" },
+        { "label": "Нет, потребуется создать", "value": "need-create" }
+      ]
+    },
+    {
+      "id": "design-details",
+      "label": "Если дизайн есть или в процессе, укажите детали",
+      "type": "textarea",
+      "placeholder": "Например: ссылка на Figma, формат файлов, статус готовности..."
+    },
+    {
       "id": "security-requirements",
       "label": "Безопасность и данные: Существуют ли какие-либо особые требования к безопасности или правила обработки данных (например, GDPR), которые мы должны соблюдать?",
       "type": "textarea",
