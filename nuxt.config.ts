@@ -18,7 +18,7 @@ export default defineNuxtConfig({
     prerender: {
       // Explicitly add dynamic survey routes since the root page redirects externally
       crawlLinks: false,
-      routes: ['/survey', ...getSurveyRoutes(), ...getPageRoutes()],
+      routes: ['/', '/survey', ...getSurveyRoutes(), ...getPageRoutes()],
     },
   },
 })
