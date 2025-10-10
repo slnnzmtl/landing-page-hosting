@@ -108,31 +108,6 @@ useHead({
         </div>
       </header>
 
-      <section class="grid gap-8 md:grid-cols-3">
-        <div class="md:col-span-1">
-          <h2 class="text-2xl font-semibold">
-            What I do
-          </h2>
-          <p class="mt-3 text-muted-foreground">
-            From concept to launch, I partner with founders and teams to build tailored software that ships fast and scales smoothly.
-          </p>
-        </div>
-        <div class="md:col-span-2 grid gap-6">
-          <div
-            v-for="service in services"
-            :key="service.title"
-            class="rounded-2xl border border-border bg-card p-6 shadow-sm"
-          >
-            <h3 class="text-xl font-semibold text-primary">
-              {{ service.title }}
-            </h3>
-            <p class="mt-2 text-sm text-muted-foreground">
-              {{ service.description }}
-            </p>
-          </div>
-        </div>
-      </section>
-
       <section v-if="mounted && displayedSurveys.length > 0" class="space-y-8">
         <div class="flex items-end justify-between">
           <div>
@@ -230,6 +205,31 @@ useHead({
               />
             </svg>
           </NuxtLink>
+        </div>
+      </section>
+
+      <section class="grid gap-8 md:grid-cols-3">
+        <div class="md:col-span-1">
+          <h2 class="text-2xl font-semibold">
+            What I do
+          </h2>
+          <p class="mt-3 text-muted-foreground">
+            From concept to launch, I partner with founders and teams to build tailored software that ships fast and scales smoothly.
+          </p>
+        </div>
+        <div class="md:col-span-2 grid gap-6">
+          <div
+            v-for="service in services"
+            :key="service.title"
+            class="rounded-2xl border border-border bg-card p-6 shadow-sm"
+          >
+            <h3 class="text-xl font-semibold text-primary">
+              {{ service.title }}
+            </h3>
+            <p class="mt-2 text-sm text-muted-foreground">
+              {{ service.description }}
+            </p>
+          </div>
         </div>
       </section>
 
