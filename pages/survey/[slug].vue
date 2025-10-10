@@ -38,16 +38,6 @@ survey?.questions.forEach((q) => {
     formState.value[q.id] = ''
 })
 
-const isScrolledToBottom = ref(false)
-
-const handleScroll = () => {
-  const buffer = 100 // px buffer to trigger "at bottom" a bit early
-  const isAtBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - buffer
-  if (isAtBottom !== isScrolledToBottom.value) {
-    isScrolledToBottom.value = isAtBottom
-  }
-}
-
 onMounted(() => {
   if (survey) {
     const savedResponse = getSurveyResponse(slug)
@@ -55,13 +45,6 @@ onMounted(() => {
       formState.value = { ...formState.value, ...savedResponse }
     }
   }
-
-  window.addEventListener('scroll', handleScroll)
-  handleScroll() // Initial check
-})
-
-onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll)
 })
 
 const submitting = ref(false)
@@ -83,9 +66,6 @@ onMounted(() => {
       formState.value = { ...formState.value, ...savedResponse }
     }
   }
-
-  window.addEventListener('scroll', handleScroll)
-  handleScroll() // Initial check
 })
 
 const totalAnswerables = computed(() => survey ? survey.questions.filter(q => q.type !== 'section').length : 0)
@@ -281,7 +261,7 @@ watch(() => survey, () => {
             <!-- Mobile Submit Button -->
             <div class="md:hidden pt-6 border-t">
               <Button
-                :disabled="!canSubmit || submitting || !isScrolledToBottom"
+                :disabled="!canSubmit || submitting"
                 type="submit"
                 class="w-full"
               >
@@ -362,7 +342,7 @@ watch(() => survey, () => {
             <div class="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-border/50" />
             <div class="relative space-y-4">
               <Button
-                :disabled="!canSubmit || submitting || !isScrolledToBottom"
+                :disabled="!canSubmit || submitting"
                 type="button"
                 class="w-full"
                 @click="submit"

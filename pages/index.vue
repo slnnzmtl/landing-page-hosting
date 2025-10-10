@@ -23,8 +23,8 @@ const highlights = [
 const contacts = [
   {
     label: 'Email',
-    href: 'mailto:hello@kazansky.dev',
-    text: 'hello@kazansky.dev',
+    href: 'mailto:kazanskydaniel@gmail.com',
+    text: 'kazanskydaniel@gmail.com',
   },
   {
     label: 'LinkedIn',
@@ -35,6 +35,11 @@ const contacts = [
     label: 'Telegram',
     href: 'https://t.me/slnnzmtl',
     text: '@slnnzmtl',
+  },
+  {
+    label: 'Website',
+    href: 'https://kazansky.dev',
+    text: 'kazansky.dev',
   },
 ]
 
@@ -74,7 +79,7 @@ useHead({
             Book a strategy session
           </NuxtLink>
           <a
-            href="mailto:hello@kazansky.dev"
+            href="mailto:kazanskydaniel@gmail.com"
             class="rounded-full border border-border px-6 py-3 text-sm font-medium text-foreground transition hover:border-primary hover:text-primary"
           >
             Send an email
