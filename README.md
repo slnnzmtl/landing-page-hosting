@@ -1,4 +1,4 @@
-# landing-hosting
+# landing-page-hosting
 
 A Nuxt 3 + Vue 3 project for hosting landing pages and JSON-driven surveys, with Tailwind-based UI components, validation using Zod, and static generation/deployment support.
 
