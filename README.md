@@ -1,112 +1,182 @@
-# Nuxt Example
+# landing-hosting
 
-Deploy your [Nuxt](https://nuxt.com) project to Vercel with zero configuration.
+A Nuxt 3 + Vue 3 project for hosting landing pages and JSON-driven surveys, with Tailwind-based UI components, validation using Zod, and static generation/deployment support.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/vercel/examples/tree/main/framework-boilerplates/nuxtjs&template=nuxtjs)
+- **Live site:** https://landing-hosting.vercel.app
+- **Repository:** https://github.com/slnnzmtl/landing-hosting
 
-_Live Example: https://nuxtjs-template.vercel.app_
+## Tech Stack
 
-Look at the [Nuxt 3 documentation](https://v3.nuxtjs.org) to learn more.
+- **Framework:** Nuxt 3
+- **Frontend:** Vue 3 + TypeScript
+- **Styling:** Tailwind CSS (+ forms plugin)
+- **Validation:** Zod
+- **Charting:** Chart.js
+- **Testing:** Vitest + Vue Test Utils
+- **Linting:** ESLint (+ lint-staged + Husky)
 
-## Setup
+## Features
 
-Make sure to install the dependencies:
+- Landing-page friendly Nuxt architecture
+- Static generation workflow (`nuxt generate`)
+- JSON-configurable survey pages
+- Dynamic survey routes via slug
+- Google Forms submission support (no backend required)
+- Reusable UI components (`components/ui/*`)
+
+## Project Structure
+
+```text
+.
+├─ components/
+│  └─ ui/                     # Reusable UI primitives
+├─ pages/
+│  ├─ survey/
+│  │  ├─ index.vue            # Survey listing page
+│  │  ├─ [slug].vue           # Dynamic survey renderer
+│  │  └─ surveys.json         # Survey definitions
+├─ public/                    # Static assets
+├─ tests/                     # Unit/component tests (if present)
+├─ nuxt.config.*              # Nuxt configuration
+└─ package.json
+```
+
+> Note: Exact file set may evolve; the survey module paths above reflect the current implementation.
+
+## Getting Started
+
+### Prerequisites
+
+- **Node.js** 18+
+- **pnpm** (recommended, project includes a pinned pnpm packageManager)
+
+### Install dependencies
 
 ```bash
-# yarn
-yarn
+pnpm install
+```
 
-# npm
+If you prefer npm/yarn:
+
+```bash
 npm install
-
-# pnpm
-pnpm install --shamefully-hoist
+# or
+# yarn
 ```
 
-## Development Server
-
-Start the development server on http://localhost:3000
+### Run in development
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
-## Production
+App runs at `http://localhost:3000` by default.
 
-Build the application for production:
+## Available Scripts
 
-```bash
-npm run build
-```
+From `package.json`:
 
-Locally preview production build:
+- `pnpm dev` — Start dev server
+- `pnpm build` — Generate static build (`nuxt generate`)
+- `pnpm generate` — Generate static output
+- `pnpm preview` — Preview production build
+- `pnpm test` — Run tests in watch mode
+- `pnpm test:run` — Run tests once
+- `pnpm test:ui` — Open Vitest UI
+- `pnpm lint` — Lint codebase
+- `pnpm lint:fix` — Auto-fix lint issues
 
-```bash
-npm run preview
-```
+## Survey Module
 
-Checkout the [deployment documentation](https://nuxt.com/docs/getting-started/deployment#presets) for more information.
+The survey subsystem is JSON-driven and designed for fast iteration.
 
-## Surveys as a Service
+### Core files
 
-This project includes a lightweight JSON-driven survey system using shadcn-inspired Tailwind UI components and Google Forms submission (no backend required).
+- `pages/survey/surveys.json` — survey metadata + question schema
+- `pages/survey/index.vue` — list/entry page for surveys
+- `pages/survey/[slug].vue` — dynamic survey form by slug
 
-### Files & Structure
+### Supported question types
 
-- `pages/survey/surveys.json`: Master list of surveys & questions.
-- `pages/survey/index.vue`: Lists all surveys.
-- `pages/survey/[slug].vue`: Dynamic form renderer.
-- `components/ui/*`: Reusable UI primitives.
+- `text`
+- `email`
+- `textarea`
+- `radio`
 
-### Defining a Survey
+### Minimal survey example
 
-Add an object to `surveys.json`:
-
-```jsonc
+```json
 {
-	"slug": "customer-satisfaction",
-	"title": "Customer Satisfaction Survey",
-	"description": "Help us improve.",
-	"action": "https://docs.google.com/forms/d/e/FORM_ID/formResponse",
-	"questions": [
-		{ "id": "name", "label": "Name", "type": "text", "required": true },
-		{ "id": "email", "label": "Email", "type": "email", "required": true },
-		{ "id": "satisfaction", "label": "How satisfied?", "type": "radio", "required": true, "options": [
-			{ "label": "Very Satisfied", "value": "very-satisfied" },
-			{ "label": "Satisfied", "value": "satisfied" },
-			{ "label": "Neutral", "value": "neutral" },
-			{ "label": "Dissatisfied", "value": "dissatisfied" },
-			{ "label": "Very Dissatisfied", "value": "very-dissatisfied" }
-		]},
-		{ "id": "comments", "label": "Comments", "type": "textarea" }
-	]
+  "slug": "customer-satisfaction",
+  "title": "Customer Satisfaction Survey",
+  "description": "Help us improve.",
+  "action": "https://docs.google.com/forms/d/e/FORM_ID/formResponse",
+  "questions": [
+    { "id": "name", "label": "Name", "type": "text", "required": true },
+    { "id": "email", "label": "Email", "type": "email", "required": true },
+    {
+      "id": "satisfaction",
+      "label": "How satisfied are you?",
+      "type": "radio",
+      "required": true,
+      "options": [
+        { "label": "Very Satisfied", "value": "very-satisfied" },
+        { "label": "Satisfied", "value": "satisfied" },
+        { "label": "Neutral", "value": "neutral" },
+        { "label": "Dissatisfied", "value": "dissatisfied" },
+        { "label": "Very Dissatisfied", "value": "very-dissatisfied" }
+      ]
+    },
+    { "id": "comments", "label": "Comments", "type": "textarea" }
+  ]
 }
 ```
 
-Supported types: `text`, `email`, `textarea`, `radio`.
+### Google Forms integration
 
-### Mapping to Google Forms
+- Set each survey's `action` to your Google Form `formResponse` endpoint.
+- Map local question IDs to Google Forms `entry.xxxxx` fields (`entryMap` in your survey model/config).
+- Submission is client-side via `fetch` + `FormData` (`no-cors` mode), so responses are opaque.
 
-The `entryMap` links your local question `id` to each Google Forms `entry.xxxxx` field name. Inspect the live Google Form (right-click → Inspect) and copy the `name` attribute values.
+## Quality & Tooling
 
-Only mapped fields are submitted—unmapped IDs are ignored.
+- **ESLint** for linting
+- **Vitest** for unit tests / component tests
+- **Husky** for Git hooks
+- **lint-staged** for pre-commit lint fixes on staged files
 
-### Submission Behavior
+## Build & Deployment
 
-- Uses a simple `fetch` POST with `FormData` and `mode: 'no-cors'` (response is opaque; success assumed if no exception).
-- Add additional client validation as needed.
+This project is configured for Nuxt static generation.
 
-### Extending
+### Production build
 
-- Add new components to `components/ui` for more field types (select, checkbox group, scale, date, etc.).
-- Support conditional logic by adding rules in JSON (e.g., `showIf`).
-- Add analytics or webhook proxying via a server route for reliability.
+```bash
+pnpm build
+```
 
-### Quick Start
+### Preview production output
 
-1. Create a Google Form.
-2. Copy its form ID from the URL.
-3. Map each field's `entry.xxxxx` to your JSON `entryMap`.
-4. Visit `/survey/your-slug` to test.
+```bash
+pnpm preview
+```
 
-Enjoy creating surveys fast!
+### Deploy
+
+Deploy to Vercel (or any static-compatible host for generated output).  
+Homepage configured: https://landing-hosting.vercel.app
+
+## Contributing
+
+1. Create a feature branch
+2. Make your changes
+3. Run checks:
+   ```bash
+   pnpm lint
+   pnpm test:run
+   ```
+4. Open a pull request
+
+## License
+
+No license file is currently defined in this repository. If this project is intended for public reuse, consider adding a license (e.g., MIT).
