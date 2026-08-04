@@ -1,72 +1,95 @@
-# landing-page-hosting
+# landing-hosting
 
-A Nuxt 3 + Vue 3 project for hosting landing pages and JSON-driven surveys, with Tailwind-based UI components, validation using Zod, and static generation/deployment support.
+A Nuxt 3 + Vue 3 multi-domain app for landing pages, JSON-driven surveys, and a personal finance dashboard. Domains are Nuxt layers under `domains/`, with Tailwind UI, Zod validation, Supabase for finance data, and static generation for Vercel.
 
 - **Live site:** https://landing-hosting.vercel.app
 - **Repository:** https://github.com/slnnzmtl/landing-hosting
 
 ## Tech Stack
 
-- **Framework:** Nuxt 3
+- **Framework:** Nuxt 3 (multi-layer via `extends`)
 - **Frontend:** Vue 3 + TypeScript
 - **Styling:** Tailwind CSS (+ forms plugin)
+- **Data:** Supabase (`@supabase/supabase-js`) for finance
 - **Validation:** Zod
 - **Charting:** Chart.js
 - **Testing:** Vitest + Vue Test Utils
 - **Linting:** ESLint (+ lint-staged + Husky)
+- **Deploy:** Vercel static build (`.output/public`)
+
+## Domains
+
+| Domain | Routes | Purpose |
+|--------|--------|---------|
+| **Root** | `/` | Portfolio / landing homepage |
+| **survey** | `/survey`, `/survey/:slug` | JSON-driven surveys with webhook submit |
+| **finance** | `/finance/dashboard`, `/finance/expenses` | Expense dashboard + CRUD (Supabase, client-only) |
+| **service** | `/service/:page` | Service landing pages |
+
+Each domain lives under `domains/<name>/` as a Nuxt layer. Page routes are prefixed with `utils/prefix-domain-pages.ts` so `domains/finance/pages/dashboard.vue` becomes `/finance/dashboard`.
 
 ## Features
 
-- Landing-page friendly Nuxt architecture
-- Static generation workflow (`nuxt generate`)
-- JSON-configurable survey pages
-- Dynamic survey routes via slug
-- Google Forms submission support (no backend required)
-- Reusable UI components (`components/ui/*`)
+- Multi-domain Nuxt layer architecture
+- Static generation (`nuxt generate`) with explicit prerender routes
+- JSON-configurable surveys (one file per survey under `domains/survey/data/`)
+- Webhook-based survey submission (JSON POST, update support via `submissionId`)
+- Finance dashboard: monthly/category charts, category×month matrix, URL-synced filters
+- Finance expenses: list, filter, sort, create/update with Supabase
+- Reusable UI primitives (`components/ui/*`)
 
 ## Project Structure
 
 ```text
 .
-├─ components/
-│  └─ ui/                     # Reusable UI primitives
-├─ pages/
+├─ components/ui/                 # Shared UI primitives
+├─ composables/                   # Root composables (e.g. useForm)
+├─ domains/
+│  ├─ finance/
+│  │  ├─ pages/                   # dashboard, expenses → /finance/*
+│  │  ├─ composables/             # Supabase + dashboard/expenses state
+│  │  ├─ utils/                   # Query builders, filter URL sync
+│  │  ├─ supabase/                # RLS SQL helpers
+│  │  └─ finance-routes.ts        # Prerender route discovery
 │  ├─ survey/
-│  │  ├─ index.vue            # Survey listing page
-│  │  ├─ [slug].vue           # Dynamic survey renderer
-│  │  └─ surveys.json         # Survey definitions
-├─ public/                    # Static assets
-├─ tests/                     # Unit/component tests (if present)
-├─ nuxt.config.*              # Nuxt configuration
-└─ package.json
+│  │  ├─ pages/                   # index, [slug] → /survey/*
+│  │  ├─ data/*.json              # Survey definitions
+│  │  ├─ composables/             # useSurveys, useSurveyResponses
+│  │  └─ survey-routes.ts
+│  └─ service/
+│     ├─ pages/                   # Landing pages → /service/*
+│     └─ service-routes.ts
+├─ pages/index.vue                # Homepage
+├─ utils/prefix-domain-pages.ts   # Domain path prefixing
+├─ tests/                         # Vitest suites
+├─ nuxt.config.ts
+└─ vercel.json                    # Static build + SPA fallback
 ```
-
-> Note: Exact file set may evolve; the survey module paths above reflect the current implementation.
 
 ## Getting Started
 
 ### Prerequisites
 
 - **Node.js** 18+
-- **pnpm** (recommended, project includes a pinned pnpm packageManager)
+- **pnpm** (recommended; `packageManager` is pinned in `package.json`)
 
-### Install dependencies
+### Environment
+
+Copy or create `.env` in the project root (gitignored):
+
+```bash
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_KEY=your-anon-or-publishable-key
+```
+
+These map to `runtimeConfig.public.supabaseUrl` / `supabaseKey` and are required for `/finance/*`. Survey and service pages do not need them.
+
+For finance reads as anon, apply `domains/finance/supabase/rls-finance.sql` in the Supabase SQL Editor if tables return empty under RLS.
+
+### Install & run
 
 ```bash
 pnpm install
-```
-
-If you prefer npm/yarn:
-
-```bash
-npm install
-# or
-# yarn
-```
-
-### Run in development
-
-```bash
 pnpm dev
 ```
 
@@ -74,34 +97,22 @@ App runs at `http://localhost:3000` by default.
 
 ## Available Scripts
 
-From `package.json`:
-
 - `pnpm dev` — Start dev server
-- `pnpm build` — Generate static build (`nuxt generate`)
-- `pnpm generate` — Generate static output
+- `pnpm build` / `pnpm generate` — Static generate (`nuxt generate`)
 - `pnpm preview` — Preview production build
-- `pnpm test` — Run tests in watch mode
+- `pnpm test` — Vitest watch mode
 - `pnpm test:run` — Run tests once
-- `pnpm test:ui` — Open Vitest UI
-- `pnpm lint` — Lint codebase
-- `pnpm lint:fix` — Auto-fix lint issues
+- `pnpm test:ui` — Vitest UI
+- `pnpm lint` / `pnpm lint:fix` — ESLint
 
 ## Survey Module
 
-The survey subsystem is JSON-driven and designed for fast iteration.
-
-### Core files
-
-- `pages/survey/surveys.json` — survey metadata + question schema
-- `pages/survey/index.vue` — list/entry page for surveys
-- `pages/survey/[slug].vue` — dynamic survey form by slug
+Surveys are JSON files in `domains/survey/data/`. Each file is eagerly loaded by `useSurveys`.
 
 ### Supported question types
 
-- `text`
-- `email`
-- `textarea`
-- `radio`
+- `text`, `email`, `textarea`, `radio`
+- `section` — non-input heading/description block
 
 ### Minimal survey example
 
@@ -110,8 +121,9 @@ The survey subsystem is JSON-driven and designed for fast iteration.
   "slug": "customer-satisfaction",
   "title": "Customer Satisfaction Survey",
   "description": "Help us improve.",
-  "action": "https://docs.google.com/forms/d/e/FORM_ID/formResponse",
+  "action": "https://example.com/webhook/survey/submit",
   "questions": [
+    { "type": "section", "title": "About you" },
     { "id": "name", "label": "Name", "type": "text", "required": true },
     { "id": "email", "label": "Email", "type": "email", "required": true },
     {
@@ -121,10 +133,8 @@ The survey subsystem is JSON-driven and designed for fast iteration.
       "required": true,
       "options": [
         { "label": "Very Satisfied", "value": "very-satisfied" },
-        { "label": "Satisfied", "value": "satisfied" },
         { "label": "Neutral", "value": "neutral" },
-        { "label": "Dissatisfied", "value": "dissatisfied" },
-        { "label": "Very Dissatisfied", "value": "very-dissatisfied" }
+        { "label": "Dissatisfied", "value": "dissatisfied" }
       ]
     },
     { "id": "comments", "label": "Comments", "type": "textarea" }
@@ -132,39 +142,46 @@ The survey subsystem is JSON-driven and designed for fast iteration.
 }
 ```
 
-### Google Forms integration
+### Submission
 
-- Set each survey's `action` to your Google Form `formResponse` endpoint.
-- Map local question IDs to Google Forms `entry.xxxxx` fields (`entryMap` in your survey model/config).
-- Submission is client-side via `fetch` + `FormData` (`no-cors` mode), so responses are opaque.
+- Set `action` to a webhook URL that accepts JSON `POST`.
+- Payload shape: `{ slug, questions: [{ question, answer }], submissionId?, isUpdate? }`.
+- Responses are also stored in `localStorage` (draft + submitted state) via `useSurveyResponses`.
+- New surveys under `data/` are picked up automatically; add a `slug` so prerender includes `/survey/<slug>`.
 
-## Quality & Tooling
+## Finance Module
 
-- **ESLint** for linting
-- **Vitest** for unit tests / component tests
-- **Husky** for Git hooks
-- **lint-staged** for pre-commit lint fixes on staged files
+Client-only (`ssr: false`), noindex.
+
+| Page | Path | Notes |
+|------|------|-------|
+| Dashboard | `/finance/dashboard` | Charts, category totals, category×month matrix |
+| Expenses | `/finance/expenses` | Filterable/sortable expense table + edits |
+
+Filters (year, month, date range, categories, paid status) sync to the URL via `useFinanceFilterState`. Shared query helpers live in `domains/finance/utils/`.
 
 ## Build & Deployment
 
-This project is configured for Nuxt static generation.
+Configured for Nuxt static generation. Prerender uses an explicit route list (`crawlLinks: false`) from:
 
-### Production build
+- `/`, `/survey`, plus `getSurveyRoutes()`, `getServiceRoutes()`, `getFinanceRoutes()`
 
 ```bash
 pnpm build
-```
-
-### Preview production output
-
-```bash
 pnpm preview
 ```
 
-### Deploy
+`vercel.json` builds with `@vercel/static-build` (`distDir: .output/public`) and falls back unmatched paths to `/200.html` for client-side routes.
 
-Deploy to Vercel (or any static-compatible host for generated output).  
-Homepage configured: https://landing-hosting.vercel.app
+Set `SUPABASE_URL` and `SUPABASE_KEY` in the Vercel project environment for finance pages in production.
+
+Homepage: https://landing-hosting.vercel.app
+
+## Quality & Tooling
+
+- **ESLint** + **lint-staged** (pre-commit fix on staged `*.{js,ts,vue}`)
+- **Husky** Git hooks
+- **Vitest** — see [TESTING.md](./TESTING.md)
 
 ## Contributing
 
