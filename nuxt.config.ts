@@ -20,7 +20,7 @@ export default defineNuxtConfig({
     },
   },
   routeRules: {
-    'survey/**': {
+    'survey/**': {  
       ssr: true,
       headers: { 'X-Robots-Tag': 'noindex, nofollow' },
     },
