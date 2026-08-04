@@ -215,7 +215,7 @@ function sortIndicator(column: ExpenseSortColumn): string {
           </div>
         </div>
 
-        <div class="space-y-2">
+        <div class="space-y-2 space-x-2">
           <span class="text-sm font-medium">Status</span>
           <div class="inline-flex rounded-md border border-input overflow-hidden">
             <button
@@ -385,7 +385,7 @@ function sortIndicator(column: ExpenseSortColumn): string {
               <select
                 id="expenses-page-size"
                 v-model.number="pageSize"
-                class="flex h-8 rounded-md border border-input bg-background px-2 text-sm"
+                class="flex h-10 w-16 rounded-md border border-input bg-background px-2 text-sm"
               >
                 <option
                   v-for="size in pageSizeOptions"

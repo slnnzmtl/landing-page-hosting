@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Chart, registerables, type Chart as ChartType } from 'chart.js'
+import { Chart, registerables, type Chart as ChartType, type ChartItem } from 'chart.js'
 import Input from '@/components/ui/input.vue'
 import {
   useFinanceDashboard,
@@ -93,11 +93,14 @@ function destroyCharts() {
 function renderCharts() {
   if (!monthlyCanvas.value || !categoryCanvas.value) return
 
+  const monthlyEl = monthlyCanvas.value as ChartItem
+  const categoryEl = categoryCanvas.value as ChartItem
+
   const usdTick = (value: string | number) =>
     formatUsd(typeof value === 'string' ? Number(value) : value)
 
   if (!monthlyChart) {
-    monthlyChart = new Chart(monthlyCanvas.value, {
+    monthlyChart = new Chart(monthlyEl, {
       type: 'bar',
       data: {
         labels: monthlyTotals.value.labels,
@@ -143,7 +146,7 @@ function renderCharts() {
   )
 
   if (!categoryChart) {
-    categoryChart = new Chart(categoryCanvas.value, {
+    categoryChart = new Chart(categoryEl, {
       type: 'doughnut',
       data: {
         labels: [...categoryTotals.value.labels],
@@ -321,7 +324,7 @@ onBeforeUnmount(() => {
           </div>
         </div>
 
-        <div class="space-y-2">
+        <div class="space-y-2 space-x-2">
           <span class="text-sm font-medium">Status</span>
           <div class="inline-flex rounded-md border border-input overflow-hidden">
             <button
@@ -360,7 +363,7 @@ onBeforeUnmount(() => {
 
     <template v-else>
       <!-- Summary -->
-      <section class="grid gap-6 sm:grid-cols-3">
+      <section class="grid gap-6 grid-cols-3">
         <div>
           <p class="text-sm text-muted-foreground">
             Total spend
