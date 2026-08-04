@@ -38,8 +38,8 @@ export function useFinanceDashboard() {
   } = useFinanceFilterState({
     defaults: {
       year: now.getFullYear(),
-      /** 0 = all months in the selected year. */
-      month: 0,
+      /** Current calendar month; 0 = all months when selected in the filter. */
+      month: now.getMonth() + 1,
       paidFilter: 'all',
     },
     allowAllMonths: true,

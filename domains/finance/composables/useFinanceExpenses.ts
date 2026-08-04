@@ -93,8 +93,8 @@ export function useFinanceExpenses() {
   } = useFinanceFilterState({
     defaults: {
       year: now.getFullYear(),
-      /** 0 = all months in the selected year (year-wide list for pagination). */
-      month: 0,
+      /** Current calendar month; 0 = all months when selected in the filter. */
+      month: now.getMonth() + 1,
       paidFilter: 'all',
       page: 1,
       pageSize: 25,
