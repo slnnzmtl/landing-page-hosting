@@ -1,36 +1,7 @@
 import { defineNuxtConfig } from 'nuxt/config'
-import { appendFileSync } from 'node:fs'
 import { getSurveyRoutes } from './domains/survey/survey-routes'
 import { getServiceRoutes } from './domains/service/service-routes'
 import { getFinanceRoutes } from './domains/finance/finance-routes'
-
-const prerenderRoutes = [
-  '/',
-  '/survey',
-  ...getSurveyRoutes(),
-  ...getServiceRoutes(),
-  ...getFinanceRoutes(),
-]
-
-// #region agent log
-const payload = {
-  sessionId: '044f29',
-  runId: 'post-fix',
-  hypothesisId: 'A',
-  location: 'nuxt.config.ts',
-  message: 'prerender routes configured',
-  data: {
-    prerenderRoutes,
-    hasFinanceDashboard: prerenderRoutes.includes('/finance/dashboard'),
-  },
-  timestamp: Date.now(),
-}
-try {
-  appendFileSync('/Users/danielraptom/Git/landing-hosting/.cursor/debug-044f29.log', `${JSON.stringify(payload)}\n`)
-}
-catch { /* ignore */ }
-fetch('http://127.0.0.1:7492/ingest/68de19a8-f098-430f-bc8f-b26c529e37fc', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '044f29' }, body: JSON.stringify(payload) }).catch(() => {})
-// #endregion
 
 export default defineNuxtConfig({
   extends: [
@@ -66,7 +37,13 @@ export default defineNuxtConfig({
     prerender: {
       // Explicit routes required: crawlLinks is false; finance/service are client-only (ssr: false)
       crawlLinks: false,
-      routes: prerenderRoutes,
+      routes: [
+        '/',
+        '/survey',
+        ...getSurveyRoutes(),
+        ...getServiceRoutes(),
+        ...getFinanceRoutes(),
+      ],
     },
   },
 })
