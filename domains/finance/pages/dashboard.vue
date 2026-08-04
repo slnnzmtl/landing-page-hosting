@@ -3,9 +3,8 @@ import { Chart, registerables, type Chart as ChartType } from 'chart.js'
 import Input from '@/components/ui/input.vue'
 import {
   useFinanceDashboard,
-  formatUsd,
-  type PaidFilter,
 } from '../composables/useFinanceDashboard'
+import { formatUsd, type PaidFilter } from '../utils/finance-query'
 
 Chart.register(...registerables)
 
@@ -25,14 +24,16 @@ const {
   dateTo,
   selectedCategoryIds,
   paidFilter,
+  filterQuery,
   availableYears,
-  filteredExpenses,
+  expenses,
   monthlyTotals,
   categoryTotals,
   summary,
   clearDateRange,
   toggleCategory,
   clearCategoryFilter,
+  isCategorySelected,
 } = useFinanceDashboard()
 
 const monthlyCanvas = ref<HTMLCanvasElement | null>(null)
@@ -41,6 +42,7 @@ let monthlyChart: ChartType | null = null
 let categoryChart: ChartType | null = null
 
 const monthOptions = [
+  { value: 0, label: 'All months' },
   { value: 1, label: 'January' },
   { value: 2, label: 'February' },
   { value: 3, label: 'March' },
@@ -194,13 +196,21 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="max-w-6xl mx-auto py-10 px-4 space-y-8">
-    <header>
-      <h1 class="text-3xl font-bold tracking-tight">
-        Finance
-      </h1>
-      <p class="text-muted-foreground mt-2 max-w-prose">
-        Personal spending overview by month and category.
-      </p>
+    <header class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight">
+          Finance
+        </h1>
+        <p class="text-muted-foreground mt-2 max-w-prose">
+          Personal spending overview by month and category.
+        </p>
+      </div>
+      <NuxtLink
+        :to="{ path: '/finance/expenses', query: filterQuery }"
+        class="text-sm text-primary hover:underline"
+      >
+        View all expenses →
+      </NuxtLink>
     </header>
 
     <!-- Filters -->
@@ -289,7 +299,7 @@ onBeforeUnmount(() => {
               :key="cat.id"
               type="button"
               class="rounded-md border px-3 py-1.5 text-sm transition-colors"
-              :class="selectedCategoryIds.includes(cat.id)
+              :class="isCategorySelected(cat.id)
                 ? 'border-primary bg-primary text-primary-foreground'
                 : 'border-input bg-background hover:bg-accent'"
               @click="toggleCategory(cat.id)"
@@ -363,16 +373,16 @@ onBeforeUnmount(() => {
         </div>
         <div>
           <p class="text-sm text-muted-foreground">
-            Average
+            Average daily
           </p>
           <p class="mt-1 text-2xl font-semibold tracking-tight">
-            {{ formatUsd(summary.average) }}
+            {{ formatUsd(summary.averageDaily) }}
           </p>
         </div>
       </section>
 
       <p
-        v-if="!filteredExpenses.length"
+        v-if="!expenses.length"
         class="text-sm text-muted-foreground"
       >
         No expenses match the current filters.
@@ -399,7 +409,9 @@ onBeforeUnmount(() => {
           <p class="text-sm text-muted-foreground">
             {{ dateFrom || dateTo
               ? 'Within selected date range'
-              : monthOptions.find(m => m.value === month)?.label + ' ' + year }}
+              : month === 0
+                ? `Year ${year}`
+                : monthOptions.find(m => m.value === month)?.label + ' ' + year }}
           </p>
           <div class="h-72">
             <canvas ref="categoryCanvas" />
