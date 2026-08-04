@@ -99,6 +99,61 @@ export function resolveCategoryName(
   return joinName ?? (categoryId ? nameById.get(categoryId) : undefined) ?? 'Uncategorized'
 }
 
+export interface CategoryMonthMatrixRow {
+  categoryId: string
+  name: string
+  amounts: number[]
+  total: number
+}
+
+export interface CategoryMonthMatrix {
+  rows: CategoryMonthMatrixRow[]
+  columnTotals: number[]
+  grandTotal: number
+}
+
+/** Sum expense amounts by category × calendar month (Jan–Dec). */
+export function buildCategoryMonthMatrix(
+  expenses: Expense[],
+  categories: Category[],
+): CategoryMonthMatrix {
+  const nameById = categoryNameMap(categories)
+  const byCategory = new Map<string, { name: string, amounts: number[] }>()
+
+  for (const e of expenses) {
+    if (!e.paid_date) continue
+    const monthIdx = Number(e.paid_date.slice(5, 7)) - 1
+    if (monthIdx < 0 || monthIdx > 11) continue
+
+    const id = e.category
+    let entry = byCategory.get(id)
+    if (!entry) {
+      entry = {
+        name: resolveCategoryName(id, nameById),
+        amounts: Array.from({ length: 12 }, () => 0),
+      }
+      byCategory.set(id, entry)
+    }
+    entry.amounts[monthIdx]! += e.amount
+  }
+
+  const rows: CategoryMonthMatrixRow[] = [...byCategory.entries()]
+    .map(([categoryId, { name, amounts }]) => ({
+      categoryId,
+      name,
+      amounts,
+      total: amounts.reduce((sum, n) => sum + n, 0),
+    }))
+    .sort((a, b) => b.total - a.total)
+
+  const columnTotals = Array.from({ length: 12 }, (_, i) =>
+    rows.reduce((sum, row) => sum + row.amounts[i]!, 0),
+  )
+  const grandTotal = columnTotals.reduce((sum, n) => sum + n, 0)
+
+  return { rows, columnTotals, grandTotal }
+}
+
 export interface BuildExpenseQueryOptions {
   from: string
   to: string

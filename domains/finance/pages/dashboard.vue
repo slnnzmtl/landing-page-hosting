@@ -29,12 +29,18 @@ const {
   expenses,
   monthlyTotals,
   categoryTotals,
+  categoryMonthMatrix,
   summary,
   clearDateRange,
   toggleCategory,
   clearCategoryFilter,
   isCategorySelected,
+  MONTH_LABELS,
 } = useFinanceDashboard()
+
+function formatMatrixAmount(amount: number) {
+  return amount > 0 ? formatUsd(amount) : ''
+}
 
 const monthlyCanvas = ref<HTMLCanvasElement | null>(null)
 const categoryCanvas = ref<HTMLCanvasElement | null>(null)
@@ -416,6 +422,86 @@ onBeforeUnmount(() => {
           <div class="h-72">
             <canvas ref="categoryCanvas" />
           </div>
+        </div>
+      </section>
+
+      <!-- Category × month pivot -->
+      <section class="space-y-3">
+        <h2 class="text-lg font-semibold tracking-tight">
+          Sum of amount by category / month
+        </h2>
+        <p class="text-sm text-muted-foreground">
+          {{ dateFrom || dateTo ? 'Within selected date range' : `Year ${year}` }}
+        </p>
+
+        <p
+          v-if="!categoryMonthMatrix.rows.length"
+          class="text-sm text-muted-foreground"
+        >
+          No expenses in this period.
+        </p>
+
+        <div
+          v-else
+          class="overflow-x-auto rounded-md border border-border"
+        >
+          <table class="w-full min-w-[960px] text-sm">
+            <thead class="border-b border-border bg-muted/40">
+              <tr class="text-left">
+                <th class="px-4 py-3 font-medium whitespace-nowrap">
+                  Category
+                </th>
+                <th
+                  v-for="label in MONTH_LABELS"
+                  :key="label"
+                  class="px-3 py-3 font-medium text-right whitespace-nowrap"
+                >
+                  {{ label }}
+                </th>
+                <th class="px-4 py-3 font-medium text-right whitespace-nowrap">
+                  Grand Total
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="row in categoryMonthMatrix.rows"
+                :key="row.categoryId"
+                class="border-b border-border last:border-0 hover:bg-muted/30"
+              >
+                <td class="px-4 py-3 font-medium whitespace-nowrap">
+                  {{ row.name }}
+                </td>
+                <td
+                  v-for="(amount, idx) in row.amounts"
+                  :key="idx"
+                  class="px-3 py-3 text-right tabular-nums whitespace-nowrap"
+                >
+                  {{ formatMatrixAmount(amount) }}
+                </td>
+                <td class="px-4 py-3 text-right tabular-nums whitespace-nowrap font-medium">
+                  {{ formatMatrixAmount(row.total) }}
+                </td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr class="border-t-2 border-border bg-muted/40 font-semibold">
+                <td class="px-4 py-3 whitespace-nowrap">
+                  Grand Total
+                </td>
+                <td
+                  v-for="(total, idx) in categoryMonthMatrix.columnTotals"
+                  :key="idx"
+                  class="px-3 py-3 text-right tabular-nums whitespace-nowrap"
+                >
+                  {{ formatMatrixAmount(total) }}
+                </td>
+                <td class="px-4 py-3 text-right tabular-nums whitespace-nowrap">
+                  {{ formatMatrixAmount(categoryMonthMatrix.grandTotal) }}
+                </td>
+              </tr>
+            </tfoot>
+          </table>
         </div>
       </section>
     </template>

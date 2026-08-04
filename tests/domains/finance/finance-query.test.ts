@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import {
+  buildCategoryMonthMatrix,
   categoryNameMap,
   normalizeCategories,
   normalizeExpenses,
@@ -7,6 +8,16 @@ import {
   type Category,
   type Expense,
 } from '~/domains/finance/utils/finance-query'
+
+function expense(partial: Partial<Expense> & Pick<Expense, 'id' | 'category' | 'amount' | 'paid_date'>): Expense {
+  return {
+    created_at: '',
+    name: partial.name ?? 'Item',
+    paid: true,
+    note: null,
+    ...partial,
+  }
+}
 
 describe('normalizeCategories', () => {
   it('coerces numeric ids to strings', () => {
@@ -57,5 +68,80 @@ describe('resolveCategoryName', () => {
   it('returns Uncategorized for unknown or empty ids', () => {
     expect(resolveCategoryName('99', nameById)).toBe('Uncategorized')
     expect(resolveCategoryName('', nameById)).toBe('Uncategorized')
+  })
+})
+
+describe('buildCategoryMonthMatrix', () => {
+  const categories: Category[] = [
+    { id: '1', created_at: '', name: 'Bar / Drinks', note: null },
+    { id: '2', created_at: '', name: 'Clothes', note: null },
+  ]
+
+  it('sums amounts by category and month with row/column/grand totals', () => {
+    const matrix = buildCategoryMonthMatrix(
+      [
+        expense({ id: 'a', category: '1', amount: 46, paid_date: '2026-01-10' }),
+        expense({ id: 'b', category: '1', amount: 76, paid_date: '2026-02-05' }),
+        expense({ id: 'c', category: '1', amount: 27, paid_date: '2026-06-01' }),
+        expense({ id: 'd', category: '2', amount: 14, paid_date: '2026-01-15' }),
+        expense({ id: 'e', category: '2', amount: 209, paid_date: '2026-05-20' }),
+        expense({ id: 'f', category: '2', amount: 6, paid_date: '2026-06-30' }),
+      ],
+      categories,
+    )
+
+    expect(matrix.rows).toHaveLength(2)
+    expect(matrix.rows[0]!.name).toBe('Clothes')
+    expect(matrix.rows[0]!.total).toBe(229)
+    expect(matrix.rows[0]!.amounts[0]).toBe(14)
+    expect(matrix.rows[0]!.amounts[4]).toBe(209)
+    expect(matrix.rows[0]!.amounts[5]).toBe(6)
+
+    expect(matrix.rows[1]!.name).toBe('Bar / Drinks')
+    expect(matrix.rows[1]!.total).toBe(149)
+    expect(matrix.rows[1]!.amounts[0]).toBe(46)
+    expect(matrix.rows[1]!.amounts[1]).toBe(76)
+    expect(matrix.rows[1]!.amounts[5]).toBe(27)
+
+    expect(matrix.columnTotals[0]).toBe(60)
+    expect(matrix.columnTotals[1]).toBe(76)
+    expect(matrix.columnTotals[4]).toBe(209)
+    expect(matrix.columnTotals[5]).toBe(33)
+    expect(matrix.grandTotal).toBe(378)
+  })
+
+  it('skips expenses without paid_date and out-of-range months', () => {
+    const matrix = buildCategoryMonthMatrix(
+      [
+        expense({ id: 'a', category: '1', amount: 10, paid_date: '2026-03-01' }),
+        expense({ id: 'b', category: '1', amount: 99, paid_date: '' }),
+        expense({ id: 'c', category: '1', amount: 50, paid_date: '2026-13-01' }),
+      ],
+      categories,
+    )
+
+    expect(matrix.rows).toHaveLength(1)
+    expect(matrix.rows[0]!.amounts[2]).toBe(10)
+    expect(matrix.rows[0]!.total).toBe(10)
+    expect(matrix.grandTotal).toBe(10)
+  })
+
+  it('labels unknown categories as Uncategorized', () => {
+    const matrix = buildCategoryMonthMatrix(
+      [expense({ id: 'a', category: '', amount: 5, paid_date: '2026-04-01' })],
+      categories,
+    )
+
+    expect(matrix.rows).toHaveLength(1)
+    expect(matrix.rows[0]!.name).toBe('Uncategorized')
+    expect(matrix.rows[0]!.amounts[3]).toBe(5)
+    expect(matrix.grandTotal).toBe(5)
+  })
+
+  it('returns empty matrix when there are no expenses', () => {
+    const matrix = buildCategoryMonthMatrix([], categories)
+    expect(matrix.rows).toEqual([])
+    expect(matrix.columnTotals).toEqual(Array.from({ length: 12 }, () => 0))
+    expect(matrix.grandTotal).toBe(0)
   })
 })

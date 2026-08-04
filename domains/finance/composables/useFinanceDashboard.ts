@@ -1,5 +1,6 @@
 import {
   ACCESS_HINT,
+  buildCategoryMonthMatrix,
   buildExpenseQuery,
   categoryNameMap,
   formatUsd,
@@ -113,6 +114,10 @@ export function useFinanceDashboard() {
       data: entries.map(e => e.total),
     }
   })
+
+  const categoryMonthMatrix = computed(() =>
+    buildCategoryMonthMatrix(yearExpenses.value, categories.value),
+  )
 
   const summary = computed(() => {
     const list = expenses.value
@@ -308,6 +313,7 @@ export function useFinanceDashboard() {
     effectiveDateWindow,
     monthlyTotals,
     categoryTotals,
+    categoryMonthMatrix,
     summary,
     fetchData,
     clearDateRange,
