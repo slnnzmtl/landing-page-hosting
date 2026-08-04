@@ -30,7 +30,7 @@ export interface SurveyDef {
 }
 export const useSurveys = () => {
   // Eagerly import all JSON survey definition files in data directory
-  const modules = import.meta.glob('~/pages/survey/data/*.json', {
+  const modules = import.meta.glob('../data/*.json', {
     eager: true,
   })
 

@@ -49,6 +49,13 @@ export default createConfigForNuxt({
     },
   },
   {
+    files: ['pages/**/*.vue', 'domains/**/pages/**/*.vue'],
+    rules: {
+      // Nuxt file-based routes use single-segment names (index, [slug], dashboard)
+      'vue/multi-word-component-names': 'off',
+    },
+  },
+  {
     files: ['tests/**/*', '**/*.test.ts', '**/*.spec.ts'],
     rules: {
       // Test files can be more lenient

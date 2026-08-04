@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { useSurveys } from '~/composables/useSurveys'
+import { useSurveys } from '~/domains/survey/composables/useSurveys'
 
 describe('useSurveys', () => {
   describe('surveys', () => {

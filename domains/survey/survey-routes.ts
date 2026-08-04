@@ -2,12 +2,12 @@ import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 /**
- * Discover survey routes by reading JSON files from pages/survey/data directory
+ * Discover survey routes by reading JSON files from domains/survey/data
  * Used for Nuxt static generation to prerender dynamic survey pages
  */
 export function getSurveyRoutes(): string[] {
   try {
-    const dir = join(process.cwd(), 'pages', 'survey', 'data')
+    const dir = join(process.cwd(), 'domains', 'survey', 'data')
     const files = readdirSync(dir).filter(f => f.endsWith('.json'))
     const slugs = files.map((f) => {
       try {
@@ -23,23 +23,6 @@ export function getSurveyRoutes(): string[] {
   }
   catch (e) {
     console.warn('[survey-routes] Failed to compute survey routes', e)
-    return []
-  }
-}
-
-/**
- * Discover page routes by reading Vue files from pages/page directory
- * Used for Nuxt static generation to prerender static page routes
- */
-export function getPageRoutes(): string[] {
-  try {
-    const dir = join(process.cwd(), 'pages', 'page')
-    const files = readdirSync(dir).filter(f => f.endsWith('.vue'))
-    const slugs = files.map(f => f.replace(/\.vue$/, ''))
-    return slugs.map(s => `/page/${s}`)
-  }
-  catch (e) {
-    console.warn('[page-routes] Failed to compute page routes', e)
     return []
   }
 }

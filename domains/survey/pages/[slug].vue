@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useSurveys } from '~/composables/useSurveys'
-import { useSurveyResponses } from '~/composables/useSurveyResponses'
+import { useSurveys } from '../composables/useSurveys'
+import { useSurveyResponses } from '../composables/useSurveyResponses'
 import Button from '@/components/ui/button.vue'
 import Input from '@/components/ui/input.vue'
 import Textarea from '@/components/ui/textarea.vue'

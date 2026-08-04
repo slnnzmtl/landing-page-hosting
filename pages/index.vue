@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useSurveys } from '~/composables/useSurveys'
-import { useSurveyResponses } from '~/composables/useSurveyResponses'
+import { useSurveys } from '~/domains/survey/composables/useSurveys'
+import { useSurveyResponses } from '~/domains/survey/composables/useSurveyResponses'
 
 const services = [
   {
