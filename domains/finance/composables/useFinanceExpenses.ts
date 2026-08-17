@@ -18,6 +18,10 @@ export interface ExpenseRow extends Expense {
   categoryName: string
 }
 
+export type ExpenseUpdate = Partial<
+  Pick<Expense, 'paid_date' | 'name' | 'category' | 'amount' | 'paid' | 'note'>
+>
+
 interface CategoryEmbed {
   id: string
   name: string
@@ -255,6 +259,24 @@ export function useFinanceExpenses() {
     }
   }
 
+  async function updateExpense(id: string, patch: ExpenseUpdate): Promise<boolean> {
+    error.value = null
+    try {
+      const supabase = useSupabase()
+      const { error: updateError } = await supabase
+        .from('expense')
+        .update(patch)
+        .eq('id', id)
+      if (updateError) throw updateError
+      await fetchPage()
+      return true
+    }
+    catch (err) {
+      error.value = err instanceof Error ? err.message : 'Failed to update expense'
+      return false
+    }
+  }
+
   function goToPrevPage() {
     if (page.value > 1) page.value -= 1
   }
@@ -313,6 +335,7 @@ export function useFinanceExpenses() {
     availableYears,
     effectiveDateWindow,
     fetchPage,
+    updateExpense,
     clearDateRange,
     toggleCategory,
     clearCategoryFilter,

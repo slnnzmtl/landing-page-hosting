@@ -1,0 +1,418 @@
+<script setup lang="ts">
+import Button from '@/components/ui/button.vue'
+import Input from '@/components/ui/input.vue'
+import type {
+  ExpenseRow,
+  ExpenseUpdate,
+} from '../composables/useFinanceExpenses'
+import {
+  formatUsd,
+  type Category,
+  type Expense,
+  type ExpenseSortColumn,
+  type SortDir,
+} from '../utils/finance-query'
+
+const props = defineProps<{
+  rows: ExpenseRow[]
+  categories: Category[]
+  totalAmount: number
+  sortBy: ExpenseSortColumn
+  sortDir: SortDir
+  page: number
+  totalPages: number
+  pageRangeLabel: string
+  updateExpense: (id: string, patch: ExpenseUpdate) => Promise<boolean>
+  toggleSort: (column: ExpenseSortColumn) => void
+  goToPrevPage: () => void
+  goToNextPage: () => void
+}>()
+
+const pageSize = defineModel<number>('pageSize', { required: true })
+
+type EditField = keyof Pick<Expense, 'paid_date' | 'name' | 'category' | 'amount' | 'paid' | 'note'>
+
+const editing = ref<{ id: string, field: EditField } | null>(null)
+const draft = ref('')
+const saving = ref(false)
+
+const pageSizeOptions = [25, 50, 100]
+
+/** Match display-row size. `size="1"` + min-w-0 stops native inputs from widening the column. */
+const cellControlClass
+  = 'box-border !h-7 !min-h-0 !w-full min-w-0 max-w-full rounded-md border border-input bg-background !px-1.5 !py-0 text-sm leading-tight shadow-none outline-none ring-0 ring-offset-0 focus:outline-none focus:ring-0 focus:ring-offset-0 focus-visible:outline-none focus-visible:!ring-0 focus-visible:!ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50'
+
+function formatPaidDate(value: string) {
+  if (!value) return '—'
+  const date = new Date(`${value}T00:00:00`)
+  if (Number.isNaN(date.getTime())) return value
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(date)
+}
+
+function ariaSortFor(column: ExpenseSortColumn): 'ascending' | 'descending' | 'none' {
+  if (props.sortBy !== column) return 'none'
+  return props.sortDir === 'asc' ? 'ascending' : 'descending'
+}
+
+function sortIndicator(column: ExpenseSortColumn): string {
+  if (props.sortBy !== column) return ''
+  return props.sortDir === 'asc' ? ' ↑' : ' ↓'
+}
+
+function isEditing(rowId: string, field: EditField) {
+  return editing.value?.id === rowId && editing.value?.field === field
+}
+
+function seedDraft(row: ExpenseRow, field: EditField): string {
+  if (field === 'amount') return String(row.amount)
+  if (field === 'paid') return row.paid ? 'true' : 'false'
+  if (field === 'note') return row.note ?? ''
+  return String(row[field] ?? '')
+}
+
+function startEdit(row: ExpenseRow, field: EditField) {
+  if (isEditing(row.id, field)) return
+  editing.value = { id: row.id, field }
+  draft.value = seedDraft(row, field)
+}
+
+function cancelEdit() {
+  editing.value = null
+}
+
+function parseDraft(field: EditField, value: string): Expense[EditField] | undefined {
+  if (field === 'amount') {
+    const n = Number(value)
+    if (!Number.isFinite(n) || n < 0) return undefined
+    return n
+  }
+  if (field === 'paid') return value === 'true'
+  if (field === 'note') return value.trim() || null
+  if (field === 'paid_date') return value || undefined
+  if (field === 'name') return value.trim()
+  return value
+}
+
+function isUnchanged(row: ExpenseRow, field: EditField, parsed: Expense[EditField]) {
+  if (field === 'note') return (row.note ?? null) === parsed
+  return row[field] === parsed
+}
+
+async function commitEdit() {
+  const current = editing.value
+  if (!current || saving.value) return
+
+  const row = props.rows.find(r => r.id === current.id)
+  if (!row) {
+    editing.value = null
+    return
+  }
+
+  const parsed = parseDraft(current.field, draft.value)
+  if (parsed === undefined) return
+
+  if (isUnchanged(row, current.field, parsed)) {
+    if (isEditing(current.id, current.field)) editing.value = null
+    return
+  }
+
+  saving.value = true
+  try {
+    const ok = await props.updateExpense(current.id, { [current.field]: parsed })
+    if (ok && isEditing(current.id, current.field)) editing.value = null
+  }
+  finally {
+    saving.value = false
+  }
+}
+</script>
+
+<template>
+  <div class="space-y-4">
+    <div class="overflow-x-auto rounded-md border border-border">
+      <table class="w-full min-w-[640px] table-fixed text-sm">
+        <thead class="border-b border-border bg-muted/40">
+          <tr class="text-left">
+            <th
+              class="px-4 py-3 font-medium"
+              :aria-sort="ariaSortFor('paid_date')"
+            >
+              <button
+                type="button"
+                class="inline-flex items-center gap-0.5 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
+                @click="toggleSort('paid_date')"
+              >
+                Date{{ sortIndicator('paid_date') }}
+              </button>
+            </th>
+            <th
+              class="px-4 py-3 font-medium"
+              :aria-sort="ariaSortFor('name')"
+            >
+              <button
+                type="button"
+                class="inline-flex items-center gap-0.5 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
+                @click="toggleSort('name')"
+              >
+                Name{{ sortIndicator('name') }}
+              </button>
+            </th>
+            <th class="px-4 py-3 font-medium">
+              Category
+            </th>
+            <th
+              class="px-4 py-3 font-medium text-right"
+              :aria-sort="ariaSortFor('amount')"
+            >
+              <button
+                type="button"
+                class="inline-flex items-center gap-0.5 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
+                @click="toggleSort('amount')"
+              >
+                Amount{{ sortIndicator('amount') }}
+              </button>
+            </th>
+            <th
+              class="px-4 py-3 font-medium"
+              :aria-sort="ariaSortFor('paid')"
+            >
+              <button
+                type="button"
+                class="inline-flex items-center gap-0.5 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
+                @click="toggleSort('paid')"
+              >
+                Paid{{ sortIndicator('paid') }}
+              </button>
+            </th>
+            <th class="px-4 py-3 font-medium">
+              Note
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="row in rows"
+            :key="row.id"
+            class="border-b border-border last:border-0 hover:bg-muted/30"
+          >
+            <td
+              class="min-w-0 overflow-hidden px-4 py-3 whitespace-nowrap"
+              :class="!isEditing(row.id, 'paid_date') && 'cursor-pointer text-muted-foreground hover:bg-muted/50'"
+              @click="startEdit(row, 'paid_date')"
+            >
+              <Input
+                v-if="isEditing(row.id, 'paid_date')"
+                v-model="draft"
+                type="date"
+                size="1"
+                autofocus
+                :disabled="saving"
+                :class="cellControlClass"
+                @click.stop
+                @blur="commitEdit"
+                @keydown.enter.prevent="commitEdit"
+                @keydown.escape.prevent="cancelEdit"
+              />
+              <template v-else>
+                {{ formatPaidDate(row.paid_date) }}
+              </template>
+            </td>
+            <td
+              class="min-w-0 overflow-hidden px-4 py-3"
+              :class="!isEditing(row.id, 'name') && 'cursor-pointer font-medium hover:bg-muted/50'"
+              @click="startEdit(row, 'name')"
+            >
+              <Input
+                v-if="isEditing(row.id, 'name')"
+                v-model="draft"
+                size="1"
+                autofocus
+                :disabled="saving"
+                :class="cellControlClass"
+                @click.stop
+                @blur="commitEdit"
+                @keydown.enter.prevent="commitEdit"
+                @keydown.escape.prevent="cancelEdit"
+              />
+              <template v-else>
+                {{ row.name }}
+              </template>
+            </td>
+            <td
+              class="min-w-0 overflow-hidden px-4 py-3"
+              :class="!isEditing(row.id, 'category') && 'cursor-pointer hover:bg-muted/50'"
+              @click="startEdit(row, 'category')"
+            >
+              <select
+                v-if="isEditing(row.id, 'category')"
+                v-model="draft"
+                :class="cellControlClass"
+                :disabled="saving"
+                autofocus
+                @click.stop
+                @change="commitEdit"
+                @blur="commitEdit"
+                @keydown.escape.prevent="cancelEdit"
+              >
+                <option
+                  v-for="cat in categories"
+                  :key="cat.id"
+                  :value="cat.id"
+                >
+                  {{ cat.name }}
+                </option>
+              </select>
+              <template v-else>
+                {{ row.categoryName }}
+              </template>
+            </td>
+            <td
+              class="min-w-0 overflow-hidden px-4 py-3 text-right tabular-nums whitespace-nowrap"
+              :class="!isEditing(row.id, 'amount') && 'cursor-pointer hover:bg-muted/50'"
+              @click="startEdit(row, 'amount')"
+            >
+              <Input
+                v-if="isEditing(row.id, 'amount')"
+                v-model="draft"
+                type="number"
+                min="0"
+                step="1"
+                size="1"
+                autofocus
+                :disabled="saving"
+                :class="[cellControlClass, 'text-right']"
+                @click.stop
+                @blur="commitEdit"
+                @keydown.enter.prevent="commitEdit"
+                @keydown.escape.prevent="cancelEdit"
+              />
+              <template v-else>
+                {{ formatUsd(row.amount) }}
+              </template>
+            </td>
+            <td
+              class="min-w-0 overflow-hidden px-4 py-3"
+              :class="!isEditing(row.id, 'paid') && 'cursor-pointer hover:bg-muted/50'"
+              @click="startEdit(row, 'paid')"
+            >
+              <select
+                v-if="isEditing(row.id, 'paid')"
+                v-model="draft"
+                :class="cellControlClass"
+                :disabled="saving"
+                autofocus
+                @click.stop
+                @change="commitEdit"
+                @blur="commitEdit"
+                @keydown.escape.prevent="cancelEdit"
+              >
+                <option value="true">
+                  Paid
+                </option>
+                <option value="false">
+                  Unpaid
+                </option>
+              </select>
+              <span
+                v-else
+                class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
+                :class="row.paid
+                  ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300'
+                  : 'bg-muted text-muted-foreground'"
+              >
+                {{ row.paid ? 'Paid' : 'Unpaid' }}
+              </span>
+            </td>
+            <td
+              class="min-w-0 overflow-hidden px-4 py-3 max-w-[12rem]"
+              :class="!isEditing(row.id, 'note') && 'cursor-pointer truncate text-muted-foreground hover:bg-muted/50'"
+              :title="row.note || undefined"
+              @click="startEdit(row, 'note')"
+            >
+              <Input
+                v-if="isEditing(row.id, 'note')"
+                v-model="draft"
+                size="1"
+                autofocus
+                :disabled="saving"
+                :class="cellControlClass"
+                @click.stop
+                @blur="commitEdit"
+                @keydown.enter.prevent="commitEdit"
+                @keydown.escape.prevent="cancelEdit"
+              />
+              <template v-else>
+                {{ row.note || '—' }}
+              </template>
+            </td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr class="border-t-2 border-border bg-muted/40 font-semibold">
+            <td colspan="3" class="px-4 py-3">
+              Total
+            </td>
+            <td class="px-4 py-3 text-right tabular-nums whitespace-nowrap">
+              {{ formatUsd(totalAmount) }}
+            </td>
+            <td colspan="2" class="px-4 py-3" />
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <p class="text-sm text-muted-foreground">
+        {{ pageRangeLabel }}
+      </p>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <div class="flex items-center gap-2">
+          <label class="text-sm text-muted-foreground" for="expenses-page-size">
+            Per page
+          </label>
+          <select
+            id="expenses-page-size"
+            v-model.number="pageSize"
+            class="flex h-10 w-16 rounded-md border border-input bg-background px-2 text-sm"
+          >
+            <option
+              v-for="size in pageSizeOptions"
+              :key="size"
+              :value="size"
+            >
+              {{ size }}
+            </option>
+          </select>
+        </div>
+
+        <span class="text-sm text-muted-foreground">
+          Page {{ page }} of {{ totalPages }}
+        </span>
+
+        <div class="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            :disabled="page <= 1"
+            @click="goToPrevPage"
+          >
+            Previous
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            :disabled="page >= totalPages"
+            @click="goToNextPage"
+          >
+            Next
+          </Button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>

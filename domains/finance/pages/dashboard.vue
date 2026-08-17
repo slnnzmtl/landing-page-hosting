@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { Chart, registerables, type Chart as ChartType, type ChartItem } from 'chart.js'
-import Input from '@/components/ui/input.vue'
 import {
   useFinanceDashboard,
 } from '../composables/useFinanceDashboard'
-import { formatUsd, type PaidFilter } from '../utils/finance-query'
+import FinanceFilterBar from '../components/FinanceFilterBar.vue'
+import { formatUsd } from '../utils/finance-query'
 
 Chart.register(...registerables)
 
@@ -47,28 +47,6 @@ const categoryCanvas = ref<HTMLCanvasElement | null>(null)
 let monthlyChart: ChartType | null = null
 let categoryChart: ChartType | null = null
 
-const monthOptions = [
-  { value: 0, label: 'All months' },
-  { value: 1, label: 'January' },
-  { value: 2, label: 'February' },
-  { value: 3, label: 'March' },
-  { value: 4, label: 'April' },
-  { value: 5, label: 'May' },
-  { value: 6, label: 'June' },
-  { value: 7, label: 'July' },
-  { value: 8, label: 'August' },
-  { value: 9, label: 'September' },
-  { value: 10, label: 'October' },
-  { value: 11, label: 'November' },
-  { value: 12, label: 'December' },
-]
-
-const paidOptions: { value: PaidFilter, label: string }[] = [
-  { value: 'all', label: 'All' },
-  { value: 'paid', label: 'Paid' },
-  { value: 'unpaid', label: 'Unpaid' },
-]
-
 const CATEGORY_COLORS = [
   'rgba(37, 99, 235, 0.85)',
   'rgba(14, 165, 233, 0.85)',
@@ -79,9 +57,6 @@ const CATEGORY_COLORS = [
   'rgba(168, 85, 247, 0.85)',
   'rgba(100, 116, 139, 0.85)',
 ]
-
-const selectClass
-  = 'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
 
 function destroyCharts() {
   monthlyChart?.destroy()
@@ -222,127 +197,22 @@ onBeforeUnmount(() => {
       </NuxtLink>
     </header>
 
-    <!-- Filters -->
-    <section class="space-y-4 border-b border-border pb-6">
-      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div class="space-y-1.5">
-          <label class="text-sm font-medium" for="filter-year">Year</label>
-          <select
-            id="filter-year"
-            v-model.number="year"
-            :class="selectClass"
-          >
-            <option
-              v-for="y in availableYears"
-              :key="y"
-              :value="y"
-            >
-              {{ y }}
-            </option>
-          </select>
-        </div>
-
-        <div class="space-y-1.5">
-          <label class="text-sm font-medium" for="filter-month">Month</label>
-          <select
-            id="filter-month"
-            v-model.number="month"
-            :class="selectClass"
-            :disabled="!!(dateFrom || dateTo)"
-          >
-            <option
-              v-for="m in monthOptions"
-              :key="m.value"
-              :value="m.value"
-            >
-              {{ m.label }}
-            </option>
-          </select>
-        </div>
-
-        <div class="space-y-1.5">
-          <label class="text-sm font-medium" for="filter-from">From</label>
-          <Input
-            id="filter-from"
-            v-model="dateFrom"
-            type="date"
-          />
-        </div>
-
-        <div class="space-y-1.5">
-          <div class="flex items-center justify-between">
-            <label class="text-sm font-medium" for="filter-to">To</label>
-            <button
-              v-if="dateFrom || dateTo"
-              type="button"
-              class="text-xs text-muted-foreground hover:text-foreground"
-              @click="clearDateRange"
-            >
-              Clear range
-            </button>
-          </div>
-          <Input
-            id="filter-to"
-            v-model="dateTo"
-            type="date"
-          />
-        </div>
-      </div>
-
-      <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div class="space-y-2 flex-1">
-          <div class="flex items-center justify-between gap-2">
-            <span class="text-sm font-medium">Categories</span>
-            <button
-              v-if="selectedCategoryIds.length"
-              type="button"
-              class="text-xs text-muted-foreground hover:text-foreground"
-              @click="clearCategoryFilter"
-            >
-              Clear
-            </button>
-          </div>
-          <div class="flex flex-wrap gap-2">
-            <button
-              v-for="cat in categories"
-              :key="cat.id"
-              type="button"
-              class="rounded-md border px-3 py-1.5 text-sm transition-colors"
-              :class="isCategorySelected(cat.id)
-                ? 'border-primary bg-primary text-primary-foreground'
-                : 'border-input bg-background hover:bg-accent'"
-              @click="toggleCategory(cat.id)"
-            >
-              {{ cat.name }}
-            </button>
-            <p
-              v-if="!categories.length && !loading"
-              class="text-sm text-muted-foreground"
-            >
-              No categories loaded.
-            </p>
-          </div>
-        </div>
-
-        <div class="space-y-2 space-x-2">
-          <span class="text-sm font-medium">Status</span>
-          <div class="inline-flex rounded-md border border-input overflow-hidden">
-            <button
-              v-for="opt in paidOptions"
-              :key="opt.value"
-              type="button"
-              class="px-3 py-2 text-sm transition-colors"
-              :class="paidFilter === opt.value
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-background hover:bg-accent'"
-              @click="paidFilter = opt.value"
-            >
-              {{ opt.label }}
-            </button>
-          </div>
-        </div>
-      </div>
-    </section>
+    <FinanceFilterBar
+      v-model:year="year"
+      v-model:month="month"
+      v-model:date-from="dateFrom"
+      v-model:date-to="dateTo"
+      v-model:paid-filter="paidFilter"
+      id-prefix="dashboard"
+      :loading="loading"
+      :available-years="availableYears"
+      :categories="categories"
+      :selected-category-ids="selectedCategoryIds"
+      :is-category-selected="isCategorySelected"
+      :clear-date-range="clearDateRange"
+      :toggle-category="toggleCategory"
+      :clear-category-filter="clearCategoryFilter"
+    />
 
     <!-- Loading / error -->
     <div v-if="loading" class="text-muted-foreground text-sm">
@@ -420,7 +290,7 @@ onBeforeUnmount(() => {
               ? 'Within selected date range'
               : month === 0
                 ? `Year ${year}`
-                : monthOptions.find(m => m.value === month)?.label + ' ' + year }}
+                : `${MONTH_LABELS[month - 1]} ${year}` }}
           </p>
           <div class="h-72">
             <canvas ref="categoryCanvas" />
