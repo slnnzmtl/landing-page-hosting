@@ -33,6 +33,10 @@ export default defineNuxtConfig({
       ssr: false,
       headers: { 'X-Robots-Tag': 'noindex, nofollow' },
     },
+    '/login': {
+      ssr: false,
+      headers: { 'X-Robots-Tag': 'noindex, nofollow' },
+    },
   },
   nitro: {
     prerender: {
@@ -41,6 +45,7 @@ export default defineNuxtConfig({
       routes: [
         '/',
         '/survey',
+        '/login',
         ...getSurveyRoutes(),
         ...getServiceRoutes(),
         ...getFinanceRoutes(),
