@@ -38,7 +38,7 @@ export const EXPENSE_WITH_CATEGORY_SELECT = `
 `.replace(/\s+/g, ' ').trim()
 
 export const ACCESS_HINT
-  = 'Supabase returned no rows (HTTP 200). If data exists in the Table Editor, enable SELECT for anon on public.category and public.expense — run domains/finance/supabase/rls-finance.sql in the SQL Editor.'
+  = 'Supabase returned no rows (HTTP 200). Sign in with an allowlisted account, then ensure authenticated SELECT policies exist — run domains/finance/supabase/rls-finance.sql in the SQL Editor.'
 
 function pad2(n: number) {
   return String(n).padStart(2, '0')

@@ -8,6 +8,8 @@ useHead({
   meta: [{ name: 'robots', content: 'noindex, nofollow' }],
 })
 
+const { signOut } = useAuth()
+
 const {
   rows,
   categories,
@@ -51,12 +53,21 @@ const {
           Paginated expense list with category, date, and paid-status filters.
         </p>
       </div>
-      <NuxtLink
-        :to="{ path: '/finance/dashboard', query: filterQuery }"
-        class="text-sm text-primary hover:underline"
-      >
-        ← Back to dashboard
-      </NuxtLink>
+      <div class="flex items-center gap-4">
+        <NuxtLink
+          :to="{ path: '/finance/dashboard', query: filterQuery }"
+          class="text-sm text-primary hover:underline"
+        >
+          ← Back to dashboard
+        </NuxtLink>
+        <button
+          type="button"
+          class="text-sm text-muted-foreground hover:underline"
+          @click="signOut"
+        >
+          Sign out
+        </button>
+      </div>
     </header>
 
     <FinanceFilterBar

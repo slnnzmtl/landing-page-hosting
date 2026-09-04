@@ -13,6 +13,8 @@ useHead({
   meta: [{ name: 'robots', content: 'noindex, nofollow' }],
 })
 
+const { signOut } = useAuth()
+
 const {
   categories,
   loading,
@@ -189,12 +191,21 @@ onBeforeUnmount(() => {
           Personal spending overview by month and category.
         </p>
       </div>
-      <NuxtLink
-        :to="{ path: '/finance/expenses', query: filterQuery }"
-        class="text-sm text-primary hover:underline"
-      >
-        View all expenses →
-      </NuxtLink>
+      <div class="flex items-center gap-4">
+        <NuxtLink
+          :to="{ path: '/finance/expenses', query: filterQuery }"
+          class="text-sm text-primary hover:underline"
+        >
+          View all expenses →
+        </NuxtLink>
+        <button
+          type="button"
+          class="text-sm text-muted-foreground hover:underline"
+          @click="signOut"
+        >
+          Sign out
+        </button>
+      </div>
     </header>
 
     <FinanceFilterBar
