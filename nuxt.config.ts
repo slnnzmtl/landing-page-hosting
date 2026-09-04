@@ -17,6 +17,7 @@ export default defineNuxtConfig({
     public: {
       supabaseUrl: process.env.SUPABASE_URL || '',
       supabaseKey: process.env.SUPABASE_KEY || '',
+      allowedEmails: process.env.ALLOWED_EMAILS || '',
     },
   },
   routeRules: {
