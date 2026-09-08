@@ -18,6 +18,7 @@ export default defineNuxtConfig({
       supabaseUrl: process.env.SUPABASE_URL || '',
       supabaseKey: process.env.SUPABASE_KEY || '',
       allowedEmails: process.env.ALLOWED_EMAILS || '',
+      surveyWebhookUrl: process.env.SURVEY_WEBHOOK_URL || '',
     },
   },
   routeRules: {

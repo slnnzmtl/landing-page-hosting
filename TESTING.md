@@ -35,7 +35,9 @@ tests/
 
 **`useSurveyResponses`** — localStorage get/set/clear, SSR-safe access, validation, slug handling, draft vs submitted persistence.
 
-**`useSurveys`** — load definitions from `domains/survey/data/*.json`, sort by title, find by slug, shape checks.
+**`useSurveys`** — load definitions from `domains/survey/data/*.json`, sort by title, find by slug, shape checks (including inert webhook `action` URLs).
+
+**`survey-webhook`** — inert placeholder detection (`example.com`) and env override via `SURVEY_WEBHOOK_URL`.
 
 ### Survey page logic
 

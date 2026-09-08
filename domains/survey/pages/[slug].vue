@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useSurveys } from '../composables/useSurveys'
 import { useSurveyResponses } from '../composables/useSurveyResponses'
+import { resolveSurveyWebhookUrl } from '@/utils/survey-webhook'
 import Button from '@/components/ui/button.vue'
 import Input from '@/components/ui/input.vue'
 import Textarea from '@/components/ui/textarea.vue'
@@ -113,7 +114,17 @@ async function submit() {
       payload.isUpdate = true
     }
 
-    const response = await fetch(survey.action, {
+    const runtimeConfig = useRuntimeConfig()
+    const webhookUrl = resolveSurveyWebhookUrl(
+      survey.action,
+      runtimeConfig.public.surveyWebhookUrl as string,
+    )
+
+    if (!webhookUrl) {
+      throw new Error('Вебхук опроса не настроен')
+    }
+
+    const response = await fetch(webhookUrl, {
       method: 'POST',
       mode: 'cors',
       headers: {

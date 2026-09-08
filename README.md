@@ -80,9 +80,10 @@ Copy or create `.env` in the project root (gitignored):
 ```bash
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_KEY=your-anon-or-publishable-key
+SURVEY_WEBHOOK_URL=https://example.com/webhook/survey/submit
 ```
 
-These map to `runtimeConfig.public.supabaseUrl` / `supabaseKey` and are required for `/finance/*`. Survey and service pages do not need them.
+`SUPABASE_*` map to `runtimeConfig.public.supabaseUrl` / `supabaseKey` and are required for `/finance/*`. `SURVEY_WEBHOOK_URL` maps to `runtimeConfig.public.surveyWebhookUrl` and is the live survey POST target; JSON `action` fields in survey files are inert placeholders only.
 
 For finance reads as anon, apply `domains/finance/supabase/rls-finance.sql` in the Supabase SQL Editor if tables return empty under RLS.
 
@@ -144,7 +145,8 @@ Surveys are JSON files in `domains/survey/data/`. Each file is eagerly loaded by
 
 ### Submission
 
-- Set `action` to a webhook URL that accepts JSON `POST`.
+- Keep JSON `action` as an inert example (`https://example.com/...`). Do not commit live webhook URLs.
+- Set `SURVEY_WEBHOOK_URL` in `.env` / Vercel to the real JSON `POST` endpoint.
 - Payload shape: `{ slug, questions: [{ question, answer }], submissionId?, isUpdate? }`.
 - Responses are also stored in `localStorage` (draft + submitted state) via `useSurveyResponses`.
 - New surveys under `data/` are picked up automatically; add a `slug` so prerender includes `/survey/<slug>`.
@@ -173,7 +175,7 @@ pnpm preview
 
 `vercel.json` builds with `@vercel/static-build` (`distDir: .output/public`) and falls back unmatched paths to `/200.html` for client-side routes.
 
-Set `SUPABASE_URL` and `SUPABASE_KEY` in the Vercel project environment for finance pages in production.
+Set `SUPABASE_URL` and `SUPABASE_KEY` in the Vercel project environment for finance pages in production. Set `SURVEY_WEBHOOK_URL` for survey submissions.
 
 Homepage: https://landing-hosting.vercel.app
 
