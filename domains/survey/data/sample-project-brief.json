@@ -1,13 +1,13 @@
 {
-  "slug": "odyssey-project-brief",
-  "title": "Анкета для подготовки к проекту \"Odyssey\"",
+  "slug": "sample-project-brief",
+  "title": "Анкета для подготовки к демонстрационному проекту",
   "description": "Технические и организационные вопросы для подготовки к продуктивной встрече.",
-  "action": "https://n8n.slnnzmtl.xyz/webhook/survey/submit",
+  "action": "https://example.com/webhook/survey/submit",
   "questions": [
     {
       "type": "section",
       "title": "Введение",
-      "description": "Уважаемый клиент, чтобы наша предстоящая встреча была максимально продуктивной, пожалуйста, ответьте на несколько технических и организационных вопросов. Это поможет нам лучше понять вашу текущую ситуацию и подготовиться к обсуждению стратегии."
+      "description": "Ответьте на несколько технических и организационных вопросов, чтобы подготовиться к обсуждению стратегии."
     },
     {
       "type": "section",
@@ -20,9 +20,18 @@
       "type": "radio",
       "required": true,
       "options": [
-        { "label": "У нас есть существующий облачный провайдер (AWS, Google Cloud, Azure и т.д.)", "value": "existing-cloud" },
-        { "label": "Нам потребуется развертывание в новой среде", "value": "new-environment" },
-        { "label": "Другое", "value": "other" }
+        {
+          "label": "У нас есть существующий облачный провайдер (AWS, Google Cloud, Azure и т.д.)",
+          "value": "existing-cloud"
+        },
+        {
+          "label": "Нам потребуется развертывание в новой среде",
+          "value": "new-environment"
+        },
+        {
+          "label": "Другое",
+          "value": "other"
+        }
       ]
     },
     {
@@ -56,9 +65,18 @@
       "type": "radio",
       "required": true,
       "options": [
-        { "label": "Да, нужна категоризация и фильтрация", "value": "yes" },
-        { "label": "Нет, не требуется", "value": "no" },
-        { "label": "Не уверен", "value": "unsure" }
+        {
+          "label": "Да, нужна категоризация и фильтрация",
+          "value": "yes"
+        },
+        {
+          "label": "Нет, не требуется",
+          "value": "no"
+        },
+        {
+          "label": "Не уверен",
+          "value": "unsure"
+        }
       ]
     },
     {
@@ -73,9 +91,18 @@
       "type": "radio",
       "required": true,
       "options": [
-        { "label": "Да, дизайн готов", "value": "ready" },
-        { "label": "Дизайн в процессе разработки", "value": "in-progress" },
-        { "label": "Нет, потребуется создать", "value": "need-create" }
+        {
+          "label": "Да, дизайн готов",
+          "value": "ready"
+        },
+        {
+          "label": "Дизайн в процессе разработки",
+          "value": "in-progress"
+        },
+        {
+          "label": "Нет, потребуется создать",
+          "value": "need-create"
+        }
       ]
     },
     {
@@ -96,9 +123,18 @@
       "type": "radio",
       "required": true,
       "options": [
-        { "label": "Да, у нас есть аккаунт с API-доступом", "value": "yes" },
-        { "label": "Нет, потребуется создать новый", "value": "no" },
-        { "label": "Не уверен", "value": "unsure" }
+        {
+          "label": "Да, у нас есть аккаунт с API-доступом",
+          "value": "yes"
+        },
+        {
+          "label": "Нет, потребуется создать новый",
+          "value": "no"
+        },
+        {
+          "label": "Не уверен",
+          "value": "unsure"
+        }
       ]
     },
     {
@@ -145,8 +181,14 @@
       "type": "radio",
       "required": true,
       "options": [
-        { "label": "Да, есть жёсткий дедлайн", "value": "yes" },
-        { "label": "Нет, гибкие сроки", "value": "no" }
+        {
+          "label": "Да, есть жёсткий дедлайн",
+          "value": "yes"
+        },
+        {
+          "label": "Нет, гибкие сроки",
+          "value": "no"
+        }
       ]
     },
     {

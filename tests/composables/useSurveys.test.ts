@@ -106,16 +106,16 @@ describe('useSurveys', () => {
   })
 
   describe('integration with real data', () => {
-    it('should load sweet-loyalty survey if it exists', () => {
+    it('should load sample loyalty survey if it exists', () => {
       const { findSurvey } = useSurveys()
 
-      const sweetLoyalty = findSurvey('sweet-loyalty')
+      const sampleLoyalty = findSurvey('sample-loyalty-program-brief')
 
-      if (sweetLoyalty) {
-        expect(sweetLoyalty.title).toBe('Опросный лист для проекта Sweet ???')
-        expect(sweetLoyalty.description).toContain('разработки')
-        expect(sweetLoyalty.questions.length).toBeGreaterThan(0)
-        expect(sweetLoyalty.action).toBeTruthy()
+      if (sampleLoyalty) {
+        expect(sampleLoyalty.title).toContain('Sample Loyalty Program')
+        expect(sampleLoyalty.description).toContain('разработки')
+        expect(sampleLoyalty.questions.length).toBeGreaterThan(0)
+        expect(sampleLoyalty.action).toBe('https://example.com/webhook/survey/submit')
       }
     })
   })

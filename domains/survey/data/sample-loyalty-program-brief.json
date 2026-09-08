@@ -1,8 +1,8 @@
 {
-  "slug": "sweet-loyalty-program-brief",
-  "title": "Опросный лист для проекта Sweet Loyalty Program",
+  "slug": "sample-loyalty-program-brief",
+  "title": "Опросный лист для проекта Sample Loyalty Program",
   "description": "Пожалуйста, ответьте на вопросы для уточнения деталей перед началом разработки.",
-  "action": "https://n8n.slnnzmtl.xyz/webhook/survey/submit",
+  "action": "https://example.com/webhook/survey/submit",
   "questions": [
     {
       "type": "section",
@@ -14,8 +14,14 @@
       "label": "Предоставляет ли ваша система 1С готовый HTTP API для выгрузки чеков?",
       "type": "radio",
       "options": [
-        { "label": "Да", "value": "yes" },
-        { "label": "Нет", "value": "no" }
+        {
+          "label": "Да",
+          "value": "yes"
+        },
+        {
+          "label": "Нет",
+          "value": "no"
+        }
       ]
     },
     {
@@ -33,8 +39,14 @@
       "label": "Метод получения данных",
       "type": "radio",
       "options": [
-        { "label": "Pull (запрашивать данные по расписанию)", "value": "pull" },
-        { "label": "Push/Webhook (1С сама отправляет данные)", "value": "push" }
+        {
+          "label": "Pull (запрашивать данные по расписанию)",
+          "value": "pull"
+        },
+        {
+          "label": "Push/Webhook (1С сама отправляет данные)",
+          "value": "push"
+        }
       ]
     },
     {
@@ -51,8 +63,14 @@
       "label": "Есть ли уже созданный бот в Telegram и его токен?",
       "type": "radio",
       "options": [
-        { "label": "Да", "value": "yes" },
-        { "label": "Нет", "value": "no" }
+        {
+          "label": "Да",
+          "value": "yes"
+        },
+        {
+          "label": "Нет",
+          "value": "no"
+        }
       ]
     },
     {
