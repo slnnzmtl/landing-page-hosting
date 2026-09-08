@@ -2,7 +2,7 @@
   "slug": "odyssey-project-brief",
   "title": "Анкета для подготовки к проекту \"Odyssey\"",
   "description": "Технические и организационные вопросы для подготовки к продуктивной встрече.",
-  "action": "https://n8n.slnnzmtl.xyz/webhook/survey/submit",
+  "action": "https://example.com/webhook/survey/submit",
   "questions": [
     {
       "type": "section",

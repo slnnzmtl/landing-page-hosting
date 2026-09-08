@@ -2,7 +2,7 @@
   "slug": "sweet-loyalty-program-brief",
   "title": "Опросный лист для проекта Sweet Loyalty Program",
   "description": "Пожалуйста, ответьте на вопросы для уточнения деталей перед началом разработки.",
-  "action": "https://n8n.slnnzmtl.xyz/webhook/survey/submit",
+  "action": "https://example.com/webhook/survey/submit",
   "questions": [
     {
       "type": "section",

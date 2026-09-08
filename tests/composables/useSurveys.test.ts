@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { useSurveys } from '~/domains/survey/composables/useSurveys'
+import { isInertWebhookUrl } from '~/utils/survey-webhook'
 
 describe('useSurveys', () => {
   describe('surveys', () => {
@@ -33,6 +34,15 @@ describe('useSurveys', () => {
         expect(typeof survey.description).toBe('string')
         expect(Array.isArray(survey.questions)).toBe(true)
         expect(typeof survey.action).toBe('string')
+        expect(isInertWebhookUrl(survey.action)).toBe(true)
+      })
+    })
+
+    it('should not ship production webhook hosts', () => {
+      const { surveys } = useSurveys()
+
+      surveys.forEach((survey) => {
+        expect(survey.action).not.toMatch(/n8n\.|slnnzmtl\.xyz/i)
       })
     })
 
