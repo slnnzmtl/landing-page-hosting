@@ -144,10 +144,10 @@ Surveys are JSON files in `domains/survey/data/`. Each file is eagerly loaded by
 
 ### Submission
 
-- Set `action` to a webhook URL that accepts JSON `POST`.
+- Set `action` to a webhook URL that accepts JSON `POST`. Sample surveys in this repo use the inert `https://example.com/webhook/survey/submit` placeholder — replace it (or point submissions at your own endpoint) before relying on live submits.
 - Payload shape: `{ slug, questions: [{ question, answer }], submissionId?, isUpdate? }`.
 - Responses are also stored in `localStorage` (draft + submitted state) via `useSurveyResponses`.
-- New surveys under `data/` are picked up automatically; add a `slug` so prerender includes `/survey/<slug>`.
+- New surveys under `data/` are picked up automatically; add a `slug` so prerender includes `/survey/<slug>` (current samples: `/survey/sample-loyalty-program-brief`, `/survey/sample-project-brief`).
 
 ## Finance Module
 
