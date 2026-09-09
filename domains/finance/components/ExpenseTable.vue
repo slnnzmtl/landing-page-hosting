@@ -220,11 +220,11 @@ async function onDelete(row: ExpenseRow) {
           <tr
             v-for="row in rows"
             :key="row.id"
-            class="group border-b border-border last:border-0 hover:bg-muted/30"
+            class="group border-b border-border last:border-0 transition-colors duration-200 ease-out hover:bg-muted/30"
           >
             <td
               class="min-w-0 overflow-hidden px-4 py-3 whitespace-nowrap"
-              :class="!isEditing(row.id, 'paid_date') && 'cursor-pointer text-muted-foreground hover:bg-muted/50'"
+              :class="!isEditing(row.id, 'paid_date') && 'cursor-pointer text-muted-foreground transition-colors duration-150 ease-out hover:bg-muted/50'"
               @click="startEdit(row, 'paid_date')"
             >
               <Input
@@ -246,7 +246,7 @@ async function onDelete(row: ExpenseRow) {
             </td>
             <td
               class="min-w-0 overflow-hidden px-4 py-3"
-              :class="!isEditing(row.id, 'name') && 'cursor-pointer font-medium hover:bg-muted/50'"
+              :class="!isEditing(row.id, 'name') && 'cursor-pointer font-medium transition-colors duration-150 ease-out hover:bg-muted/50'"
               @click="startEdit(row, 'name')"
             >
               <Input
@@ -267,7 +267,7 @@ async function onDelete(row: ExpenseRow) {
             </td>
             <td
               class="min-w-0 overflow-hidden px-4 py-3"
-              :class="!isEditing(row.id, 'category') && 'cursor-pointer hover:bg-muted/50'"
+              :class="!isEditing(row.id, 'category') && 'cursor-pointer transition-colors duration-150 ease-out hover:bg-muted/50'"
               @click="startEdit(row, 'category')"
             >
               <select
@@ -295,7 +295,7 @@ async function onDelete(row: ExpenseRow) {
             </td>
             <td
               class="min-w-0 overflow-hidden px-4 py-3 text-right tabular-nums whitespace-nowrap"
-              :class="!isEditing(row.id, 'amount') && 'cursor-pointer hover:bg-muted/50'"
+              :class="!isEditing(row.id, 'amount') && 'cursor-pointer transition-colors duration-150 ease-out hover:bg-muted/50'"
               @click="startEdit(row, 'amount')"
             >
               <Input
@@ -319,7 +319,7 @@ async function onDelete(row: ExpenseRow) {
             </td>
             <td
               class="min-w-0 overflow-hidden px-4 py-3"
-              :class="!isEditing(row.id, 'paid') && 'cursor-pointer hover:bg-muted/50'"
+              :class="!isEditing(row.id, 'paid') && 'cursor-pointer transition-colors duration-150 ease-out hover:bg-muted/50'"
               @click="startEdit(row, 'paid')"
             >
               <select
@@ -352,7 +352,7 @@ async function onDelete(row: ExpenseRow) {
             </td>
             <td
               class="min-w-0 overflow-hidden px-4 py-3 max-w-[12rem]"
-              :class="!isEditing(row.id, 'note') && 'cursor-pointer truncate text-muted-foreground hover:bg-muted/50'"
+              :class="!isEditing(row.id, 'note') && 'cursor-pointer truncate text-muted-foreground transition-colors duration-150 ease-out hover:bg-muted/50'"
               :title="row.note || undefined"
               @click="startEdit(row, 'note')"
             >
@@ -377,8 +377,8 @@ async function onDelete(row: ExpenseRow) {
                 type="button"
                 variant="ghost"
                 size="sm"
-                class="text-destructive hover:text-destructive opacity-0 pointer-events-none transition-opacity group-hover:opacity-100 group-hover:pointer-events-auto group-focus-within:opacity-100 group-focus-within:pointer-events-auto focus-visible:opacity-100 focus-visible:pointer-events-auto"
-                :class="deletingId === row.id && 'opacity-100 pointer-events-auto'"
+                class="text-destructive hover:text-destructive opacity-0 pointer-events-none transition-[opacity,transform] duration-200 ease-out translate-x-1 group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-x-0 group-focus-within:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-x-0 focus-visible:opacity-100 focus-visible:pointer-events-auto focus-visible:translate-x-0"
+                :class="deletingId === row.id && 'opacity-100 pointer-events-auto translate-x-0'"
                 :disabled="saving || Boolean(deletingId)"
                 @click.stop="onDelete(row)"
               >
