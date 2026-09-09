@@ -153,12 +153,12 @@ async function onDelete(row: ExpenseRow) {
 
 <template>
   <div class="space-y-4">
-    <div class="overflow-x-auto rounded-md border border-border">
-      <table class="w-full min-w-[640px] table-fixed text-sm">
+    <div class="max-w-full overflow-x-auto overscroll-x-contain rounded-md border border-border [-webkit-overflow-scrolling:touch]">
+      <table class="w-max min-w-full text-sm">
         <thead class="border-b border-border bg-muted/40">
           <tr class="text-left">
             <th
-              class="px-4 py-3 font-medium"
+              class="whitespace-nowrap px-4 py-3 font-medium"
               :aria-sort="ariaSortFor('paid_date')"
             >
               <button
@@ -170,7 +170,7 @@ async function onDelete(row: ExpenseRow) {
               </button>
             </th>
             <th
-              class="px-4 py-3 font-medium"
+              class="whitespace-nowrap px-4 py-3 font-medium"
               :aria-sort="ariaSortFor('name')"
             >
               <button
@@ -181,11 +181,11 @@ async function onDelete(row: ExpenseRow) {
                 Name{{ sortIndicator('name') }}
               </button>
             </th>
-            <th class="px-4 py-3 font-medium">
+            <th class="whitespace-nowrap px-4 py-3 font-medium">
               Category
             </th>
             <th
-              class="px-4 py-3 font-medium text-right"
+              class="whitespace-nowrap px-4 py-3 font-medium text-right"
               :aria-sort="ariaSortFor('amount')"
             >
               <button
@@ -197,7 +197,7 @@ async function onDelete(row: ExpenseRow) {
               </button>
             </th>
             <th
-              class="px-4 py-3 font-medium"
+              class="whitespace-nowrap px-4 py-3 font-medium"
               :aria-sort="ariaSortFor('paid')"
             >
               <button
@@ -208,10 +208,10 @@ async function onDelete(row: ExpenseRow) {
                 Paid{{ sortIndicator('paid') }}
               </button>
             </th>
-            <th class="px-4 py-3 font-medium">
+            <th class="whitespace-nowrap px-4 py-3 font-medium">
               Note
             </th>
-            <th class="px-4 py-3 font-medium text-right w-24">
+            <th class="w-24 whitespace-nowrap px-4 py-3 font-medium text-right">
               <span class="sr-only">Actions</span>
             </th>
           </tr>
@@ -223,7 +223,7 @@ async function onDelete(row: ExpenseRow) {
             class="group border-b border-border last:border-0 transition-colors duration-200 ease-out hover:bg-muted/30"
           >
             <td
-              class="min-w-0 overflow-hidden px-4 py-3 whitespace-nowrap"
+              class="px-4 py-3 whitespace-nowrap"
               :class="!isEditing(row.id, 'paid_date') && 'cursor-pointer text-muted-foreground transition-colors duration-150 ease-out hover:bg-muted/50'"
               @click="startEdit(row, 'paid_date')"
             >
@@ -245,7 +245,7 @@ async function onDelete(row: ExpenseRow) {
               </template>
             </td>
             <td
-              class="min-w-0 overflow-hidden px-4 py-3"
+              class="px-4 py-3 whitespace-nowrap"
               :class="!isEditing(row.id, 'name') && 'cursor-pointer font-medium transition-colors duration-150 ease-out hover:bg-muted/50'"
               @click="startEdit(row, 'name')"
             >
@@ -266,7 +266,7 @@ async function onDelete(row: ExpenseRow) {
               </template>
             </td>
             <td
-              class="min-w-0 overflow-hidden px-4 py-3"
+              class="px-4 py-3 whitespace-nowrap"
               :class="!isEditing(row.id, 'category') && 'cursor-pointer transition-colors duration-150 ease-out hover:bg-muted/50'"
               @click="startEdit(row, 'category')"
             >
@@ -294,7 +294,7 @@ async function onDelete(row: ExpenseRow) {
               </template>
             </td>
             <td
-              class="min-w-0 overflow-hidden px-4 py-3 text-right tabular-nums whitespace-nowrap"
+              class="px-4 py-3 text-right tabular-nums whitespace-nowrap"
               :class="!isEditing(row.id, 'amount') && 'cursor-pointer transition-colors duration-150 ease-out hover:bg-muted/50'"
               @click="startEdit(row, 'amount')"
             >
@@ -318,7 +318,7 @@ async function onDelete(row: ExpenseRow) {
               </template>
             </td>
             <td
-              class="min-w-0 overflow-hidden px-4 py-3"
+              class="px-4 py-3 whitespace-nowrap"
               :class="!isEditing(row.id, 'paid') && 'cursor-pointer transition-colors duration-150 ease-out hover:bg-muted/50'"
               @click="startEdit(row, 'paid')"
             >
@@ -351,7 +351,7 @@ async function onDelete(row: ExpenseRow) {
               </span>
             </td>
             <td
-              class="min-w-0 overflow-hidden px-4 py-3 max-w-[12rem]"
+              class="max-w-[12rem] px-4 py-3 whitespace-nowrap"
               :class="!isEditing(row.id, 'note') && 'cursor-pointer truncate text-muted-foreground transition-colors duration-150 ease-out hover:bg-muted/50'"
               :title="row.note || undefined"
               @click="startEdit(row, 'note')"
