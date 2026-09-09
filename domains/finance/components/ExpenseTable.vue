@@ -153,8 +153,8 @@ async function onDelete(row: ExpenseRow) {
 
 <template>
   <div class="space-y-4">
-    <div class="max-w-full overflow-x-auto overscroll-x-contain rounded-md border border-border [-webkit-overflow-scrolling:touch]">
-      <table class="w-max min-w-full text-sm">
+    <div class="table-h-scroll rounded-md border border-border">
+      <table class="w-max text-sm">
         <thead class="border-b border-border bg-muted/40">
           <tr class="text-left">
             <th

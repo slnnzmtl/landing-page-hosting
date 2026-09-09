@@ -43,73 +43,77 @@ const paidOptions: { value: PaidFilter, label: string }[] = [
 ]
 
 const selectClass
-  = 'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
+  = 'flex h-10 w-full min-w-0 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
 </script>
 
 <template>
   <section class="space-y-4 border-b border-border pb-6">
-    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <div class="space-y-1.5">
-        <label class="text-sm font-medium" :for="`${idPrefix}-filter-year`">Year</label>
-        <select
-          :id="`${idPrefix}-filter-year`"
-          v-model.number="year"
-          :class="selectClass"
-        >
-          <option
-            v-for="y in availableYears"
-            :key="y"
-            :value="y"
+    <div class="space-y-4">
+      <div class="grid grid-cols-2 gap-4">
+        <div class="space-y-1.5">
+          <label class="text-sm font-medium" :for="`${idPrefix}-filter-year`">Year</label>
+          <select
+            :id="`${idPrefix}-filter-year`"
+            v-model.number="year"
+            :class="selectClass"
           >
-            {{ y }}
-          </option>
-        </select>
-      </div>
-
-      <div class="space-y-1.5">
-        <label class="text-sm font-medium" :for="`${idPrefix}-filter-month`">Month</label>
-        <select
-          :id="`${idPrefix}-filter-month`"
-          v-model.number="month"
-          :class="selectClass"
-          :disabled="!!(dateFrom || dateTo)"
-        >
-          <option
-            v-for="m in monthOptions"
-            :key="m.value"
-            :value="m.value"
-          >
-            {{ m.label }}
-          </option>
-        </select>
-      </div>
-
-      <div class="space-y-1.5">
-        <label class="text-sm font-medium" :for="`${idPrefix}-filter-from`">From</label>
-        <Input
-          :id="`${idPrefix}-filter-from`"
-          v-model="dateFrom"
-          type="date"
-        />
-      </div>
-
-      <div class="space-y-1.5">
-        <div class="flex items-center justify-between">
-          <label class="text-sm font-medium" :for="`${idPrefix}-filter-to`">To</label>
-          <button
-            v-if="dateFrom || dateTo"
-            type="button"
-            class="text-xs text-muted-foreground hover:text-foreground"
-            @click="clearDateRange"
-          >
-            Clear range
-          </button>
+            <option
+              v-for="y in availableYears"
+              :key="y"
+              :value="y"
+            >
+              {{ y }}
+            </option>
+          </select>
         </div>
-        <Input
-          :id="`${idPrefix}-filter-to`"
-          v-model="dateTo"
-          type="date"
-        />
+
+        <div class="space-y-1.5">
+          <label class="text-sm font-medium" :for="`${idPrefix}-filter-month`">Month</label>
+          <select
+            :id="`${idPrefix}-filter-month`"
+            v-model.number="month"
+            :class="selectClass"
+            :disabled="!!(dateFrom || dateTo)"
+          >
+            <option
+              v-for="m in monthOptions"
+              :key="m.value"
+              :value="m.value"
+            >
+              {{ m.label }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div class="space-y-1.5">
+          <label class="text-sm font-medium" :for="`${idPrefix}-filter-from`">From</label>
+          <Input
+            :id="`${idPrefix}-filter-from`"
+            v-model="dateFrom"
+            type="date"
+          />
+        </div>
+
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between gap-2">
+            <label class="text-sm font-medium" :for="`${idPrefix}-filter-to`">To</label>
+            <button
+              v-if="dateFrom || dateTo"
+              type="button"
+              class="shrink-0 text-xs text-muted-foreground hover:text-foreground"
+              @click="clearDateRange"
+            >
+              Clear range
+            </button>
+          </div>
+          <Input
+            :id="`${idPrefix}-filter-to`"
+            v-model="dateTo"
+            type="date"
+          />
+        </div>
       </div>
     </div>
 

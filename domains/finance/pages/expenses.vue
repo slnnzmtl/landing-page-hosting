@@ -46,7 +46,7 @@ const {
 </script>
 
 <template>
-  <div class="max-w-6xl mx-auto py-10 px-4 space-y-8">
+  <div class="page-shell mx-auto max-w-6xl space-y-8 py-10 px-4">
     <header class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
       <div>
         <h1 class="text-3xl font-bold tracking-tight">
