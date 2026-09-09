@@ -23,6 +23,7 @@ const props = defineProps<{
   totalPages: number
   pageRangeLabel: string
   updateExpense: (id: string, patch: ExpenseUpdate) => Promise<boolean>
+  deleteExpense: (id: string) => Promise<boolean>
   toggleSort: (column: ExpenseSortColumn) => void
   goToPrevPage: () => void
   goToNextPage: () => void
@@ -35,6 +36,7 @@ type EditField = keyof Pick<Expense, 'paid_date' | 'name' | 'category' | 'amount
 const editing = ref<{ id: string, field: EditField } | null>(null)
 const draft = ref('')
 const saving = ref(false)
+const deletingId = ref<string | null>(null)
 
 const pageSizeOptions = [25, 50, 100]
 
@@ -75,6 +77,7 @@ function seedDraft(row: ExpenseRow, field: EditField): string {
 }
 
 function startEdit(row: ExpenseRow, field: EditField) {
+  if (saving.value || deletingId.value) return
   if (isEditing(row.id, field)) return
   editing.value = { id: row.id, field }
   draft.value = seedDraft(row, field)
@@ -104,7 +107,7 @@ function isUnchanged(row: ExpenseRow, field: EditField, parsed: Expense[EditFiel
 
 async function commitEdit() {
   const current = editing.value
-  if (!current || saving.value) return
+  if (!current || saving.value || deletingId.value) return
 
   const row = props.rows.find(r => r.id === current.id)
   if (!row) {
@@ -129,16 +132,33 @@ async function commitEdit() {
     saving.value = false
   }
 }
+
+async function onDelete(row: ExpenseRow) {
+  if (saving.value || deletingId.value) return
+
+  const label = row.name?.trim() || 'this expense'
+  const confirmed = window.confirm(`Delete “${label}”? This cannot be undone.`)
+  if (!confirmed) return
+
+  if (editing.value?.id === row.id) editing.value = null
+  deletingId.value = row.id
+  try {
+    await props.deleteExpense(row.id)
+  }
+  finally {
+    deletingId.value = null
+  }
+}
 </script>
 
 <template>
   <div class="space-y-4">
-    <div class="overflow-x-auto rounded-md border border-border">
-      <table class="w-full min-w-[640px] table-fixed text-sm">
+    <div class="max-w-full overflow-x-auto overscroll-x-contain rounded-md border border-border [-webkit-overflow-scrolling:touch]">
+      <table class="w-max min-w-full text-sm">
         <thead class="border-b border-border bg-muted/40">
           <tr class="text-left">
             <th
-              class="px-4 py-3 font-medium"
+              class="whitespace-nowrap px-4 py-3 font-medium"
               :aria-sort="ariaSortFor('paid_date')"
             >
               <button
@@ -150,7 +170,7 @@ async function commitEdit() {
               </button>
             </th>
             <th
-              class="px-4 py-3 font-medium"
+              class="whitespace-nowrap px-4 py-3 font-medium"
               :aria-sort="ariaSortFor('name')"
             >
               <button
@@ -161,11 +181,11 @@ async function commitEdit() {
                 Name{{ sortIndicator('name') }}
               </button>
             </th>
-            <th class="px-4 py-3 font-medium">
+            <th class="whitespace-nowrap px-4 py-3 font-medium">
               Category
             </th>
             <th
-              class="px-4 py-3 font-medium text-right"
+              class="whitespace-nowrap px-4 py-3 font-medium text-right"
               :aria-sort="ariaSortFor('amount')"
             >
               <button
@@ -177,7 +197,7 @@ async function commitEdit() {
               </button>
             </th>
             <th
-              class="px-4 py-3 font-medium"
+              class="whitespace-nowrap px-4 py-3 font-medium"
               :aria-sort="ariaSortFor('paid')"
             >
               <button
@@ -188,8 +208,11 @@ async function commitEdit() {
                 Paid{{ sortIndicator('paid') }}
               </button>
             </th>
-            <th class="px-4 py-3 font-medium">
+            <th class="whitespace-nowrap px-4 py-3 font-medium">
               Note
+            </th>
+            <th class="w-24 whitespace-nowrap px-4 py-3 font-medium text-right">
+              <span class="sr-only">Actions</span>
             </th>
           </tr>
         </thead>
@@ -197,11 +220,11 @@ async function commitEdit() {
           <tr
             v-for="row in rows"
             :key="row.id"
-            class="border-b border-border last:border-0 hover:bg-muted/30"
+            class="group border-b border-border last:border-0 transition-colors duration-200 ease-out hover:bg-muted/30"
           >
             <td
-              class="min-w-0 overflow-hidden px-4 py-3 whitespace-nowrap"
-              :class="!isEditing(row.id, 'paid_date') && 'cursor-pointer text-muted-foreground hover:bg-muted/50'"
+              class="px-4 py-3 whitespace-nowrap"
+              :class="!isEditing(row.id, 'paid_date') && 'cursor-pointer text-muted-foreground transition-colors duration-150 ease-out hover:bg-muted/50'"
               @click="startEdit(row, 'paid_date')"
             >
               <Input
@@ -210,7 +233,7 @@ async function commitEdit() {
                 type="date"
                 size="1"
                 autofocus
-                :disabled="saving"
+                :disabled="saving || Boolean(deletingId)"
                 :class="cellControlClass"
                 @click.stop
                 @blur="commitEdit"
@@ -222,8 +245,8 @@ async function commitEdit() {
               </template>
             </td>
             <td
-              class="min-w-0 overflow-hidden px-4 py-3"
-              :class="!isEditing(row.id, 'name') && 'cursor-pointer font-medium hover:bg-muted/50'"
+              class="px-4 py-3 whitespace-nowrap"
+              :class="!isEditing(row.id, 'name') && 'cursor-pointer font-medium transition-colors duration-150 ease-out hover:bg-muted/50'"
               @click="startEdit(row, 'name')"
             >
               <Input
@@ -231,7 +254,7 @@ async function commitEdit() {
                 v-model="draft"
                 size="1"
                 autofocus
-                :disabled="saving"
+                :disabled="saving || Boolean(deletingId)"
                 :class="cellControlClass"
                 @click.stop
                 @blur="commitEdit"
@@ -243,15 +266,15 @@ async function commitEdit() {
               </template>
             </td>
             <td
-              class="min-w-0 overflow-hidden px-4 py-3"
-              :class="!isEditing(row.id, 'category') && 'cursor-pointer hover:bg-muted/50'"
+              class="px-4 py-3 whitespace-nowrap"
+              :class="!isEditing(row.id, 'category') && 'cursor-pointer transition-colors duration-150 ease-out hover:bg-muted/50'"
               @click="startEdit(row, 'category')"
             >
               <select
                 v-if="isEditing(row.id, 'category')"
                 v-model="draft"
                 :class="cellControlClass"
-                :disabled="saving"
+                :disabled="saving || Boolean(deletingId)"
                 autofocus
                 @click.stop
                 @change="commitEdit"
@@ -271,8 +294,8 @@ async function commitEdit() {
               </template>
             </td>
             <td
-              class="min-w-0 overflow-hidden px-4 py-3 text-right tabular-nums whitespace-nowrap"
-              :class="!isEditing(row.id, 'amount') && 'cursor-pointer hover:bg-muted/50'"
+              class="px-4 py-3 text-right tabular-nums whitespace-nowrap"
+              :class="!isEditing(row.id, 'amount') && 'cursor-pointer transition-colors duration-150 ease-out hover:bg-muted/50'"
               @click="startEdit(row, 'amount')"
             >
               <Input
@@ -283,7 +306,7 @@ async function commitEdit() {
                 step="1"
                 size="1"
                 autofocus
-                :disabled="saving"
+                :disabled="saving || Boolean(deletingId)"
                 :class="[cellControlClass, 'text-right']"
                 @click.stop
                 @blur="commitEdit"
@@ -295,15 +318,15 @@ async function commitEdit() {
               </template>
             </td>
             <td
-              class="min-w-0 overflow-hidden px-4 py-3"
-              :class="!isEditing(row.id, 'paid') && 'cursor-pointer hover:bg-muted/50'"
+              class="px-4 py-3 whitespace-nowrap"
+              :class="!isEditing(row.id, 'paid') && 'cursor-pointer transition-colors duration-150 ease-out hover:bg-muted/50'"
               @click="startEdit(row, 'paid')"
             >
               <select
                 v-if="isEditing(row.id, 'paid')"
                 v-model="draft"
                 :class="cellControlClass"
-                :disabled="saving"
+                :disabled="saving || Boolean(deletingId)"
                 autofocus
                 @click.stop
                 @change="commitEdit"
@@ -328,8 +351,8 @@ async function commitEdit() {
               </span>
             </td>
             <td
-              class="min-w-0 overflow-hidden px-4 py-3 max-w-[12rem]"
-              :class="!isEditing(row.id, 'note') && 'cursor-pointer truncate text-muted-foreground hover:bg-muted/50'"
+              class="max-w-[12rem] px-4 py-3 whitespace-nowrap"
+              :class="!isEditing(row.id, 'note') && 'cursor-pointer truncate text-muted-foreground transition-colors duration-150 ease-out hover:bg-muted/50'"
               :title="row.note || undefined"
               @click="startEdit(row, 'note')"
             >
@@ -338,7 +361,7 @@ async function commitEdit() {
                 v-model="draft"
                 size="1"
                 autofocus
-                :disabled="saving"
+                :disabled="saving || Boolean(deletingId)"
                 :class="cellControlClass"
                 @click.stop
                 @blur="commitEdit"
@@ -348,6 +371,19 @@ async function commitEdit() {
               <template v-else>
                 {{ row.note || '—' }}
               </template>
+            </td>
+            <td class="px-4 py-3 text-right whitespace-nowrap">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                class="text-destructive hover:text-destructive opacity-0 pointer-events-none transition-[opacity,transform] duration-200 ease-out translate-x-1 group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-x-0 group-focus-within:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-x-0 focus-visible:opacity-100 focus-visible:pointer-events-auto focus-visible:translate-x-0"
+                :class="deletingId === row.id && 'opacity-100 pointer-events-auto translate-x-0'"
+                :disabled="saving || Boolean(deletingId)"
+                @click.stop="onDelete(row)"
+              >
+                {{ deletingId === row.id ? 'Deleting…' : 'Delete' }}
+              </Button>
             </td>
           </tr>
         </tbody>
@@ -359,7 +395,7 @@ async function commitEdit() {
             <td class="px-4 py-3 text-right tabular-nums whitespace-nowrap">
               {{ formatUsd(totalAmount) }}
             </td>
-            <td colspan="2" class="px-4 py-3" />
+            <td colspan="3" class="px-4 py-3" />
           </tr>
         </tfoot>
       </table>

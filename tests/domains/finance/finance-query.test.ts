@@ -4,7 +4,9 @@ import {
   categoryNameMap,
   normalizeCategories,
   normalizeExpenses,
+  parseExpenseCreateInput,
   resolveCategoryName,
+  todayIsoDate,
   type Category,
   type Expense,
 } from '~/domains/finance/utils/finance-query'
@@ -143,5 +145,61 @@ describe('buildCategoryMonthMatrix', () => {
     expect(matrix.rows).toEqual([])
     expect(matrix.columnTotals).toEqual(Array.from({ length: 12 }, () => 0))
     expect(matrix.grandTotal).toBe(0)
+  })
+})
+
+describe('todayIsoDate', () => {
+  it('formats the local calendar date as YYYY-MM-DD', () => {
+    expect(todayIsoDate(new Date(2026, 8, 9))).toBe('2026-09-09')
+  })
+})
+
+describe('parseExpenseCreateInput', () => {
+  const valid = {
+    paid_date: '2026-09-09',
+    name: 'Coffee',
+    category: '4',
+    amount: 5,
+    paid: true,
+    note: '  latte  ',
+  }
+
+  it('accepts a valid payload and trims note to null when empty', () => {
+    const result = parseExpenseCreateInput(valid)
+    expect(result).toEqual({
+      ok: true,
+      value: {
+        paid_date: '2026-09-09',
+        name: 'Coffee',
+        category: '4',
+        amount: 5,
+        paid: true,
+        note: 'latte',
+      },
+    })
+
+    const emptyNote = parseExpenseCreateInput({ ...valid, note: '   ' })
+    expect(emptyNote.ok && emptyNote.value.note).toBe(null)
+  })
+
+  it('parses amount from a numeric string', () => {
+    const result = parseExpenseCreateInput({ ...valid, amount: '12' })
+    expect(result.ok && result.value.amount).toBe(12)
+  })
+
+  it('rejects missing or invalid date', () => {
+    expect(parseExpenseCreateInput({ ...valid, paid_date: '' }).ok).toBe(false)
+    expect(parseExpenseCreateInput({ ...valid, paid_date: '09-09-2026' }).ok).toBe(false)
+  })
+
+  it('rejects empty name or category', () => {
+    expect(parseExpenseCreateInput({ ...valid, name: '  ' }).ok).toBe(false)
+    expect(parseExpenseCreateInput({ ...valid, category: '' }).ok).toBe(false)
+  })
+
+  it('rejects invalid amounts', () => {
+    expect(parseExpenseCreateInput({ ...valid, amount: -1 }).ok).toBe(false)
+    expect(parseExpenseCreateInput({ ...valid, amount: 'abc' }).ok).toBe(false)
+    expect(parseExpenseCreateInput({ ...valid, amount: Number.NaN }).ok).toBe(false)
   })
 })
