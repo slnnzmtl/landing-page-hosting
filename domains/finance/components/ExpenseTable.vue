@@ -220,7 +220,7 @@ async function onDelete(row: ExpenseRow) {
           <tr
             v-for="row in rows"
             :key="row.id"
-            class="border-b border-border last:border-0 hover:bg-muted/30"
+            class="group border-b border-border last:border-0 hover:bg-muted/30"
           >
             <td
               class="min-w-0 overflow-hidden px-4 py-3 whitespace-nowrap"
@@ -377,7 +377,8 @@ async function onDelete(row: ExpenseRow) {
                 type="button"
                 variant="ghost"
                 size="sm"
-                class="text-destructive hover:text-destructive"
+                class="text-destructive hover:text-destructive opacity-0 pointer-events-none transition-opacity group-hover:opacity-100 group-hover:pointer-events-auto group-focus-within:opacity-100 group-focus-within:pointer-events-auto focus-visible:opacity-100 focus-visible:pointer-events-auto"
+                :class="deletingId === row.id && 'opacity-100 pointer-events-auto'"
                 :disabled="saving || Boolean(deletingId)"
                 @click.stop="onDelete(row)"
               >
