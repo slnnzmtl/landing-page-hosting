@@ -7,9 +7,11 @@ import {
   formatUsd,
   normalizeCategories,
   normalizeExpenses,
+  parseExpenseCreateInput,
   resolveCategoryName,
   type Category,
   type Expense,
+  type ExpenseCreateInput,
   type ExpenseSortColumn,
 } from '../utils/finance-query'
 import { useFinanceFilterState } from './useFinanceFilterState'
@@ -277,6 +279,69 @@ export function useFinanceExpenses() {
     }
   }
 
+  function revealDateInFilters(paidDate: string) {
+    const y = Number(paidDate.slice(0, 4))
+    const m = Number(paidDate.slice(5, 7))
+    if (!Number.isFinite(y) || !Number.isFinite(m) || m < 1 || m > 12) return
+
+    const window = effectiveDateWindow.value
+    if (paidDate >= window.from && paidDate <= window.to) return
+
+    dateFrom.value = ''
+    dateTo.value = ''
+    year.value = y
+    month.value = m
+  }
+
+  async function createExpense(input: ExpenseCreateInput): Promise<boolean> {
+    error.value = null
+    const parsed = parseExpenseCreateInput(input)
+    if (!parsed.ok) {
+      error.value = parsed.error
+      return false
+    }
+
+    try {
+      const supabase = useSupabase()
+      const { error: insertError } = await supabase
+        .from('expense')
+        .insert(parsed.value)
+      if (insertError) throw insertError
+
+      revealDateInFilters(parsed.value.paid_date)
+      // Reset to first page so the new row is likely visible after refetch
+      if (page.value !== 1) {
+        page.value = 1
+      }
+      else {
+        await fetchPage()
+      }
+      return true
+    }
+    catch (err) {
+      error.value = err instanceof Error ? err.message : 'Failed to create expense'
+      return false
+    }
+  }
+
+  async function deleteExpense(id: string): Promise<boolean> {
+    error.value = null
+    try {
+      const supabase = useSupabase()
+      const { error: deleteError } = await supabase
+        .from('expense')
+        .delete()
+        .eq('id', id)
+      if (deleteError) throw deleteError
+      await fetchPage()
+      return true
+    }
+    catch (err) {
+      error.value = err instanceof Error ? err.message : 'Failed to delete expense'
+      return false
+    }
+  }
+
   function goToPrevPage() {
     if (page.value > 1) page.value -= 1
   }
@@ -336,6 +401,8 @@ export function useFinanceExpenses() {
     effectiveDateWindow,
     fetchPage,
     updateExpense,
+    createExpense,
+    deleteExpense,
     clearDateRange,
     toggleCategory,
     clearCategoryFilter,

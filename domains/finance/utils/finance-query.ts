@@ -166,6 +166,73 @@ export interface BuildExpenseQueryOptions {
   sortDir?: SortDir
 }
 
+/** Local calendar date as YYYY-MM-DD (not UTC). */
+export function todayIsoDate(now = new Date()) {
+  return `${now.getFullYear()}-${pad2(now.getMonth() + 1)}-${pad2(now.getDate())}`
+}
+
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/
+
+export interface ExpenseCreateInput {
+  paid_date: string
+  name: string
+  category: string
+  amount: number | string
+  paid: boolean
+  note?: string | null
+}
+
+export type ExpenseInsert = Pick<
+  Expense,
+  'paid_date' | 'name' | 'category' | 'amount' | 'paid' | 'note'
+>
+
+export type ParseExpenseCreateResult
+  = | { ok: true, value: ExpenseInsert }
+    | { ok: false, error: string }
+
+/** Validate and normalize fields for inserting an expense row. */
+export function parseExpenseCreateInput(
+  input: ExpenseCreateInput,
+): ParseExpenseCreateResult {
+  const paid_date = String(input.paid_date ?? '').trim()
+  if (!ISO_DATE_RE.test(paid_date)) {
+    return { ok: false, error: 'A valid date is required.' }
+  }
+
+  const name = String(input.name ?? '').trim()
+  if (!name) {
+    return { ok: false, error: 'Name is required.' }
+  }
+
+  const category = String(input.category ?? '').trim()
+  if (!category) {
+    return { ok: false, error: 'Category is required.' }
+  }
+
+  const amount = typeof input.amount === 'number'
+    ? input.amount
+    : Number(String(input.amount ?? '').trim())
+  if (!Number.isFinite(amount) || amount < 0) {
+    return { ok: false, error: 'Amount must be a non-negative number.' }
+  }
+
+  const noteRaw = input.note == null ? '' : String(input.note).trim()
+  const note = noteRaw || null
+
+  return {
+    ok: true,
+    value: {
+      paid_date,
+      name,
+      category,
+      amount,
+      paid: Boolean(input.paid),
+      note,
+    },
+  }
+}
+
 export function buildExpenseQuery(
   supabase: SupabaseClient,
   options: BuildExpenseQueryOptions,

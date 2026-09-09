@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useFinanceExpenses } from '../composables/useFinanceExpenses'
 import ExpenseTable from '../components/ExpenseTable.vue'
+import ExpenseCreateForm from '../components/ExpenseCreateForm.vue'
 import FinanceFilterBar from '../components/FinanceFilterBar.vue'
 
 useHead({
@@ -39,6 +40,8 @@ const {
   goToPrevPage,
   goToNextPage,
   updateExpense,
+  createExpense,
+  deleteExpense,
 } = useFinanceExpenses()
 </script>
 
@@ -87,6 +90,11 @@ const {
       :clear-category-filter="clearCategoryFilter"
     />
 
+    <ExpenseCreateForm
+      :categories="categories"
+      :create-expense="createExpense"
+    />
+
     <div v-if="loading" class="text-muted-foreground text-sm">
       Loading expenses…
     </div>
@@ -111,7 +119,7 @@ const {
     </p>
 
     <ExpenseTable
-      v-else
+      v-if="!loading && !accessHint && rows.length"
       v-model:page-size="pageSize"
       :rows="rows"
       :categories="categories"
@@ -122,6 +130,7 @@ const {
       :total-pages="totalPages"
       :page-range-label="pageRangeLabel"
       :update-expense="updateExpense"
+      :delete-expense="deleteExpense"
       :toggle-sort="toggleSort"
       :go-to-prev-page="goToPrevPage"
       :go-to-next-page="goToNextPage"

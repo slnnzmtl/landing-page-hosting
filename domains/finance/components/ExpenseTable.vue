@@ -23,6 +23,7 @@ const props = defineProps<{
   totalPages: number
   pageRangeLabel: string
   updateExpense: (id: string, patch: ExpenseUpdate) => Promise<boolean>
+  deleteExpense: (id: string) => Promise<boolean>
   toggleSort: (column: ExpenseSortColumn) => void
   goToPrevPage: () => void
   goToNextPage: () => void
@@ -35,6 +36,7 @@ type EditField = keyof Pick<Expense, 'paid_date' | 'name' | 'category' | 'amount
 const editing = ref<{ id: string, field: EditField } | null>(null)
 const draft = ref('')
 const saving = ref(false)
+const deletingId = ref<string | null>(null)
 
 const pageSizeOptions = [25, 50, 100]
 
@@ -75,6 +77,7 @@ function seedDraft(row: ExpenseRow, field: EditField): string {
 }
 
 function startEdit(row: ExpenseRow, field: EditField) {
+  if (saving.value || deletingId.value) return
   if (isEditing(row.id, field)) return
   editing.value = { id: row.id, field }
   draft.value = seedDraft(row, field)
@@ -104,7 +107,7 @@ function isUnchanged(row: ExpenseRow, field: EditField, parsed: Expense[EditFiel
 
 async function commitEdit() {
   const current = editing.value
-  if (!current || saving.value) return
+  if (!current || saving.value || deletingId.value) return
 
   const row = props.rows.find(r => r.id === current.id)
   if (!row) {
@@ -127,6 +130,23 @@ async function commitEdit() {
   }
   finally {
     saving.value = false
+  }
+}
+
+async function onDelete(row: ExpenseRow) {
+  if (saving.value || deletingId.value) return
+
+  const label = row.name?.trim() || 'this expense'
+  const confirmed = window.confirm(`Delete “${label}”? This cannot be undone.`)
+  if (!confirmed) return
+
+  if (editing.value?.id === row.id) editing.value = null
+  deletingId.value = row.id
+  try {
+    await props.deleteExpense(row.id)
+  }
+  finally {
+    deletingId.value = null
   }
 }
 </script>
@@ -191,6 +211,9 @@ async function commitEdit() {
             <th class="px-4 py-3 font-medium">
               Note
             </th>
+            <th class="px-4 py-3 font-medium text-right w-24">
+              <span class="sr-only">Actions</span>
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -210,7 +233,7 @@ async function commitEdit() {
                 type="date"
                 size="1"
                 autofocus
-                :disabled="saving"
+                :disabled="saving || Boolean(deletingId)"
                 :class="cellControlClass"
                 @click.stop
                 @blur="commitEdit"
@@ -231,7 +254,7 @@ async function commitEdit() {
                 v-model="draft"
                 size="1"
                 autofocus
-                :disabled="saving"
+                :disabled="saving || Boolean(deletingId)"
                 :class="cellControlClass"
                 @click.stop
                 @blur="commitEdit"
@@ -251,7 +274,7 @@ async function commitEdit() {
                 v-if="isEditing(row.id, 'category')"
                 v-model="draft"
                 :class="cellControlClass"
-                :disabled="saving"
+                :disabled="saving || Boolean(deletingId)"
                 autofocus
                 @click.stop
                 @change="commitEdit"
@@ -283,7 +306,7 @@ async function commitEdit() {
                 step="1"
                 size="1"
                 autofocus
-                :disabled="saving"
+                :disabled="saving || Boolean(deletingId)"
                 :class="[cellControlClass, 'text-right']"
                 @click.stop
                 @blur="commitEdit"
@@ -303,7 +326,7 @@ async function commitEdit() {
                 v-if="isEditing(row.id, 'paid')"
                 v-model="draft"
                 :class="cellControlClass"
-                :disabled="saving"
+                :disabled="saving || Boolean(deletingId)"
                 autofocus
                 @click.stop
                 @change="commitEdit"
@@ -338,7 +361,7 @@ async function commitEdit() {
                 v-model="draft"
                 size="1"
                 autofocus
-                :disabled="saving"
+                :disabled="saving || Boolean(deletingId)"
                 :class="cellControlClass"
                 @click.stop
                 @blur="commitEdit"
@@ -348,6 +371,18 @@ async function commitEdit() {
               <template v-else>
                 {{ row.note || '—' }}
               </template>
+            </td>
+            <td class="px-4 py-3 text-right whitespace-nowrap">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                class="text-destructive hover:text-destructive"
+                :disabled="saving || Boolean(deletingId)"
+                @click.stop="onDelete(row)"
+              >
+                {{ deletingId === row.id ? 'Deleting…' : 'Delete' }}
+              </Button>
             </td>
           </tr>
         </tbody>
@@ -359,7 +394,7 @@ async function commitEdit() {
             <td class="px-4 py-3 text-right tabular-nums whitespace-nowrap">
               {{ formatUsd(totalAmount) }}
             </td>
-            <td colspan="2" class="px-4 py-3" />
+            <td colspan="3" class="px-4 py-3" />
           </tr>
         </tfoot>
       </table>
