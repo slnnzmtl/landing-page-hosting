@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useProjects } from '../composables/useProjects'
+import ProjectGallery from '../components/ProjectGallery.vue'
 
 const route = useRoute()
 const slug = String(route.params.slug || '')
@@ -91,6 +92,8 @@ useHead({
             :alt="project.logo.alt"
             :width="project.logo.width"
             :height="project.logo.height"
+            fetchpriority="high"
+            decoding="async"
             class="h-auto w-full max-w-[14rem]"
           />
           <p
@@ -160,7 +163,18 @@ useHead({
         </ol>
       </section>
 
-      <!-- DDD-126: ProjectGallery mounts here when `project.gallery` is present. -->
+      <section
+        v-if="project.gallery?.length"
+        id="project-gallery"
+        aria-labelledby="project-gallery-heading"
+        class="space-y-4"
+      >
+        <h2 id="project-gallery-heading" class="text-2xl font-semibold">
+          Product gallery
+        </h2>
+        <ProjectGallery :images="project.gallery" />
+      </section>
+
       <!-- DDD-127: GithubReleases mounts here when `project.github` is set. -->
     </div>
   </article>

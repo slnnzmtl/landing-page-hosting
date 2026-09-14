@@ -45,6 +45,19 @@ useHead({
             :to="projectPath(project.slug)"
             class="group flex h-full flex-col rounded-2xl border border-border bg-card p-6 shadow-sm transition hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
+            <div
+              v-if="project.logo"
+              class="mb-4 flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-slate-950"
+            >
+              <img
+                :src="project.logo.src"
+                :alt="project.logo.alt"
+                :width="project.logo.width"
+                :height="project.logo.height"
+                class="h-12 w-12"
+                decoding="async"
+              />
+            </div>
             <h2 class="text-xl font-semibold text-primary">
               {{ project.name }}
             </h2>
