@@ -7,7 +7,7 @@ describe('prefixDomainPages', () => {
     const pages: NuxtPage[] = [
       {
         path: '/dashboard',
-        file: '/repo/domains/finance/pages/dashboard.vue',
+        file: '/repo/domains/service/pages/dashboard.vue',
       },
       {
         path: '/',
@@ -19,9 +19,9 @@ describe('prefixDomainPages', () => {
       },
     ]
 
-    prefixDomainPages(pages, 'finance', '/finance')
+    prefixDomainPages(pages, 'service', '/service')
 
-    expect(pages[0].path).toBe('/finance/dashboard')
+    expect(pages[0].path).toBe('/service/dashboard')
     expect(pages[1].path).toBe('/')
     expect(pages[2].path).toBe('/about')
   })
@@ -52,10 +52,10 @@ describe('prefixDomainPages', () => {
 
   it('is idempotent', () => {
     const pages: NuxtPage[] = [
-      { path: '/dashboard', file: '/repo/domains/finance/pages/dashboard.vue' },
+      { path: '/dashboard', file: '/repo/domains/service/pages/dashboard.vue' },
     ]
-    prefixDomainPages(pages, 'finance', '/finance')
-    prefixDomainPages(pages, 'finance', '/finance')
-    expect(pages[0].path).toBe('/finance/dashboard')
+    prefixDomainPages(pages, 'service', '/service')
+    prefixDomainPages(pages, 'service', '/service')
+    expect(pages[0].path).toBe('/service/dashboard')
   })
 })
