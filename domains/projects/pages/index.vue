@@ -1,18 +1,12 @@
 <script setup lang="ts">
 import { useProjects } from '../composables/useProjects'
 import { projectPath } from '../data/types'
+import { useProjectPageSeo } from '../composables/useProjectPageSeo'
+import { projectsIndexSeo, resolveSiteUrl } from '../utils/seo'
 
 const { projects } = useProjects()
-
-useHead({
-  title: 'Selected projects | Kazansky Development',
-  meta: [
-    {
-      name: 'description',
-      content: 'Selected personal projects and products, starting with Simple Rekordbox Converter.',
-    },
-  ],
-})
+const siteUrl = resolveSiteUrl(useRuntimeConfig().public.siteUrl as string)
+useProjectPageSeo(projectsIndexSeo(siteUrl, projects))
 </script>
 
 <template>

@@ -2,6 +2,8 @@
 import { useProjects } from '../composables/useProjects'
 import ProjectGallery from '../components/ProjectGallery.vue'
 import GithubReleases from '../components/GithubReleases.vue'
+import { useProjectPageSeo } from '../composables/useProjectPageSeo'
+import { projectDetailSeo, resolveSiteUrl } from '../utils/seo'
 
 const route = useRoute()
 const slug = String(route.params.slug || '')
@@ -15,15 +17,8 @@ if (!project) {
   })
 }
 
-useHead({
-  title: `${project.name} | Kazansky Development`,
-  meta: [
-    {
-      name: 'description',
-      content: project.seo?.description ?? project.shortDescription,
-    },
-  ],
-})
+const siteUrl = resolveSiteUrl(useRuntimeConfig().public.siteUrl as string)
+useProjectPageSeo(projectDetailSeo(siteUrl, project))
 </script>
 
 <template>
