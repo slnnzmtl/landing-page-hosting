@@ -6,6 +6,8 @@ export default defineNuxtRouteMiddleware(async (to) => {
   const isLogin = to.path === LOGIN_PATH
   if (!isLogin && !isProtectedPath(to.path)) return
 
+  // Dynamic import keeps @supabase/supabase-js out of the shared entry on public routes.
+  const { useAuth } = await import('~/composables/useAuth')
   const { ensureSession } = useAuth()
   const session = await ensureSession()
 

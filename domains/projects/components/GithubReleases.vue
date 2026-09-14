@@ -93,10 +93,12 @@ function releaseHeading(release: GithubRelease) {
             v-for="asset in result.latest.assets"
             :key="asset.browserDownloadUrl"
             :href="asset.browserDownloadUrl"
+            target="_blank"
+            rel="noopener noreferrer"
             class="rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             Download {{ asset.name }}
-            <span class="text-primary-foreground/80">({{ asset.sizeLabel }})</span>
+            <span>({{ asset.sizeLabel }})</span>
           </a>
         </div>
         <a

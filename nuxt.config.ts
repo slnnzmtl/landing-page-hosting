@@ -14,6 +14,13 @@ export default defineNuxtConfig({
   modules: ['@nuxtjs/tailwindcss'],
   ssr: true,
   devtools: { enabled: true },
+  app: {
+    head: {
+      htmlAttrs: {
+        lang: 'en',
+      },
+    },
+  },
   css: ['@/assets/main.css'],
   runtimeConfig: {
     public: {

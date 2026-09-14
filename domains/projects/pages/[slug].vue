@@ -84,7 +84,9 @@ useProjectPageSeo(projectDetailSeo(siteUrl, project))
         >
           <img
             v-if="project.logo"
-            :src="project.logo.src"
+            :src="project.logo.srcThumb || project.logo.src"
+            :srcset="project.logo.srcset"
+            :sizes="project.logo.sizes"
             :alt="project.logo.alt"
             :width="project.logo.width"
             :height="project.logo.height"
@@ -135,7 +137,7 @@ useProjectPageSeo(projectDetailSeo(siteUrl, project))
         </h2>
         <p
           v-if="project.guide.warning"
-          class="rounded-2xl border border-destructive/30 bg-destructive/5 px-5 py-4 text-sm font-medium text-destructive"
+          class="rounded-2xl border border-amber-500 bg-amber-400 px-5 py-4 text-sm font-medium text-amber-950"
           role="note"
         >
           {{ project.guide.warning }}

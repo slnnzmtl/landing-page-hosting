@@ -1,4 +1,4 @@
-import type { Session } from '@supabase/supabase-js'
+import type { Session, SupabaseClient } from '@supabase/supabase-js'
 import {
   LOGIN_PATH,
   isAllowedEmail,
@@ -12,11 +12,16 @@ function allowedEmailsFromConfig(): string[] {
   return parseAllowedEmails(String(config.public.allowedEmails ?? ''))
 }
 
+async function getSupabase(): Promise<SupabaseClient> {
+  const { useSupabase } = await import('~/domains/finance/composables/useSupabase')
+  return useSupabase()
+}
+
 export function useAuth() {
   const error = ref<string | null>(null)
 
   async function ensureSession(): Promise<Session | null> {
-    const supabase = useSupabase()
+    const supabase = await getSupabase()
     const { data, error: sessionError } = await supabase.auth.getSession()
     if (sessionError) {
       error.value = sessionError.message
@@ -38,7 +43,7 @@ export function useAuth() {
 
   async function signIn(email: string, password: string): Promise<boolean> {
     error.value = null
-    const supabase = useSupabase()
+    const supabase = await getSupabase()
     const { data, error: signInError } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -66,7 +71,7 @@ export function useAuth() {
 
   async function signOut(): Promise<void> {
     error.value = null
-    const supabase = useSupabase()
+    const supabase = await getSupabase()
     await supabase.auth.signOut()
     await navigateTo(LOGIN_PATH)
   }
