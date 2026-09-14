@@ -80,7 +80,7 @@ useProjectPageSeo(projectDetailSeo(siteUrl, project))
         </div>
         <div
           id="project-hero-media"
-          class="flex items-center justify-center rounded-3xl border border-border bg-slate-950 p-8"
+          class="flex items-center justify-center rounded-3xl border border-border bg-slate-950 p-8 ring-1 ring-white/15"
         >
           <img
             v-if="project.logo"

@@ -56,7 +56,6 @@ export default defineNuxtConfig({
         ...getProjectRoutes(),
         '/sitemap.xml',
         '/robots.txt',
-        '/404',
       ],
     },
   },
