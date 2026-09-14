@@ -2,12 +2,14 @@ import { defineNuxtConfig } from 'nuxt/config'
 import { getSurveyRoutes } from './domains/survey/survey-routes'
 import { getServiceRoutes } from './domains/service/service-routes'
 import { getFinanceRoutes } from './domains/finance/finance-routes'
+import { getProjectRoutes } from './domains/projects/project-routes'
 
 export default defineNuxtConfig({
   extends: [
     './domains/finance',
     './domains/survey',
     './domains/service',
+    './domains/projects',
   ],
   modules: ['@nuxtjs/tailwindcss'],
   ssr: true,
@@ -50,6 +52,7 @@ export default defineNuxtConfig({
         ...getSurveyRoutes(),
         ...getServiceRoutes(),
         ...getFinanceRoutes(),
+        ...getProjectRoutes(),
       ],
     },
   },

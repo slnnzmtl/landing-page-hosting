@@ -2,6 +2,8 @@
 import { ref, computed, onMounted } from 'vue'
 import { useSurveys } from '~/domains/survey/composables/useSurveys'
 import { useSurveyResponses } from '~/domains/survey/composables/useSurveyResponses'
+import { useProjects } from '~/domains/projects/composables/useProjects'
+import { projectPath } from '~/domains/projects/data/types'
 
 const services = [
   {
@@ -21,6 +23,7 @@ const services = [
 // Survey integration
 const { surveys } = useSurveys()
 const { getSurveyResponses } = useSurveyResponses()
+const { projects } = useProjects()
 const mounted = ref(false)
 const savedSlugs = ref<Set<string>>(new Set())
 const submittedSlugs = ref<Set<string>>(new Set())
@@ -95,18 +98,80 @@ useHead({
         <div class="flex flex-wrap items-center justify-center gap-4">
           <NuxtLink
             to="/survey"
-            class="rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90"
+            class="rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             Book a strategy session
           </NuxtLink>
+          <NuxtLink
+            to="/projects"
+            class="rounded-full border border-border px-6 py-3 text-sm font-medium text-foreground transition hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
+            View selected projects
+          </NuxtLink>
           <a
             href="mailto:kazanskydaniel@gmail.com"
-            class="rounded-full border border-border px-6 py-3 text-sm font-medium text-foreground transition hover:border-primary hover:text-primary"
+            class="rounded-full border border-border px-6 py-3 text-sm font-medium text-foreground transition hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             Send an email
           </a>
         </div>
       </header>
+
+      <section class="space-y-8">
+        <div class="flex items-end justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-semibold">
+              Selected projects
+            </h2>
+            <p class="mt-3 text-muted-foreground">
+              Public products and tools, including the Rekordbox playlist converter.
+            </p>
+          </div>
+          <NuxtLink
+            to="/projects"
+            class="hidden sm:inline-flex items-center gap-2 text-sm font-medium text-primary transition hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
+            Browse selected projects
+            <svg
+              viewBox="0 0 20 20"
+              fill="none"
+              class="h-4 w-4"
+              aria-hidden="true"
+            >
+              <path
+                d="M7 5l6 5-6 5"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </NuxtLink>
+        </div>
+        <div class="grid gap-5 sm:grid-cols-2">
+          <NuxtLink
+            v-for="project in projects"
+            :key="project.slug"
+            :to="projectPath(project.slug)"
+            class="rounded-2xl border border-border bg-card p-6 shadow-sm transition hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
+            <h3 class="text-xl font-semibold text-primary">
+              {{ project.name }}
+            </h3>
+            <p class="mt-2 text-sm text-muted-foreground">
+              {{ project.shortDescription }}
+            </p>
+          </NuxtLink>
+        </div>
+        <div class="text-center sm:hidden">
+          <NuxtLink
+            to="/projects"
+            class="inline-flex items-center gap-2 rounded-full border border-border px-6 py-3 text-sm font-medium text-foreground transition hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
+            Browse selected projects
+          </NuxtLink>
+        </div>
+      </section>
 
       <section class="grid gap-8 md:grid-cols-3">
         <div class="md:col-span-1">

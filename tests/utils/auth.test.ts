@@ -18,6 +18,8 @@ describe('isProtectedPath', () => {
     expect(isProtectedPath('/')).toBe(false)
     expect(isProtectedPath('/survey')).toBe(false)
     expect(isProtectedPath('/service/foo')).toBe(false)
+    expect(isProtectedPath('/projects')).toBe(false)
+    expect(isProtectedPath('/projects/rekordbox-playlist-converter')).toBe(false)
     expect(isProtectedPath('/login')).toBe(false)
   })
 
