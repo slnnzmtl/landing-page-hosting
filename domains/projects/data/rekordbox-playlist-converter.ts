@@ -7,6 +7,41 @@ export const rekordboxPlaylistConverter: Project = {
     'Turn a Rekordbox playlist of lossless tracks into WAV or AIFF files without changing your originals.',
   description:
     'Simple Rekordbox Converter is a macOS app that reads a Rekordbox collection XML export, converts lossless playlist tracks to WAV or AIFF, and writes a new import XML. Cues, beatgrid, rating, BPM, and tags are copied into a playlist named after the original. It works with Rekordbox 6 and 7. Rekordbox is a trademark of AlphaTheta Corporation / Pioneer DJ; this unofficial tool is not affiliated with, endorsed by, or sponsored by AlphaTheta or Pioneer DJ.',
+  logo: {
+    src: '/projects/rekordbox-playlist-converter/simple-rekordbox-converter-logo.webp',
+    alt: 'Simple Rekordbox Converter logo: a white circular arrow over concentric rings',
+    width: 512,
+    height: 512,
+  },
+  socialImage: {
+    src: '/projects/rekordbox-playlist-converter/simple-rekordbox-converter-social.webp',
+    alt: 'Simple Rekordbox Converter logo on a dark background',
+    width: 1200,
+    height: 630,
+  },
+  gallery: [
+    {
+      src: '/projects/rekordbox-playlist-converter/macos-app-main-window.webp',
+      alt: 'Simple Rekordbox Converter main window with a Rekordbox XML loaded, Dark forest playlist selected, and WAV output settings',
+      caption: 'Main window: pick a collection XML, choose playlists, and convert to WAV or AIFF.',
+      width: 2240,
+      height: 1440,
+    },
+    {
+      src: '/projects/rekordbox-playlist-converter/macos-app-conversion-preview.webp',
+      alt: 'Conversion preview listing three tracks as transcode, copy, or reuse with bit depth, sample rate, and size',
+      caption: 'Convert opens a preview first. Back writes nothing; Convert starts the batch.',
+      width: 1920,
+      height: 1080,
+    },
+    {
+      src: '/projects/rekordbox-playlist-converter/macos-app-usage-guide.webp',
+      alt: 'In-app How to Use guide covering Rekordbox XML export and the warning not to use File → Import',
+      caption: 'Help → How to Use covers the Rekordbox export and Imported Library click-path.',
+      width: 1280,
+      height: 1040,
+    },
+  ],
   benefits: [
     {
       title: 'Rekordbox 6 and 7',
