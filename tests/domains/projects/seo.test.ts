@@ -70,6 +70,21 @@ describe('projects SEO documents', () => {
       { name: 'twitter:card', content: 'summary_large_image' },
     ]))
   })
+
+  it('escapes < in JSON-LD so script tags cannot break out', () => {
+    const page = projectDetailSeo(siteUrl, {
+      ...rekordboxPlaylistConverter,
+      name: 'App</script><script>alert(1)',
+      seo: {
+        title: 'App</script>',
+        description: 'Desc</script><img src=x>',
+      },
+    })
+    const head = seoHead(siteUrl, page)
+    const script = head.script?.[0] as { innerHTML?: string }
+    expect(script.innerHTML).toContain('\\u003c')
+    expect(script.innerHTML).not.toMatch(/<\/script>/i)
+  })
 })
 
 describe('sitemap and robots', () => {

@@ -1,6 +1,14 @@
 export const GITHUB_RELEASES_CACHE_PREFIX = 'github-releases:'
 export const DEFAULT_CACHE_TTL_MS = 60 * 60 * 1000
+export const EMPTY_CACHE_TTL_MS = 5 * 60 * 1000
 export const RECENT_RELEASE_LIMIT = 4
+
+const ALLOWED_GITHUB_HOSTS = new Set([
+  'github.com',
+  'www.github.com',
+  'objects.githubusercontent.com',
+  'release-assets.githubusercontent.com',
+])
 
 export interface GithubReleaseAsset {
   name: string
@@ -48,11 +56,24 @@ export function githubReleasesApiUrl(owner: string, repo: string): string {
 }
 
 export function githubReleasesPageUrl(owner: string, repo: string): string {
-  return `https://github.com/${owner}/${repo}/releases`
+  return `https://github.com/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/releases`
 }
 
 export function githubReleasesCacheKey(owner: string, repo: string): string {
   return `${GITHUB_RELEASES_CACHE_PREFIX}${owner}/${repo}`
+}
+
+export function isAllowedGithubUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url)
+    if (parsed.protocol !== 'https:') return false
+    const host = parsed.hostname.toLowerCase()
+    if (ALLOWED_GITHUB_HOSTS.has(host)) return true
+    return host.endsWith('.githubusercontent.com')
+  }
+  catch {
+    return false
+  }
 }
 
 export function formatBytes(bytes: number): string {
@@ -104,14 +125,18 @@ function normalizeAsset(value: unknown): GithubReleaseAsset | null {
   if (!asset) return null
   if (asset.state && asset.state !== 'uploaded') return null
   const name = typeof asset.name === 'string' ? asset.name : ''
-  const url = typeof asset.browser_download_url === 'string' ? asset.browser_download_url : ''
+  const rawUrl = typeof asset.browser_download_url === 'string'
+    ? asset.browser_download_url
+    : typeof asset.browserDownloadUrl === 'string'
+      ? asset.browserDownloadUrl
+      : ''
   const size = typeof asset.size === 'number' ? asset.size : 0
-  if (!name || !url) return null
+  if (!name || !rawUrl || !isAllowedGithubUrl(rawUrl)) return null
   return {
     name,
     size,
     sizeLabel: formatBytes(size),
-    browserDownloadUrl: url,
+    browserDownloadUrl: rawUrl,
   }
 }
 
@@ -119,16 +144,33 @@ function normalizeRelease(value: unknown): GithubRelease | null {
   const release = asRecord(value)
   if (!release || release.draft === true) return null
   const id = typeof release.id === 'number' ? release.id : 0
-  const tagName = typeof release.tag_name === 'string' ? release.tag_name : ''
-  const htmlUrl = typeof release.html_url === 'string' ? release.html_url : ''
-  if (!id || !tagName || !htmlUrl) return null
-  const publishedAt = typeof release.published_at === 'string' ? release.published_at : null
+  const tagName = typeof release.tag_name === 'string'
+    ? release.tag_name
+    : typeof release.tagName === 'string'
+      ? release.tagName
+      : ''
+  const htmlUrl = typeof release.html_url === 'string'
+    ? release.html_url
+    : typeof release.htmlUrl === 'string'
+      ? release.htmlUrl
+      : ''
+  if (!id || !tagName || !htmlUrl || !isAllowedGithubUrl(htmlUrl)) return null
+  const publishedAt = typeof release.published_at === 'string'
+    ? release.published_at
+    : typeof release.publishedAt === 'string'
+      ? release.publishedAt
+      : null
   const assets = Array.isArray(release.assets)
     ? release.assets.map(normalizeAsset).filter((asset): asset is GithubReleaseAsset => Boolean(asset))
     : []
   const name = typeof release.name === 'string' && release.name.trim()
     ? release.name.trim()
     : tagName
+  const body = typeof release.body === 'string'
+    ? release.body
+    : typeof release.notes === 'string'
+      ? release.notes
+      : ''
   return {
     id,
     tagName,
@@ -137,7 +179,7 @@ function normalizeRelease(value: unknown): GithubRelease | null {
     publishedAt,
     publishedLabel: formatReleaseDate(publishedAt),
     prerelease: release.prerelease === true,
-    notes: releaseNotesToPlainText(typeof release.body === 'string' ? release.body : ''),
+    notes: releaseNotesToPlainText(body),
     assets,
   }
 }
@@ -153,7 +195,10 @@ export function readCachedReleases(storage: Pick<Storage, 'getItem'>, key: strin
     if (!raw) return null
     const parsed = JSON.parse(raw) as CachedReleases
     if (!parsed || !Array.isArray(parsed.releases) || typeof parsed.fetchedAt !== 'number') return null
-    return parsed
+    return {
+      fetchedAt: parsed.fetchedAt,
+      releases: normalizeReleases(parsed.releases),
+    }
   }
   catch {
     return null
@@ -164,8 +209,14 @@ export function writeCachedReleases(
   storage: Pick<Storage, 'setItem'>,
   key: string,
   cache: CachedReleases,
-): void {
-  storage.setItem(key, JSON.stringify(cache))
+): boolean {
+  try {
+    storage.setItem(key, JSON.stringify(cache))
+    return true
+  }
+  catch {
+    return false
+  }
 }
 
 export function splitLatestAndRecent(releases: GithubRelease[]) {
@@ -193,6 +244,7 @@ export async function loadGithubReleases(options: {
   storage?: Pick<Storage, 'getItem' | 'setItem'> | null
   now?: number
   ttlMs?: number
+  emptyTtlMs?: number
 }): Promise<GithubReleasesResult> {
   const {
     owner,
@@ -201,11 +253,12 @@ export async function loadGithubReleases(options: {
     storage = null,
     now = Date.now(),
     ttlMs = DEFAULT_CACHE_TTL_MS,
+    emptyTtlMs = EMPTY_CACHE_TTL_MS,
   } = options
   const viewAllUrl = githubReleasesPageUrl(owner, repo)
   const key = githubReleasesCacheKey(owner, repo)
   const cached = storage ? readCachedReleases(storage, key) : null
-  if (cached && isCacheFresh(cached, now, ttlMs)) {
+  if (cached && isCacheFresh(cached, now, cached.releases.length === 0 ? emptyTtlMs : ttlMs)) {
     if (cached.releases.length === 0) {
       return {
         status: 'empty',

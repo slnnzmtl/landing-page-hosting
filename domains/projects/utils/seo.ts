@@ -159,7 +159,8 @@ export function seoHead(siteUrl: string, page: PageSeo) {
     script: [
       {
         type: 'application/ld+json',
-        innerHTML: JSON.stringify(page.jsonLd),
+        // Escape < so a future description cannot break out of the script tag.
+        innerHTML: JSON.stringify(page.jsonLd).replace(/</g, '\\u003c'),
       },
     ],
   }

@@ -41,10 +41,15 @@ describe('Simple Rekordbox Converter product data', () => {
   it('hosts a local logo and at least three captioned screenshots', () => {
     expect(rekordboxPlaylistConverter.logo?.src).toMatch(/^\/projects\//)
     expect(rekordboxPlaylistConverter.logo?.src).not.toMatch(/raw\.githubusercontent/)
+    expect(rekordboxPlaylistConverter.logo?.srcThumb).toMatch(/-256w\.webp$/)
+    expect(rekordboxPlaylistConverter.logo?.srcset).toContain('256w')
     expect(rekordboxPlaylistConverter.gallery?.length).toBeGreaterThanOrEqual(3)
     rekordboxPlaylistConverter.gallery?.forEach((image) => {
       expect(image.src).toMatch(/^\/projects\//)
       expect(image.src).not.toMatch(/raw\.githubusercontent/)
+      expect(image.srcThumb).toMatch(/-600w\.webp$/)
+      expect(image.srcset).toContain('600w')
+      expect(image.sizes).toBeTruthy()
       expect(image.alt.length).toBeGreaterThan(8)
       expect(image.caption?.length).toBeGreaterThan(8)
       expect(image.width).toBeGreaterThan(0)

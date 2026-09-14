@@ -9,6 +9,9 @@ export const rekordboxPlaylistConverter: Project = {
     'Simple Rekordbox Converter is a macOS app that reads a Rekordbox collection XML export, converts lossless playlist tracks to WAV or AIFF, and writes a new import XML. Cues, beatgrid, rating, BPM, and tags are copied into a playlist named after the original. It works with Rekordbox 6 and 7. Rekordbox is a trademark of AlphaTheta Corporation / Pioneer DJ; this unofficial tool is not affiliated with, endorsed by, or sponsored by AlphaTheta or Pioneer DJ.',
   logo: {
     src: '/projects/rekordbox-playlist-converter/simple-rekordbox-converter-logo.webp',
+    srcThumb: '/projects/rekordbox-playlist-converter/simple-rekordbox-converter-logo-256w.webp',
+    srcset: '/projects/rekordbox-playlist-converter/simple-rekordbox-converter-logo-256w.webp 256w, /projects/rekordbox-playlist-converter/simple-rekordbox-converter-logo.webp 512w',
+    sizes: '(max-width: 1024px) 14rem, 14rem',
     alt: 'Simple Rekordbox Converter logo: a white circular arrow over concentric rings',
     width: 512,
     height: 512,
@@ -22,6 +25,9 @@ export const rekordboxPlaylistConverter: Project = {
   gallery: [
     {
       src: '/projects/rekordbox-playlist-converter/macos-app-main-window.webp',
+      srcThumb: '/projects/rekordbox-playlist-converter/macos-app-main-window-600w.webp',
+      srcset: '/projects/rekordbox-playlist-converter/macos-app-main-window-600w.webp 600w, /projects/rekordbox-playlist-converter/macos-app-main-window.webp 2240w',
+      sizes: '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw',
       alt: 'Simple Rekordbox Converter main window with a Rekordbox XML loaded, Dark forest playlist selected, and WAV output settings',
       caption: 'Main window: pick a collection XML, choose playlists, and convert to WAV or AIFF.',
       width: 2240,
@@ -29,6 +35,9 @@ export const rekordboxPlaylistConverter: Project = {
     },
     {
       src: '/projects/rekordbox-playlist-converter/macos-app-conversion-preview.webp',
+      srcThumb: '/projects/rekordbox-playlist-converter/macos-app-conversion-preview-600w.webp',
+      srcset: '/projects/rekordbox-playlist-converter/macos-app-conversion-preview-600w.webp 600w, /projects/rekordbox-playlist-converter/macos-app-conversion-preview.webp 1920w',
+      sizes: '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw',
       alt: 'Conversion preview listing three tracks as transcode, copy, or reuse with bit depth, sample rate, and size',
       caption: 'Convert opens a preview first. Back writes nothing; Convert starts the batch.',
       width: 1920,
@@ -36,6 +45,9 @@ export const rekordboxPlaylistConverter: Project = {
     },
     {
       src: '/projects/rekordbox-playlist-converter/macos-app-usage-guide.webp',
+      srcThumb: '/projects/rekordbox-playlist-converter/macos-app-usage-guide-600w.webp',
+      srcset: '/projects/rekordbox-playlist-converter/macos-app-usage-guide-600w.webp 600w, /projects/rekordbox-playlist-converter/macos-app-usage-guide.webp 1280w',
+      sizes: '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw',
       alt: 'In-app How to Use guide covering Rekordbox XML export and the warning not to use File → Import',
       caption: 'Help → How to Use covers the Rekordbox export and Imported Library click-path.',
       width: 1280,

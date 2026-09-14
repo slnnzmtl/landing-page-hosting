@@ -77,7 +77,9 @@ onBeforeUnmount(() => {
             @click="open(index)"
           >
             <img
-              :src="image.src"
+              :src="image.srcThumb || image.src"
+              :srcset="image.srcset"
+              :sizes="image.sizes"
               :alt="image.alt"
               :width="image.width"
               :height="image.height"

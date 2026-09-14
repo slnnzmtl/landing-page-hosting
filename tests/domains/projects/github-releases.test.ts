@@ -2,9 +2,11 @@ import { describe, it, expect, vi } from 'vitest'
 import {
   formatBytes,
   githubReleasesApiUrl,
+  isAllowedGithubUrl,
   isRateLimitStatus,
   loadGithubReleases,
   normalizeReleases,
+  readCachedReleases,
   releaseNotesToPlainText,
   writeCachedReleases,
   githubReleasesCacheKey,
@@ -70,6 +72,74 @@ describe('github release helpers', () => {
     expect(isRateLimitStatus(403)).toBe(true)
     expect(isRateLimitStatus(429)).toBe(true)
     expect(isRateLimitStatus(500)).toBe(false)
+  })
+
+  it('allowlists only https GitHub download and release hosts', () => {
+    expect(isAllowedGithubUrl(sampleRelease.html_url)).toBe(true)
+    expect(isAllowedGithubUrl(sampleRelease.assets[0].browser_download_url)).toBe(true)
+    expect(isAllowedGithubUrl('https://objects.githubusercontent.com/github-production-release-asset/1')).toBe(true)
+    expect(isAllowedGithubUrl('javascript:alert(1)')).toBe(false)
+    expect(isAllowedGithubUrl('https://evil.example/download')).toBe(false)
+    expect(isAllowedGithubUrl('http://github.com/slnnzmtl/repo/releases')).toBe(false)
+  })
+
+  it('drops assets and releases with non-GitHub URLs', () => {
+    const releases = normalizeReleases([
+      {
+        ...sampleRelease,
+        html_url: 'javascript:alert(1)',
+      },
+      {
+        ...sampleRelease,
+        id: 9,
+        assets: [
+          {
+            name: 'bad.zip',
+            size: 10,
+            state: 'uploaded',
+            browser_download_url: 'https://evil.example/bad.zip',
+          },
+          sampleRelease.assets[0],
+        ],
+      },
+    ])
+    expect(releases).toHaveLength(1)
+    expect(releases[0].assets).toHaveLength(1)
+    expect(releases[0].assets[0].browserDownloadUrl).toBe(sampleRelease.assets[0].browser_download_url)
+  })
+
+  it('re-normalizes cached releases and strips poisoned URLs', () => {
+    const storage = {
+      store: new Map<string, string>(),
+      getItem(key: string) {
+        return this.store.get(key) ?? null
+      },
+      setItem(key: string, value: string) {
+        this.store.set(key, value)
+      },
+    }
+    const key = githubReleasesCacheKey('slnnzmtl', 'rekordbox-playlist-converter')
+    storage.setItem(key, JSON.stringify({
+      fetchedAt: 1,
+      releases: [{
+        id: 1,
+        tagName: 'v1.2.0',
+        name: 'v1.2.0',
+        htmlUrl: 'javascript:alert(1)',
+        publishedAt: '2026-09-09T13:02:20Z',
+        publishedLabel: 'Sep 9, 2026',
+        prerelease: false,
+        notes: 'ok',
+        assets: [{
+          name: 'bad.zip',
+          size: 1,
+          sizeLabel: '1 B',
+          browserDownloadUrl: 'https://evil.example/bad.zip',
+        }],
+      }],
+    }))
+    const cached = readCachedReleases(storage, key)
+    expect(cached?.releases).toEqual([])
   })
 })
 
@@ -143,5 +213,49 @@ describe('loadGithubReleases', () => {
     const result = await loadGithubReleases({ owner, repo, fetchImpl, storage: null })
     expect(result.latest?.prerelease).toBe(true)
     expect(result.latest?.name).toBe('RC')
+  })
+
+  it('still returns success when localStorage write fails', async () => {
+    const storage = {
+      getItem() {
+        return null
+      },
+      setItem() {
+        throw new DOMException('QuotaExceededError')
+      },
+    }
+    const fetchImpl = vi.fn().mockResolvedValue(jsonResponse([sampleRelease]))
+    const result = await loadGithubReleases({ owner, repo, fetchImpl, storage })
+    expect(result.status).toBe('success')
+    expect(result.latest?.tagName).toBe('v1.2.0')
+  })
+
+  it('uses a short TTL for empty release caches', async () => {
+    const storage = {
+      store: new Map<string, string>(),
+      getItem(key: string) {
+        return this.store.get(key) ?? null
+      },
+      setItem(key: string, value: string) {
+        this.store.set(key, value)
+      },
+    }
+    writeCachedReleases(storage, githubReleasesCacheKey(owner, repo), {
+      fetchedAt: 0,
+      releases: [],
+    })
+    const fetchImpl = vi.fn().mockResolvedValue(jsonResponse([sampleRelease]))
+    const result = await loadGithubReleases({
+      owner,
+      repo,
+      fetchImpl,
+      storage,
+      now: 6 * 60 * 1000,
+      ttlMs: 60 * 60 * 1000,
+      emptyTtlMs: 5 * 60 * 1000,
+    })
+    expect(fetchImpl).toHaveBeenCalled()
+    expect(result.status).toBe('success')
+    expect(result.latest?.tagName).toBe('v1.2.0')
   })
 })

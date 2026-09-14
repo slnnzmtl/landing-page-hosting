@@ -4,6 +4,10 @@ export interface ProjectImage {
   width: number
   height: number
   caption?: string
+  /** Optional smaller source for grid/hero; full `src` stays for lightbox. */
+  srcThumb?: string
+  srcset?: string
+  sizes?: string
 }
 
 export interface ProjectLink {
