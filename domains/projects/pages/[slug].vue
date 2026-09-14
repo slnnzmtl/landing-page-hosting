@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useProjects } from '../composables/useProjects'
 import ProjectGallery from '../components/ProjectGallery.vue'
+import GithubReleases from '../components/GithubReleases.vue'
 
 const route = useRoute()
 const slug = String(route.params.slug || '')
@@ -175,7 +176,23 @@ useHead({
         <ProjectGallery :images="project.gallery" />
       </section>
 
-      <!-- DDD-127: GithubReleases mounts here when `project.github` is set. -->
+      <section
+        v-if="project.github"
+        id="project-releases"
+        aria-labelledby="project-releases-heading"
+        class="space-y-4"
+      >
+        <h2 id="project-releases-heading" class="text-2xl font-semibold">
+          Downloads
+        </h2>
+        <p class="text-sm text-muted-foreground">
+          Current macOS builds are published on GitHub Releases. This list loads in the browser and is not required to read the rest of the page.
+        </p>
+        <GithubReleases
+          :owner="project.github.owner"
+          :repo="project.github.repo"
+        />
+      </section>
     </div>
   </article>
 </template>
