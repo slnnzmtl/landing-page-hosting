@@ -21,6 +21,7 @@ export default defineNuxtConfig({
       supabaseKey: process.env.SUPABASE_KEY || '',
       allowedEmails: process.env.ALLOWED_EMAILS || '',
       surveyWebhookUrl: process.env.SURVEY_WEBHOOK_URL || '',
+      siteUrl: process.env.NUXT_PUBLIC_SITE_URL || process.env.SITE_URL || '',
     },
   },
   routeRules: {
@@ -53,6 +54,9 @@ export default defineNuxtConfig({
         ...getServiceRoutes(),
         ...getFinanceRoutes(),
         ...getProjectRoutes(),
+        '/sitemap.xml',
+        '/robots.txt',
+        '/404',
       ],
     },
   },
