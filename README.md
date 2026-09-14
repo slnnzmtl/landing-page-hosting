@@ -1,6 +1,6 @@
 # landing-hosting
 
-A Nuxt 3 + Vue 3 multi-domain app for landing pages, JSON-driven surveys, and a personal finance dashboard. Domains are Nuxt layers under `domains/`, with Tailwind UI, Zod validation, Supabase for finance data, and static generation for Vercel.
+A Nuxt 3 + Vue 3 multi-domain app for landing pages, public product pages, JSON-driven surveys, and a personal finance dashboard. Domains are Nuxt layers under `domains/`, with Tailwind UI, Zod validation, Supabase for finance data, and static generation for Vercel.
 
 - **Live site:** https://landing-hosting.vercel.app
 - **Repository:** https://github.com/slnnzmtl/landing-hosting
@@ -22,6 +22,7 @@ A Nuxt 3 + Vue 3 multi-domain app for landing pages, JSON-driven surveys, and a 
 | Domain | Routes | Purpose |
 |--------|--------|---------|
 | **Root** | `/` | Portfolio / landing homepage |
+| **projects** | `/projects`, `/projects/:slug` | Public selected products (data-driven) |
 | **survey** | `/survey`, `/survey/:slug` | JSON-driven surveys with webhook submit |
 | **finance** | `/finance/dashboard`, `/finance/expenses` | Expense dashboard + CRUD (Supabase, client-only) |
 | **service** | `/service/:page` | Service landing pages |
@@ -31,6 +32,7 @@ Each domain lives under `domains/<name>/` as a Nuxt layer. Page routes are prefi
 ## Features
 
 - Multi-domain Nuxt layer architecture
+- Public `/projects` catalog and product landings (first product: Simple Rekordbox Converter)
 - Static generation (`nuxt generate`) with explicit prerender routes
 - JSON-configurable surveys (one file per survey under `domains/survey/data/`)
 - Webhook-based survey submission (JSON POST, update support via `submissionId`)
@@ -51,6 +53,12 @@ Each domain lives under `domains/<name>/` as a Nuxt layer. Page routes are prefi
 │  │  ├─ utils/                   # Query builders, filter URL sync
 │  │  ├─ supabase/                # RLS SQL helpers
 │  │  └─ finance-routes.ts        # Prerender route discovery
+│  ├─ projects/
+│  │  ├─ pages/                   # index, [slug] → /projects/*
+│  │  ├─ data/                    # Typed project registry
+│  │  ├─ components/              # Gallery + GitHub releases
+│  │  ├─ public/                  # Local product media
+│  │  └─ project-routes.ts
 │  ├─ survey/
 │  │  ├─ pages/                   # index, [slug] → /survey/*
 │  │  ├─ data/*.json              # Survey definitions
@@ -81,9 +89,12 @@ Copy or create `.env` in the project root (gitignored):
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_KEY=your-anon-or-publishable-key
 SURVEY_WEBHOOK_URL=https://example.com/webhook/survey/submit
+NUXT_PUBLIC_SITE_URL=https://landing-hosting.vercel.app
 ```
 
 `SUPABASE_*` map to `runtimeConfig.public.supabaseUrl` / `supabaseKey` and are required for `/finance/*`. `SURVEY_WEBHOOK_URL` maps to `runtimeConfig.public.surveyWebhookUrl` and is the live survey POST target; JSON `action` fields in survey files are inert placeholders only.
+
+`NUXT_PUBLIC_SITE_URL` (or `SITE_URL`) is the production origin used for canonical URLs, Open Graph tags, `sitemap.xml`, and `robots.txt`. Do not set this to a Vercel preview hostname. If unset, it defaults to `https://landing-hosting.vercel.app`.
 
 For finance reads as anon, apply `domains/finance/supabase/rls-finance.sql` in the Supabase SQL Editor if tables return empty under RLS.
 
@@ -105,6 +116,19 @@ App runs at `http://localhost:3000` by default.
 - `pnpm test:run` — Run tests once
 - `pnpm test:ui` — Vitest UI
 - `pnpm lint` / `pnpm lint:fix` — ESLint
+
+## Projects module
+
+Nuxt can drop a layer page when another layer already owns the same route name (`index` vs root, `[slug]` vs survey). The projects layer re-registers `/projects` and `/projects/:slug` in `pages:extend`.
+
+### Add another selected project
+
+1. Create `domains/projects/data/<slug>.ts` exporting a `Project` (name, copy, links, optional gallery/media, optional `github` repo for the releases feed).
+2. Append it to the `projects` array in `domains/projects/data/registry.ts`.
+3. Put local media under `domains/projects/public/projects/<slug>/` (do not hotlink GitHub raw images).
+4. `getProjectRoutes()` picks up the slug for prerender, sitemap, and JSON-LD automatically. No new page file is required.
+
+First product: **Simple Rekordbox Converter** at `/projects/rekordbox-playlist-converter`. Evergreen copy lives in the registry. GitHub release versions and download URLs are fetched in the browser from `https://api.github.com/repos/slnnzmtl/rekordbox-playlist-converter/releases` (no token, 1-hour localStorage cache, stale cache if GitHub is down).
 
 ## Survey Module
 
@@ -166,16 +190,16 @@ Filters (year, month, date range, categories, paid status) sync to the URL via `
 
 Configured for Nuxt static generation. Prerender uses an explicit route list (`crawlLinks: false`) from:
 
-- `/`, `/survey`, plus `getSurveyRoutes()`, `getServiceRoutes()`, `getFinanceRoutes()`
+- `/`, `/survey`, `/login`, `/sitemap.xml`, `/robots.txt`, plus `getSurveyRoutes()`, `getServiceRoutes()`, `getFinanceRoutes()`, `getProjectRoutes()`
 
 ```bash
 pnpm build
 pnpm preview
 ```
 
-`vercel.json` builds with `@vercel/static-build` (`distDir: .output/public`) and falls back unmatched paths to `/200.html` for client-side routes.
+`vercel.json` builds with `@vercel/static-build` (`distDir: .output/public`). Known files (including prerendered `/projects/*`) are served from the filesystem. Unknown `/projects/*` paths return `404.html`. Other unmatched paths fall back to `/200.html` for client-side routes.
 
-Set `SUPABASE_URL` and `SUPABASE_KEY` in the Vercel project environment for finance pages in production. Set `SURVEY_WEBHOOK_URL` for survey submissions.
+Set `SUPABASE_URL` and `SUPABASE_KEY` in the Vercel project environment for finance pages in production. Set `SURVEY_WEBHOOK_URL` for survey submissions. Set `NUXT_PUBLIC_SITE_URL` to the production origin for canonical/social URLs.
 
 Homepage: https://landing-hosting.vercel.app
 

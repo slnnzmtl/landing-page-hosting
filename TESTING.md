@@ -22,11 +22,18 @@ tests/
 ├─ domains/finance/
 │  ├─ finance-query.test.ts
 │  └─ finance-filter-query.test.ts
+├─ domains/projects/
+│  ├─ registry.test.ts
+│  ├─ rekordbox-product.test.ts
+│  ├─ github-releases.test.ts
+│  └─ seo.test.ts
 ├─ pages/
 │  ├─ survey-index-logic.test.ts
 │  └─ survey-slug-logic.test.ts
 └─ utils/
-   └─ prefix-domain-pages.test.ts
+   ├─ auth.test.ts
+   ├─ prefix-domain-pages.test.ts
+   └─ survey-webhook.test.ts
 ```
 
 ## Coverage (by area)
@@ -53,7 +60,17 @@ tests/
 
 ### Domain routing
 
-**`prefix-domain-pages`** — prefixes Nuxt pages contributed by a domain layer (`domains/<name>/pages/*` → `/<name>/...`).
+**`prefix-domain-pages`** — prefixes Nuxt pages contributed by a domain layer (`domains/<name>/pages/*` → `/<name>/...`), including the projects index collision with root `/`.
+
+### Projects domain
+
+**Registry** — lookup by slug, unknown-slug 404 data, prerender discovery for `/projects` and registered slugs.
+
+**Rekordbox product data** — evergreen copy, three-step guide, required links, local gallery media (no GitHub hotlinks).
+
+**GitHub releases** — mocked `fetch` for success, empty, 403/429, network error, prerelease, and stale localStorage cache. Notes are plain text.
+
+**SEO** — production site origin, canonical/OG tags, CollectionPage/SoftwareApplication JSON-LD, sitemap and robots output.
 
 ## Philosophy
 
