@@ -18,7 +18,7 @@ useHead({
   meta: [
     {
       name: 'description',
-      content: project.shortDescription,
+      content: project.seo?.description ?? project.shortDescription,
     },
   ],
 })
@@ -26,35 +26,142 @@ useHead({
 
 <template>
   <article class="min-h-screen bg-background text-foreground">
-    <div class="mx-auto flex max-w-5xl flex-col gap-10 px-6 py-20 lg:px-12">
-      <header class="space-y-4">
-        <NuxtLink
-          to="/projects"
-          class="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+    <div class="mx-auto flex max-w-5xl flex-col gap-16 px-6 py-20 lg:px-12">
+      <nav aria-label="Breadcrumb">
+        <ol class="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+          <li>
+            <NuxtLink
+              to="/"
+              class="transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
+              Studio homepage
+            </NuxtLink>
+          </li>
+          <li aria-hidden="true">
+            /
+          </li>
+          <li>
+            <NuxtLink
+              to="/projects"
+              class="transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
+              Selected projects
+            </NuxtLink>
+          </li>
+          <li aria-hidden="true">
+            /
+          </li>
+          <li class="text-foreground">
+            {{ project.name }}
+          </li>
+        </ol>
+      </nav>
+
+      <header class="grid gap-10 lg:grid-cols-[minmax(0,1.4fr)_minmax(12rem,16rem)] lg:items-center">
+        <div class="space-y-5">
+          <p class="text-sm uppercase tracking-[0.35em] text-primary">
+            Selected project
+          </p>
+          <h1 class="text-4xl font-semibold leading-tight sm:text-5xl">
+            {{ project.name }}
+          </h1>
+          <p class="max-w-2xl text-lg text-muted-foreground">
+            {{ project.description || project.shortDescription }}
+          </p>
+          <div v-if="project.links?.length" class="flex flex-wrap gap-3">
+            <a
+              v-for="link in project.links"
+              :key="link.href"
+              :href="link.href"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="rounded-full border border-border px-5 py-2.5 text-sm font-medium transition hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
+              {{ link.label }}
+            </a>
+          </div>
+        </div>
+        <div
+          id="project-hero-media"
+          class="flex items-center justify-center rounded-3xl border border-border bg-slate-950 p-8"
         >
-          <svg
-            viewBox="0 0 20 20"
-            fill="none"
-            class="h-3.5 w-3.5"
-            aria-hidden="true"
+          <img
+            v-if="project.logo"
+            :src="project.logo.src"
+            :alt="project.logo.alt"
+            :width="project.logo.width"
+            :height="project.logo.height"
+            class="h-auto w-full max-w-[14rem]"
+          />
+          <p
+            v-else
+            class="text-center text-sm font-medium text-slate-100"
           >
-            <path
-              d="M12 15l-5-5 5-5"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-          Selected projects
-        </NuxtLink>
-        <h1 class="text-4xl font-semibold leading-tight sm:text-5xl">
-          {{ project.name }}
-        </h1>
-        <p class="max-w-2xl text-lg text-muted-foreground">
-          {{ project.shortDescription }}
-        </p>
+            {{ project.name }}
+          </p>
+        </div>
       </header>
+
+      <section
+        v-if="project.benefits?.length"
+        aria-labelledby="project-benefits-heading"
+        class="space-y-6"
+      >
+        <h2 id="project-benefits-heading" class="text-2xl font-semibold">
+          Why use it
+        </h2>
+        <ul class="grid gap-5 sm:grid-cols-2">
+          <li
+            v-for="benefit in project.benefits"
+            :key="benefit.title"
+            class="rounded-2xl border border-border bg-card p-6 shadow-sm"
+          >
+            <h3 class="text-lg font-semibold text-primary">
+              {{ benefit.title }}
+            </h3>
+            <p class="mt-2 text-sm text-muted-foreground">
+              {{ benefit.description }}
+            </p>
+          </li>
+        </ul>
+      </section>
+
+      <section
+        v-if="project.guide"
+        aria-labelledby="project-guide-heading"
+        class="space-y-6"
+      >
+        <h2 id="project-guide-heading" class="text-2xl font-semibold">
+          {{ project.guide.title }}
+        </h2>
+        <p
+          v-if="project.guide.warning"
+          class="rounded-2xl border border-destructive/30 bg-destructive/5 px-5 py-4 text-sm font-medium text-destructive"
+          role="note"
+        >
+          {{ project.guide.warning }}
+        </p>
+        <ol class="grid gap-5 md:grid-cols-3">
+          <li
+            v-for="(step, index) in project.guide.steps"
+            :key="step.title"
+            class="rounded-2xl border border-border bg-muted/40 p-6"
+          >
+            <p class="text-sm font-semibold uppercase tracking-wide text-primary">
+              Step {{ index + 1 }}
+            </p>
+            <h3 class="mt-2 text-lg font-semibold">
+              {{ step.title }}
+            </h3>
+            <p class="mt-2 text-sm text-muted-foreground">
+              {{ step.body }}
+            </p>
+          </li>
+        </ol>
+      </section>
+
+      <!-- DDD-126: ProjectGallery mounts here when `project.gallery` is present. -->
+      <!-- DDD-127: GithubReleases mounts here when `project.github` is set. -->
     </div>
   </article>
 </template>
