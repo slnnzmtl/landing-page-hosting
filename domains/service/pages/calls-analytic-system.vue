@@ -2,12 +2,12 @@
   <div class="bg-slate-50 text-gray-800" style="font-family: 'Inter', sans-serif;">
     <header class="bg-white shadow-sm">
       <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <h1 class="text-2xl font-bold text-blue-600">
+        <h1 class="text-2xl font-bold text-neutral-950">
           AI Call Analytics
         </h1>
         <a
           href="#cta"
-          class="rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white transition duration-300 hover:bg-blue-700"
+          class="rounded-lg bg-neutral-950 px-4 py-2 font-semibold text-white transition duration-300 hover:bg-neutral-800"
         >
           Замовити Демо
         </a>
@@ -26,7 +26,7 @@
           </p>
           <a
             href="#packages"
-            class="inline-block rounded-lg bg-blue-600 px-8 py-3 text-lg font-bold text-white transition duration-300 hover:bg-blue-700"
+            class="inline-block rounded-lg bg-neutral-950 px-8 py-3 text-lg font-bold text-white transition duration-300 hover:bg-neutral-800"
           >
             Обрати свій пакет
           </a>
@@ -100,8 +100,8 @@
               class="rounded-lg border-2 px-4 py-3 text-sm font-semibold transition duration-300 md:px-6 md:text-base"
               :class="[
                 selectedPackageId === pkg.id
-                  ? 'border-blue-600 bg-blue-600 text-white shadow-lg'
-                  : 'border-gray-300 bg-white text-gray-700 hover:border-blue-600 hover:text-blue-600',
+                  ? 'border-neutral-950 bg-neutral-950 text-white shadow-lg'
+                  : 'border-gray-300 bg-white text-gray-700 hover:border-neutral-950 hover:text-neutral-950',
               ]"
               @click="selectedPackageId = pkg.id"
             >
@@ -189,17 +189,17 @@
         </div>
       </section>
 
-      <section id="cta" class="bg-blue-600 px-6 py-20 text-white">
+      <section id="cta" class="bg-neutral-950 px-6 py-20 text-white">
         <div class="mx-auto max-w-4xl text-center">
           <h3 class="mb-4 text-3xl font-bold md:text-4xl">
             Готові почати?
           </h3>
-          <p class="mx-auto mb-8 text-lg text-blue-100 md:text-xl">
+          <p class="mx-auto mb-8 text-lg text-neutral-300 md:text-xl">
             Заплануйте 30-хвилинну онлайн-зустріч для живого демо платформи та обговорення деталей інтеграції.
           </p>
           <a
             href="#"
-            class="inline-block rounded-lg bg-white px-8 py-3 text-lg font-bold text-blue-600 transition duration-300 hover:bg-gray-100"
+            class="inline-block rounded-lg bg-white px-8 py-3 text-lg font-bold text-neutral-950 transition duration-300 hover:bg-gray-100"
           >
             Запланувати Демо-дзвінок
           </a>
@@ -379,8 +379,8 @@ onMounted(async () => {
           {
             label: 'Менеджер говорив (%)',
             data: [65, 45, 55, 75],
-            backgroundColor: 'rgba(54, 162, 235, 0.8)',
-            borderColor: 'rgba(54, 162, 235, 1)',
+            backgroundColor: 'rgba(4, 4, 4, 0.75)',
+            borderColor: 'rgba(4, 4, 4, 1)',
             borderWidth: 1,
           },
           {

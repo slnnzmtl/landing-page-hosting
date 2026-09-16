@@ -80,7 +80,7 @@ useProjectPageSeo(projectDetailSeo(siteUrl, project))
         </div>
         <div
           id="project-hero-media"
-          class="flex items-center justify-center rounded-3xl border border-border bg-slate-950 p-8 ring-1 ring-white/15"
+          class="flex items-center justify-center rounded-3xl border border-border bg-[hsl(64,0%,1.43%)] p-8 ring-1 ring-[hsl(64,0%,98%)]/15"
         >
           <img
             v-if="project.logo"
@@ -96,7 +96,7 @@ useProjectPageSeo(projectDetailSeo(siteUrl, project))
           />
           <p
             v-else
-            class="text-center text-sm font-medium text-slate-100"
+            class="text-center text-sm font-medium text-[hsl(64,0%,98%)]"
           >
             {{ project.name }}
           </p>

@@ -72,7 +72,7 @@ onBeforeUnmount(() => {
         <figure class="space-y-2">
           <button
             type="button"
-            class="block w-full overflow-hidden rounded-2xl border border-border bg-slate-950 text-left shadow-sm transition hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            class="block w-full overflow-hidden rounded-2xl border border-border bg-[hsl(64,0%,1.43%)] text-left shadow-sm transition hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             :aria-label="`View full size: ${image.caption || image.alt}`"
             @click="open(index)"
           >
@@ -98,7 +98,7 @@ onBeforeUnmount(() => {
 
     <div
       v-if="activeImage && activeIndex !== null"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 p-4"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-[hsl(64,0%,1.43%)]/90 p-4"
       role="dialog"
       aria-modal="true"
       :aria-labelledby="`gallery-fullsize-title-${activeIndex}`"
@@ -108,14 +108,14 @@ onBeforeUnmount(() => {
         <div class="flex items-start justify-between gap-4">
           <h3
             :id="`gallery-fullsize-title-${activeIndex}`"
-            class="text-base font-medium text-slate-100"
+            class="text-base font-medium text-[hsl(64,0%,98%)]"
           >
             {{ activeImage.caption || activeImage.alt }}
           </h3>
           <button
             ref="closeButton"
             type="button"
-            class="rounded-full border border-slate-600 px-3 py-1 text-sm text-slate-100 transition hover:border-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            class="rounded-full border border-[hsl(64,0%,98%)]/30 px-3 py-1 text-sm text-[hsl(64,0%,98%)] transition hover:border-[hsl(64,0%,98%)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             @click="close"
           >
             Close
@@ -132,7 +132,7 @@ onBeforeUnmount(() => {
           <div class="flex gap-2">
             <button
               type="button"
-              class="rounded-full border border-slate-600 px-3 py-1 text-sm text-slate-100 transition hover:border-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              class="rounded-full border border-[hsl(64,0%,98%)]/30 px-3 py-1 text-sm text-[hsl(64,0%,98%)] transition hover:border-[hsl(64,0%,98%)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               :disabled="images.length < 2"
               @click="showPrevious"
             >
@@ -140,7 +140,7 @@ onBeforeUnmount(() => {
             </button>
             <button
               type="button"
-              class="rounded-full border border-slate-600 px-3 py-1 text-sm text-slate-100 transition hover:border-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              class="rounded-full border border-[hsl(64,0%,98%)]/30 px-3 py-1 text-sm text-[hsl(64,0%,98%)] transition hover:border-[hsl(64,0%,98%)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               :disabled="images.length < 2"
               @click="showNext"
             >
@@ -151,7 +151,7 @@ onBeforeUnmount(() => {
             :href="activeImage.src"
             target="_blank"
             rel="noopener noreferrer"
-            class="text-sm font-medium text-slate-100 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            class="text-sm font-medium text-[hsl(64,0%,98%)] underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             Open full-size image
           </a>

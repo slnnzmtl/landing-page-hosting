@@ -77,7 +77,7 @@ useHead({
           I help growing businesses launch and scale digital products through thoughtful strategy, precise engineering, and a relentless focus on user experience.
         </p>
         <div class="flex flex-wrap items-center justify-center gap-4">
-          <NuxtLink
+          <!-- <NuxtLink
             to="/survey"
             class="rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
@@ -88,7 +88,7 @@ useHead({
             class="rounded-full border border-border px-6 py-3 text-sm font-medium text-foreground transition hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             View selected projects
-          </NuxtLink>
+          </NuxtLink> -->
           <a
             href="mailto:kazanskydaniel@gmail.com"
             class="rounded-full border border-border px-6 py-3 text-sm font-medium text-foreground transition hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"

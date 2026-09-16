@@ -37,11 +37,11 @@ useProjectPageSeo(projectsIndexSeo(siteUrl, projects))
         >
           <NuxtLink
             :to="projectPath(project.slug)"
-            class="group flex h-full flex-col rounded-2xl border border-border bg-card p-6 shadow-sm transition hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            class="group flex h-full gap-4 rounded-2xl border border-border bg-card p-6 shadow-sm transition hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             <div
               v-if="project.logo"
-              class="mb-4 flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-slate-950"
+              class=" flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-[hsl(64,0%,1.43%)] shrink-0"
             >
               <img
                 :src="project.logo.src"
@@ -52,29 +52,31 @@ useProjectPageSeo(projectsIndexSeo(siteUrl, projects))
                 decoding="async"
               />
             </div>
-            <h2 class="text-xl font-semibold text-primary">
-              {{ project.name }}
-            </h2>
-            <p class="mt-2 flex-1 text-sm text-muted-foreground">
-              {{ project.shortDescription }}
-            </p>
-            <span class="mt-5 inline-flex items-center gap-2 text-sm font-medium text-primary transition-transform group-hover:translate-x-0.5">
-              View project
-              <svg
-                viewBox="0 0 20 20"
-                fill="none"
-                class="h-4 w-4"
-                aria-hidden="true"
-              >
-                <path
-                  d="M7 5l6 5-6 5"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-            </span>
+            <div>
+              <h2 class="text-xl font-semibold text-primary">
+                {{ project.name }}
+              </h2>
+              <p class="mt-2 flex-1 text-sm text-muted-foreground">
+                {{ project.shortDescription }}
+              </p>
+              <span class="mt-5 inline-flex items-center gap-2 text-sm font-medium text-primary transition-transform group-hover:translate-x-0.5">
+                View project
+                <svg
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  class="h-4 w-4"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M7 5l6 5-6 5"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </span>
+            </div>
           </NuxtLink>
         </li>
       </ul>
