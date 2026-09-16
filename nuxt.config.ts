@@ -9,7 +9,7 @@ export default defineNuxtConfig({
     './domains/service',
     './domains/projects',
   ],
-  modules: ['@nuxtjs/tailwindcss'],
+  modules: ['@nuxtjs/tailwindcss', '@nuxtjs/color-mode'],
   ssr: true,
   devtools: { enabled: true },
   app: {
@@ -20,6 +20,11 @@ export default defineNuxtConfig({
     },
   },
   css: ['@/assets/main.css'],
+  colorMode: {
+    classSuffix: '',
+    preference: 'system',
+    fallback: 'light',
+  },
   runtimeConfig: {
     public: {
       surveyWebhookUrl: process.env.SURVEY_WEBHOOK_URL || '',
