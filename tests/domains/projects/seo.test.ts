@@ -88,10 +88,14 @@ describe('projects SEO documents', () => {
 })
 
 describe('sitemap and robots', () => {
-  it('lists the projects index and every registered project', () => {
+  it('lists the homepage, experience page, projects index, and every registered project', () => {
     const xml = buildSitemapXml(DEFAULT_SITE_URL)
+    expect(sitemapPaths()).toContain('/')
+    expect(sitemapPaths()).toContain('/experience')
     expect(sitemapPaths()).toContain('/projects')
     expect(sitemapPaths()).toContain('/projects/rekordbox-playlist-converter')
+    expect(xml).toContain('<loc>https://landing-hosting.vercel.app/</loc>')
+    expect(xml).toContain('<loc>https://landing-hosting.vercel.app/experience</loc>')
     expect(xml).toContain('<loc>https://landing-hosting.vercel.app/projects</loc>')
     expect(xml).toContain('<loc>https://landing-hosting.vercel.app/projects/rekordbox-playlist-converter</loc>')
   })

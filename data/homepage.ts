@@ -24,16 +24,7 @@ export interface ProofItem {
   source: ClaimSource
 }
 
-export type WorkTrackId = 'enterprise' | 'independent' | 'open-source'
-
-export interface WorkTrack {
-  id: WorkTrackId
-  title: string
-  summary: string
-  source: ClaimSource
-}
-
-export type WorkSectionId = 'professional' | 'independent' | 'products-open-source'
+export type WorkSectionId = 'professional' | 'independent' | 'open-source'
 
 export interface WorkCard {
   slug: string
@@ -65,6 +56,51 @@ export interface Capability {
   source: ClaimSource
 }
 
+export interface ProductSpotlightImage {
+  src: string
+  srcThumb?: string
+  srcset?: string
+  sizes?: string
+  alt: string
+  width: number
+  height: number
+}
+
+export interface ProductSpotlightFact {
+  label: string
+  value: string
+}
+
+export interface ProductSpotlightCta {
+  label: string
+  href: string
+  kind: 'primary' | 'secondary'
+  /** When true, primary CTA is resolved from the latest GitHub macOS asset at runtime */
+  macosDownload?: boolean
+}
+
+export interface ProductSpotlight {
+  slug: string
+  title: string
+  lead: string
+  supportingLine: string
+  image: ProductSpotlightImage
+  facts: ProductSpotlightFact[]
+  ctas: ProductSpotlightCta[]
+  tags: string[]
+  github: {
+    owner: string
+    repo: string
+  }
+  source: ClaimSource
+}
+
+export interface ProductsSection {
+  heading: SourcedText
+  description: SourcedText
+  items: ProductSpotlight[]
+}
+
 export interface HomepageContent {
   person: {
     name: SourcedText
@@ -77,9 +113,8 @@ export interface HomepageContent {
   primaryCtas: HomepageLink[]
   profileLinks: HomepageLink[]
   proof: ProofItem[]
-  tracksIntro: SourcedText
-  tracks: WorkTrack[]
   workSections: WorkSection[]
+  products: ProductsSection
   capabilities: Capability[]
   selectedWorkIntro: SourcedText
   contact: {
@@ -217,34 +252,6 @@ export const homepageContent: HomepageContent = {
       source: ticket167,
     },
   ],
-  tracksIntro: {
-    text:
-      'Enterprise platforms, independent delivery, and inspectable products. Each track is a different kind of evidence.',
-    source: ticket157,
-  },
-  tracks: [
-    {
-      id: 'enterprise',
-      title: 'Enterprise',
-      summary:
-        'Product engineering on marketplace, analytics, and subscription platforms, described by role, scope, and approved outcomes.',
-      source: ticket157,
-    },
-    {
-      id: 'independent',
-      title: 'Independent / Client Work',
-      summary:
-        'End-to-end delivery for founders and operators: CRM, automation, and AI-backed workflows without exposing customer identity or internals.',
-      source: ticket157,
-    },
-    {
-      id: 'open-source',
-      title: 'Open Source & Products',
-      summary:
-        'Inspectable engineering: agentic systems, CMS-backed products, and shipped tools with public repositories or product pages.',
-      source: ticket157,
-    },
-  ],
   workSections: [
     {
       id: 'professional',
@@ -262,8 +269,9 @@ export const homepageContent: HomepageContent = {
           icon: '/images/experience/upwork.png',
           iconAlt: 'Upwork',
           summary:
-            'Embedded long-term contractor building marketplace reputation and enforcement UI at massive scale (tens of millions of active users). Owned high-impact product domains end-to-end and maintained PagerDuty on-call operational responsibility.\n\n- Core Feature Ownership: Successfully launched the Partner Certified Skills Program and the Freelancer Aggregated Strengths reputation engine across multiple high-traffic surfaces (Profiles, Search, Onboarding).\n\n- System Migration: Contributed to the platform-wide overhaul of the Job Success Dashboard, transitioning to a new evaluation scoring paradigm.\n\n- Technical Modernization: Led code refactoring efforts migrating legacy UI modules from Vue 2 to Vue 3 to optimize application architecture.\n\n- Cutting-Edge Productivity: Designed a state-of-the-art AI development workflow utilizing Cursor, Claude Code, and MCP integrations (Figma, Linear, GitHub, Confluence) to maximize engineering velocity and feature throughput.',
+            'Built and modernized reputation, credentialing, and enforcement experiences across a marketplace serving tens of millions of users. Owned frontend domains end-to-end and supported production systems through on-call responsibilities.',
           source: linkedInProfile,
+          tags: ['Vue 3', 'TypeScript'],
         },
         {
           slug: 'subbly-senior-software-developer',
@@ -272,20 +280,9 @@ export const homepageContent: HomepageContent = {
           icon: '/images/experience/subbly.png',
           iconAlt: 'Subbly',
           summary:
-            'Refactored subscription setup UX, reducing merchant setup time by 20%, and developed an AI-powered onboarding chatbot, improving completion rates by 25% for 500+ users.\nOptimized cart and payment flows, cutting abandonment by 15%, and built a custom design system for flexibility.',
+            'Subscription commerce product engineering spanning setup UX, AI-assisted onboarding, and checkout. Reduced merchant setup time by 20%, raised AI-assisted onboarding completion by 25% for 500+ users, and cut payment abandonment by 15%.',
           source: ticket167,
           tags: ['TypeScript', 'Vue'],
-        },
-        {
-          slug: 'woki-one-lead-software-developer',
-          title: 'Lead Software Developer in a startup',
-          subtitle: 'Woki.one · Part-time · Jun 2023 – Dec 2023 · Remote',
-          icon: '/images/experience/woki.png',
-          iconAlt: 'Woki.one',
-          summary:
-            'Led a 4-person team in a fast-paced startup to build a modular CRM system using Vue 3 under tight deadlines.\nAchieving a 95+ Google PageSpeed score.\nEngineered user-friendly, configurable features for seamless customization.',
-          source: linkedInProfile,
-          tags: ['Vue 2', 'Vue 3'],
         },
         {
           slug: 'capgemini-software-developer',
@@ -294,9 +291,9 @@ export const homepageContent: HomepageContent = {
           icon: '/images/experience/capgemini.png',
           iconAlt: 'Capgemini Engineering',
           summary:
-            'Developed a big data analytics system with React, TypeScript, and Redux, managing 10M+ data points over HTTP.\nBuilt interactive dashboards in a monorepo setup with Lerna, enabling efficient marketing and forecasting for enterprise clients.',
+            'Built interactive dashboards for a big data analytics system serving enterprise marketing and forecasting, managing 10M+ data points over HTTP in a React monorepo.',
           source: linkedInProfile,
-          tags: ['Redux', 'React'],
+          tags: ['React', 'TypeScript', 'Redux'],
         },
       ],
     },
@@ -320,6 +317,17 @@ export const homepageContent: HomepageContent = {
           featured: true,
         },
         {
+          slug: 'woki-crm',
+          title: 'Woki CRM',
+          subtitle: 'Woki.one · Part-time · Jun 2023 – Dec 2023 · Remote',
+          icon: '/images/experience/woki.png',
+          iconAlt: 'Woki.one',
+          summary:
+            'Led a 4-person team in a fast-paced startup to build a modular CRM system using Vue 3 under tight deadlines.\nAchieving a 95+ Google PageSpeed score.\nEngineered user-friendly, configurable features for seamless customization.',
+          source: linkedInProfile,
+          tags: ['Vue 2', 'Vue 3'],
+        },
+        {
           slug: 'kml-map-viewer',
           title: 'KML Map Viewer',
           summary:
@@ -331,11 +339,11 @@ export const homepageContent: HomepageContent = {
       ],
     },
     {
-      id: 'products-open-source',
-      title: 'Products & Open Source',
+      id: 'open-source',
+      title: 'Open-Source Engineering',
       description: {
         text:
-          'Public software, reusable systems, and products designed, built, tested, and released.',
+          'Publicly inspectable systems, reusable architectures, and developer tools demonstrating how I design and build software.',
         source: ticket157,
       },
       items: [
@@ -357,30 +365,78 @@ export const homepageContent: HomepageContent = {
           hrefLabel: 'View repository',
           source: directusReadme,
         },
-        {
-          slug: 'rekordbox-playlist-converter',
-          title: 'Simple Rekordbox Converter',
-          summary:
-            'Cross-platform Python CLI and universal macOS app for converting Rekordbox 6/7 XML playlists and lossless tracks into WAV or AIFF without modifying the original files.',
-          href: '/projects/rekordbox-playlist-converter',
-          hrefLabel: 'View product',
-          source: rekordboxProduct,
-          tags: [
-            'Python',
-            'Tkinter',
-            'FFmpeg',
-            'FFprobe',
-            'PyInstaller',
-            'macOS',
-            'CLI',
-            'Rekordbox XML',
-            'GitHub Actions',
-            'unittest',
-          ],
-        },
       ],
     },
   ],
+  products: {
+    heading: {
+      text: 'Products',
+      source: ticket157,
+    },
+    description: {
+      text: 'Software I design, build, package, and maintain for real users.',
+      source: ticket157,
+    },
+    items: [
+      {
+        slug: 'rekordbox-playlist-converter',
+        title: 'Simple Rekordbox Converter',
+        lead:
+          'Convert Rekordbox 6/7 XML playlists and lossless tracks to WAV or AIFF without modifying your original files.',
+        supportingLine:
+          'Available as a universal macOS app, with a cross-platform Python CLI for macOS, Windows, and Linux.',
+        image: {
+          src: '/projects/rekordbox-playlist-converter/macos-app-main-window.webp',
+          srcThumb: '/projects/rekordbox-playlist-converter/macos-app-main-window-600w.webp',
+          srcset:
+            '/projects/rekordbox-playlist-converter/macos-app-main-window-600w.webp 600w, /projects/rekordbox-playlist-converter/macos-app-main-window.webp 2240w',
+          sizes: '(max-width: 768px) 100vw, 50vw',
+          alt: 'Simple Rekordbox Converter main window with a Rekordbox XML loaded, Dark forest playlist selected, and WAV output settings',
+          width: 2240,
+          height: 1440,
+        },
+        facts: [
+          {
+            label: 'Platforms',
+            value: 'Universal macOS app · CLI on macOS, Windows, and Linux',
+          },
+          {
+            label: 'Formats',
+            value: 'WAV and AIFF output',
+          },
+        ],
+        ctas: [
+          {
+            label: 'Download for macOS',
+            href: 'https://github.com/slnnzmtl/rekordbox-playlist-converter/releases',
+            kind: 'primary',
+            macosDownload: true,
+          },
+          {
+            label: 'View product',
+            href: '/projects/rekordbox-playlist-converter',
+            kind: 'secondary',
+          },
+          {
+            label: 'Documentation',
+            href: 'https://github.com/slnnzmtl/rekordbox-playlist-converter/blob/master/USAGE.md',
+            kind: 'secondary',
+          },
+          {
+            label: 'Source code',
+            href: 'https://github.com/slnnzmtl/rekordbox-playlist-converter',
+            kind: 'secondary',
+          },
+        ],
+        tags: ['Python', 'Tkinter', 'FFmpeg', 'PyInstaller', 'Rekordbox XML'],
+        github: {
+          owner: 'slnnzmtl',
+          repo: 'rekordbox-playlist-converter',
+        },
+        source: rekordboxProduct,
+      },
+    ],
+  },
   capabilities: [
     {
       title: 'Agentic AI systems',
@@ -403,7 +459,7 @@ export const homepageContent: HomepageContent = {
   ],
   selectedWorkIntro: {
     text:
-      'Enterprise product engineering, independent delivery, and public software built to solve real problems.',
+      'Commercial product engineering, independent delivery, and publicly inspectable open-source systems.',
     source: ticket157,
   },
   contact: {
@@ -439,12 +495,13 @@ export function collectClaimSources(content: HomepageContent): ClaimSource[] {
     ...content.primaryCtas.map(item => item.source),
     ...content.profileLinks.map(item => item.source),
     ...content.proof.map(item => item.source),
-    content.tracksIntro.source,
-    ...content.tracks.map(item => item.source),
     ...content.workSections.flatMap(section => [
       section.description.source,
       ...section.items.map(item => item.source),
     ]),
+    content.products.heading.source,
+    content.products.description.source,
+    ...content.products.items.map(item => item.source),
     ...content.capabilities.map(item => item.source),
     content.selectedWorkIntro.source,
     content.contact.heading.source,
@@ -459,7 +516,6 @@ export function publishedHomepage(content: HomepageContent = homepageContent): H
     primaryCtas: content.primaryCtas.filter(item => isApproved(item.source)),
     profileLinks: content.profileLinks.filter(item => isApproved(item.source)),
     proof: content.proof.filter(item => isApproved(item.source)),
-    tracks: content.tracks.filter(item => isApproved(item.source)),
     workSections: content.workSections
       .filter(section => isApproved(section.description.source))
       .map(section => ({
@@ -467,12 +523,15 @@ export function publishedHomepage(content: HomepageContent = homepageContent): H
         items: section.items.filter(item => isApproved(item.source)),
       }))
       .filter(section => section.items.length > 0),
+    products: {
+      heading: content.products.heading,
+      description: content.products.description,
+      items: isApproved(content.products.description.source)
+        ? content.products.items.filter(item => isApproved(item.source))
+        : [],
+    },
     capabilities: content.capabilities.filter(item => isApproved(item.source)),
   }
-}
-
-export function trackTitle(tracks: WorkTrack[], id: WorkTrackId): string {
-  return tracks.find(track => track.id === id)?.title ?? id
 }
 
 export type HomepageHrefKind = 'native' | 'route'

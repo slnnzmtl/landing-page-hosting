@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import {
   formatBytes,
+  findMacosUniversalAsset,
   githubReleasesApiUrl,
   isAllowedGithubUrl,
   isRateLimitStatus,
@@ -43,6 +44,13 @@ describe('github release helpers', () => {
     expect(githubReleasesApiUrl('slnnzmtl', 'rekordbox-playlist-converter')).toBe(
       'https://api.github.com/repos/slnnzmtl/rekordbox-playlist-converter/releases',
     )
+  })
+
+  it('selects the macOS universal2 zip for homepage download CTAs', () => {
+    const [release] = normalizeReleases([sampleRelease])
+    const asset = findMacosUniversalAsset(release.assets)
+    expect(asset?.name).toBe('Rekordbox-WAV-Converter-macos-universal2.zip')
+    expect(findMacosUniversalAsset([])).toBeUndefined()
   })
 
   it('formats byte sizes for humans', () => {

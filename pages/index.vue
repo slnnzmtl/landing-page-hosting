@@ -54,30 +54,12 @@ useHomepageHead(home)
         </ul>
       </section>
 
-      <section aria-labelledby="tracks-heading">
-        <h2
-          id="tracks-heading"
-          class="text-2xl font-semibold"
-        >
-          Three tracks of work
-        </h2>
-        <p class="mt-3 max-w-2xl text-muted-foreground">
-          {{ home.tracksIntro.text }}
-        </p>
-        <ul class="mt-8 grid gap-5 md:grid-cols-3">
-          <HomeColumnCard
-            v-for="track in home.tracks"
-            :key="track.id"
-            :title="track.title"
-            :summary="track.summary"
-          />
-        </ul>
-      </section>
-
       <HomeSelectedWork
         :intro="home.selectedWorkIntro"
         :sections="home.workSections"
       />
+
+      <HomeProducts :products="home.products" />
 
       <section aria-labelledby="capabilities-heading">
         <h2

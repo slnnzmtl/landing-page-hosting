@@ -226,6 +226,17 @@ export function splitLatestAndRecent(releases: GithubRelease[]) {
   }
 }
 
+/** Prefer the universal2 macOS zip used by Simple Rekordbox Converter releases. */
+export function findMacosUniversalAsset(
+  assets: GithubReleaseAsset[],
+): GithubReleaseAsset | undefined {
+  return (
+    assets.find(asset => /macos.*universal2.*\.zip$/i.test(asset.name))
+    ?? assets.find(asset => /macos.*universal.*\.zip$/i.test(asset.name))
+    ?? assets.find(asset => /macos.*\.zip$/i.test(asset.name))
+  )
+}
+
 export function emptyGithubReleasesResult(owner: string, repo: string): GithubReleasesResult {
   return {
     status: 'idle',

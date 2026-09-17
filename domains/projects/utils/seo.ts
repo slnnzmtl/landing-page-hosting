@@ -167,7 +167,7 @@ export function seoHead(siteUrl: string, page: PageSeo) {
 }
 
 export function sitemapPaths(): string[] {
-  const paths = ['/', ...getProjectRoutes()]
+  const paths = ['/', '/experience', ...getProjectRoutes()]
   return [...new Set(paths)]
 }
 

@@ -6,8 +6,8 @@ import {
   homepageHrefKind,
   opensInNewTab,
   publishedHomepage,
-  trackTitle,
 } from '~/data/homepage'
+import { publishedExperienceRoles } from '~/data/experience'
 
 describe('homepage content model', () => {
   const published = publishedHomepage()
@@ -37,11 +37,13 @@ describe('homepage content model', () => {
   it('publishes only approved claims', () => {
     const sources = [
       ...published.proof.map(item => item.source),
-      ...published.tracks.map(item => item.source),
       ...published.workSections.flatMap(section => [
         section.description.source,
         ...section.items.map(item => item.source),
       ]),
+      published.products.heading.source,
+      published.products.description.source,
+      ...published.products.items.map(item => item.source),
       ...published.capabilities.map(item => item.source),
     ]
     expect(sources.every(isApproved)).toBe(true)
@@ -65,99 +67,119 @@ describe('homepage content model', () => {
     expect(published.proof[3].label).toContain('500+ users')
   })
 
-  it('supports the three-track portfolio strategy', () => {
-    expect(published.tracks.map(track => track.id)).toEqual([
-      'enterprise',
-      'independent',
-      'open-source',
-    ])
-    expect(trackTitle(published.tracks, 'enterprise')).toBe('Enterprise')
-    expect(trackTitle(published.tracks, 'independent')).toBe('Independent / Client Work')
-    expect(trackTitle(published.tracks, 'open-source')).toBe('Open Source & Products')
+  it('does not publish a separate three-track intro', () => {
+    expect(published).not.toHaveProperty('tracks')
+    expect(published).not.toHaveProperty('tracksIntro')
   })
 
-  it('groups selected work into three visible categories', () => {
-    expect(published.selectedWorkIntro.text).toContain('Enterprise product engineering')
+  it('groups selected work into professional, independent, and open-source', () => {
+    expect(published.selectedWorkIntro.text).toBe(
+      'Commercial product engineering, independent delivery, and publicly inspectable open-source systems.',
+    )
     expect(published.workSections.map(section => section.id)).toEqual([
       'professional',
       'independent',
-      'products-open-source',
+      'open-source',
     ])
     expect(published.workSections.map(section => section.title)).toEqual([
       'Professional Experience',
       'Independent Work',
-      'Products & Open Source',
+      'Open-Source Engineering',
     ])
     expect(published.workSections[0].description.text).toContain('marketplace, analytics, and SaaS')
     expect(published.workSections[1].description.text).toContain('AI-native workflows')
-    expect(published.workSections[2].description.text).toContain('designed, built, tested, and released')
+    expect(published.workSections[2].description.text).toContain('Publicly inspectable systems')
   })
 
-  it('lists selected-work cards with LinkedIn professional roles and rekordbox under products', () => {
+  it('lists condensed selected-work cards with Woki under independent and Rekordbox under products', () => {
     const slugs = published.workSections.flatMap(section => section.items.map(item => item.slug))
     expect(slugs).toEqual([
       'upwork-reputation-team',
       'subbly-senior-software-developer',
-      'woki-one-lead-software-developer',
       'capgemini-software-developer',
       'ai-appointment-crm-automation',
+      'woki-crm',
       'kml-map-viewer',
       'langgraph-personal-assistant',
       'directus-website-builder',
-      'rekordbox-playlist-converter',
     ])
 
     const professional = published.workSections.find(section => section.id === 'professional')
     expect(professional?.items.map(item => item.subtitle)).toEqual([
       'Upwork · Jan 2025 – May 2026 · Remote',
       'Subbly® · Full-time · Nov 2023 – Dec 2024 · Remote',
-      'Woki.one · Part-time · Jun 2023 – Dec 2023 · Remote',
       'Capgemini Engineering · Full-time · Jun 2022 – May 2023 · Remote',
     ])
     expect(professional?.items.map(item => item.title)).toEqual([
       'Senior Software Engineer (Reputation Team)',
       'Senior Software Developer',
-      'Lead Software Developer in a startup',
       'Software Developer',
     ])
-
     expect(professional?.items.map(item => item.icon)).toEqual([
       '/images/experience/upwork.png',
       '/images/experience/subbly.png',
-      '/images/experience/woki.png',
       '/images/experience/capgemini.png',
     ])
     expect(professional?.items.every(item => !item.hrefLabel)).toBe(true)
     expect(professional?.items.every(item => !item.href)).toBe(true)
-    expect(professional?.items[0].summary.split(/\n{2,}/)).toHaveLength(5)
-    expect(professional?.items[0].summary).toContain('Core Feature Ownership')
+    expect(professional?.items[0].summary.split(/\n{2,}/)).toHaveLength(1)
+    expect(professional?.items[0].summary).toContain('tens of millions of users')
+    expect(professional?.items[0].summary).not.toContain('Core Feature Ownership')
+    expect(professional?.items[0].summary).not.toMatch(/massive scale/i)
+    expect(professional?.items[0].summary).not.toMatch(/state-of-the-art/i)
+    expect(professional?.items[0].summary).not.toMatch(/cutting-edge productivity/i)
+    expect(professional?.items[0].summary).not.toMatch(/evaluation scoring paradigm/i)
+    expect(professional?.items[0].tags).toEqual(['Vue 3', 'TypeScript'])
 
     const independent = published.workSections.find(section => section.id === 'independent')
-    expect(independent?.items[0].slug).toBe('ai-appointment-crm-automation')
+    expect(independent?.items.map(item => item.slug)).toEqual([
+      'ai-appointment-crm-automation',
+      'woki-crm',
+      'kml-map-viewer',
+    ])
     expect(independent?.items[0].featured).toBe(true)
     expect(independent?.items[0].hrefLabel).toBe('View project')
-    expect(independent?.items.some(item => item.slug === 'woki-crm')).toBe(false)
+    const woki = independent?.items.find(item => item.slug === 'woki-crm')
+    expect(woki?.title).toBe('Woki CRM')
+    expect(woki?.subtitle).toContain('Woki.one')
+    expect(woki?.icon).toBe('/images/experience/woki.png')
 
-    const products = published.workSections.find(section => section.id === 'products-open-source')
-    const rekordbox = products?.items.find(item => item.slug === 'rekordbox-playlist-converter')
-    expect(rekordbox?.hrefLabel).toBe('View product')
-    expect(rekordbox?.tags).toEqual([
+    const openSource = published.workSections.find(section => section.id === 'open-source')
+    expect(openSource?.items.map(item => item.slug)).toEqual([
+      'langgraph-personal-assistant',
+      'directus-website-builder',
+    ])
+    expect(
+      published.workSections.some(section =>
+        section.items.some(item => item.slug.includes('rekordbox')),
+      ),
+    ).toBe(false)
+  })
+
+  it('publishes a Products section with a Rekordbox spotlight', () => {
+    expect(published.products.heading.text).toBe('Products')
+    expect(published.products.description.text).toContain('design, build, package, and maintain')
+    expect(published.products.items).toHaveLength(1)
+    const rekordbox = published.products.items[0]
+    expect(rekordbox.slug).toBe('rekordbox-playlist-converter')
+    expect(rekordbox.title).toBe('Simple Rekordbox Converter')
+    expect(rekordbox.lead).toContain('without modifying your original files')
+    expect(rekordbox.supportingLine).toContain('universal macOS app')
+    expect(rekordbox.tags).toEqual([
       'Python',
       'Tkinter',
       'FFmpeg',
-      'FFprobe',
       'PyInstaller',
-      'macOS',
-      'CLI',
       'Rekordbox XML',
-      'GitHub Actions',
-      'unittest',
     ])
-    expect(
-      published.workSections
-        .filter(section => section.id !== 'products-open-source')
-        .some(section => section.items.some(item => item.slug.includes('rekordbox'))),
-    ).toBe(false)
+    expect(rekordbox.ctas.map(cta => cta.label)).toEqual([
+      'Download for macOS',
+      'View product',
+      'Documentation',
+      'Source code',
+    ])
+    expect(rekordbox.ctas[0].macosDownload).toBe(true)
+    expect(rekordbox.image.src).toContain('macos-app-main-window')
   })
 
   it('includes approved Subbly metrics from LinkedIn professional experience', () => {
@@ -171,6 +193,21 @@ describe('homepage content model', () => {
     expect(subbly?.summary).toMatch(/15%/)
     expect(subbly?.summary).toMatch(/500\+/)
     expect(isApproved(subbly!.source)).toBe(true)
+  })
+
+  it('keeps full professional writeups on /experience', () => {
+    const roles = publishedExperienceRoles()
+    expect(roles.map(role => role.slug)).toEqual([
+      'upwork-reputation-team',
+      'subbly-senior-software-developer',
+      'capgemini-software-developer',
+    ])
+    expect(roles[0].summary.split(/\n{2,}/).length).toBeGreaterThan(1)
+    expect(roles[0].summary).toContain('Core Feature Ownership')
+    expect(roles[0].summary).not.toMatch(/massive scale/i)
+    expect(roles[0].summary).not.toMatch(/state-of-the-art/i)
+    expect(roles[0].summary).not.toMatch(/cutting-edge productivity/i)
+    expect(roles[0].summary).not.toMatch(/evaluation scoring paradigm/i)
   })
 
   it('covers agentic, full-stack, and production capabilities', () => {
@@ -192,8 +229,6 @@ describe('homepage content model', () => {
       ...published.primaryCtas.map(item => `${item.label} ${item.href}`),
       ...published.profileLinks.map(item => `${item.label} ${item.href}`),
       ...published.proof.map(item => `${item.value} ${item.label}`),
-      published.tracksIntro.text,
-      ...published.tracks.map(item => `${item.title} ${item.summary}`),
       published.selectedWorkIntro.text,
       ...published.workSections.flatMap(section => [
         section.title,
@@ -206,6 +241,16 @@ describe('homepage content model', () => {
           item.hrefLabel ?? '',
           ...(item.tags ?? []),
         ]),
+      ]),
+      published.products.heading.text,
+      published.products.description.text,
+      ...published.products.items.flatMap(item => [
+        item.title,
+        item.lead,
+        item.supportingLine,
+        ...item.facts.flatMap(fact => [fact.label, fact.value]),
+        ...item.ctas.flatMap(cta => [cta.label, cta.href]),
+        ...item.tags,
       ]),
       ...published.capabilities.map(item => `${item.title} ${item.summary}`),
       published.contact.heading.text,
@@ -228,13 +273,13 @@ describe('homepage content model', () => {
     expect(userFacingWithSubtitles).toContain('Upwork')
     expect(userFacingWithSubtitles).toContain('Subbly®')
     expect(userFacingWithSubtitles).toContain('Capgemini Engineering')
+    expect(userFacingWithSubtitles).toContain('Woki.one')
 
-    const rekordbox = published.workSections
-      .flatMap(section => section.items)
-      .find(item => item.slug === 'rekordbox-playlist-converter')
+    const rekordbox = published.products.items[0]
     const rekordboxCopy = [
       rekordbox?.title,
-      rekordbox?.summary,
+      rekordbox?.lead,
+      rekordbox?.supportingLine,
       ...(rekordbox?.tags ?? []),
     ].join(' ').toLowerCase()
     expect(rekordboxCopy).not.toMatch(/swift/)
