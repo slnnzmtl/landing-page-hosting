@@ -47,6 +47,11 @@ describe('projects SEO documents', () => {
     expect(blob).not.toMatch(/"offers"/)
   })
 
+  it('uses a personal portfolio suffix on the converter product title', () => {
+    const page = projectDetailSeo(siteUrl, rekordboxPlaylistConverter)
+    expect(page.title).toBe('Simple Rekordbox Converter | Daniel Kazansky')
+  })
+
   it('builds SoftwareApplication + BreadcrumbList JSON-LD for the converter', () => {
     const page = projectDetailSeo(siteUrl, rekordboxPlaylistConverter)
     const graph = (page.jsonLd['@graph'] as Array<Record<string, unknown>>).map(node => node['@type'])

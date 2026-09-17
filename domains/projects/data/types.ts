@@ -15,6 +15,29 @@ export interface ProjectLink {
   href: string
 }
 
+export interface ProjectLaunchCta {
+  label: string
+  href: string
+  kind: 'primary' | 'secondary'
+  /** Resolve href from the latest GitHub macOS universal asset when a release is available */
+  macosDownload?: boolean
+}
+
+export interface ProjectTrustFact {
+  label: string
+  value: string
+  href?: string
+}
+
+export interface ProjectLaunch {
+  lead: string
+  supportingLine: string
+  ctas: ProjectLaunchCta[]
+  /** Evergreen trust copy; version and release date are filled from GitHub when linked */
+  trustFacts: ProjectTrustFact[]
+  trademark?: string
+}
+
 export interface ProjectBenefit {
   title: string
   description: string
@@ -39,6 +62,8 @@ export interface GithubRepoRef {
 export interface ProjectSeo {
   title: string
   description: string
+  /** Overrides the default site suffix in the document title, e.g. Daniel Kazansky */
+  titleSuffix?: string
 }
 
 export interface ProjectSoftwareApplication {
@@ -57,6 +82,7 @@ export interface Project {
   benefits?: ProjectBenefit[]
   guide?: ProjectGuide
   links?: ProjectLink[]
+  launch?: ProjectLaunch
   gallery?: ProjectImage[]
   github?: GithubRepoRef
   seo?: ProjectSeo

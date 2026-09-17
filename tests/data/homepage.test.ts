@@ -129,7 +129,6 @@ describe('homepage content model', () => {
     expect(professional?.items[0].summary).not.toMatch(/state-of-the-art/i)
     expect(professional?.items[0].summary).not.toMatch(/cutting-edge productivity/i)
     expect(professional?.items[0].summary).not.toMatch(/evaluation scoring paradigm/i)
-    expect(professional?.items[0].tags).toEqual(['Vue 3', 'TypeScript'])
 
     const independent = published.workSections.find(section => section.id === 'independent')
     expect(independent?.items.map(item => item.slug)).toEqual([
@@ -142,7 +141,6 @@ describe('homepage content model', () => {
     const woki = independent?.items.find(item => item.slug === 'woki-crm')
     expect(woki?.title).toBe('Woki CRM')
     expect(woki?.subtitle).toContain('Woki.one')
-    expect(woki?.icon).toBe('/images/experience/woki.png')
 
     const openSource = published.workSections.find(section => section.id === 'open-source')
     expect(openSource?.items.map(item => item.slug)).toEqual([

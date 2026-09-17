@@ -4,9 +4,64 @@ export const rekordboxPlaylistConverter: Project = {
   slug: 'rekordbox-playlist-converter',
   name: 'Simple Rekordbox Converter',
   shortDescription:
-    'Cross-platform Python CLI and universal macOS app for converting Rekordbox 6/7 XML playlists and lossless tracks into WAV or AIFF without modifying the original files.',
+    'Convert Rekordbox XML playlists and lossless tracks to WAV or AIFF without changing your original files.',
   description:
-    'Simple Rekordbox Converter converts FLAC, ALAC, AIFF, and WAV tracks from Rekordbox XML playlists into stereo PCM WAV or AIFF files. It generates new [WAV] or [AIFF] playlists for import back into Rekordbox while preserving the original audio files.\n\nThe project includes both an interactive Tkinter macOS application and a command-line interface for macOS, Linux, and Windows.\n\nRekordbox is a trademark of AlphaTheta Corporation / Pioneer DJ; this unofficial tool is not affiliated with, endorsed by, or sponsored by AlphaTheta or Pioneer DJ.',
+    'Simple Rekordbox Converter converts FLAC, ALAC, AIFF, and WAV tracks from Rekordbox 6 and 7 XML playlists into stereo PCM WAV or AIFF files. It generates new [WAV] or [AIFF] playlists for import back into Rekordbox while preserving the original audio files.\n\nThe project includes both an interactive Tkinter macOS application and a command-line interface for macOS, Linux, and Windows.',
+  launch: {
+    lead:
+      'Convert Rekordbox XML playlists and lossless tracks to WAV or AIFF without changing your original files.',
+    supportingLine:
+      'Download the universal macOS app, or use the Python CLI on macOS, Windows, and Linux.',
+    ctas: [
+      {
+        label: 'Download for macOS',
+        href: 'https://github.com/slnnzmtl/rekordbox-playlist-converter/releases',
+        kind: 'primary',
+        macosDownload: true,
+      },
+      {
+        label: 'Other platforms / CLI',
+        href: 'https://github.com/slnnzmtl/rekordbox-playlist-converter/releases',
+        kind: 'secondary',
+      },
+      {
+        label: 'Documentation',
+        href: 'https://github.com/slnnzmtl/rekordbox-playlist-converter/blob/master/USAGE.md',
+        kind: 'secondary',
+      },
+      {
+        label: 'GitHub',
+        href: 'https://github.com/slnnzmtl/rekordbox-playlist-converter',
+        kind: 'secondary',
+      },
+    ],
+    trustFacts: [
+      {
+        label: 'Supported macOS',
+        value: 'macOS 11 (Big Sur) and later',
+      },
+      {
+        label: 'Apple Silicon and Intel',
+        value: 'Universal macOS app (universal2)',
+      },
+      {
+        label: 'License',
+        value: 'GNU GPL v3',
+        href: 'https://www.gnu.org/licenses/gpl-3.0.html',
+      },
+      {
+        label: 'Privacy and analytics',
+        value: 'Optional anonymous analytics; not required to convert playlists',
+      },
+      {
+        label: 'Report an issue',
+        value: 'GitHub Issues',
+        href: 'https://github.com/slnnzmtl/rekordbox-playlist-converter/issues',
+      },
+    ],
+    trademark:
+      'Rekordbox is a trademark of AlphaTheta Corporation / Pioneer DJ. This unofficial tool is not affiliated with, endorsed by, or sponsored by AlphaTheta or Pioneer DJ.',
+  },
   logo: {
     src: '/projects/rekordbox-playlist-converter/simple-rekordbox-converter-logo.webp',
     srcThumb: '/projects/rekordbox-playlist-converter/simple-rekordbox-converter-logo-256w.webp',
@@ -154,6 +209,7 @@ export const rekordboxPlaylistConverter: Project = {
   },
   seo: {
     title: 'Simple Rekordbox Converter',
+    titleSuffix: 'Daniel Kazansky',
     description:
       'Convert Rekordbox 6 and 7 XML playlists of FLAC, ALAC, AIFF, and WAV tracks to stereo PCM WAV or AIFF with a macOS app or cross-platform CLI.',
   },

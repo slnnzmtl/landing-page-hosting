@@ -2,6 +2,8 @@
 import { useProjects } from '../composables/useProjects'
 import ProjectGallery from '../components/ProjectGallery.vue'
 import GithubReleases from '../components/GithubReleases.vue'
+import ProjectLaunchActions from '../components/ProjectLaunchActions.vue'
+import ProjectTrustPanel from '../components/ProjectTrustPanel.vue'
 import { useProjectPageSeo } from '../composables/useProjectPageSeo'
 import { projectDetailSeo, resolveSiteUrl } from '../utils/seo'
 
@@ -28,6 +30,14 @@ const descriptionParagraphs = computed(() => {
 const benefitsHeading = computed(() => (
   project.stackTags?.length ? 'Feature highlights' : 'Why use it'
 ))
+
+const heroParagraphs = computed(() => {
+  if (project.launch) {
+    return []
+  }
+  const text = project.description || project.shortDescription
+  return text.split(/\n{2,}/).map(paragraph => paragraph.trim()).filter(Boolean)
+})
 </script>
 
 <template>
@@ -71,33 +81,51 @@ const benefitsHeading = computed(() => (
           <h1 class="text-4xl font-semibold leading-tight sm:text-5xl">
             {{ project.name }}
           </h1>
-          <div class="max-w-2xl space-y-4 text-lg text-muted-foreground">
-            <p
-              v-for="(paragraph, index) in descriptionParagraphs"
-              :key="index"
-            >
-              {{ paragraph }}
-            </p>
-          </div>
+          <template v-if="project.launch">
+            <div class="max-w-2xl space-y-3">
+              <p class="text-lg text-foreground">
+                {{ project.launch.lead }}
+              </p>
+              <p class="text-base text-muted-foreground">
+                {{ project.launch.supportingLine }}
+              </p>
+            </div>
+            <ProjectLaunchActions
+              v-if="project.github"
+              :launch="project.launch"
+              :github-owner="project.github.owner"
+              :github-repo="project.github.repo"
+            />
+          </template>
+          <template v-else>
+            <div class="max-w-2xl space-y-4 text-lg text-muted-foreground">
+              <p
+                v-for="(paragraph, index) in heroParagraphs"
+                :key="index"
+              >
+                {{ paragraph }}
+              </p>
+            </div>
+            <div v-if="project.links?.length" class="flex flex-wrap gap-3">
+              <a
+                v-for="link in project.links"
+                :key="link.href"
+                :href="link.href"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="rounded-full border border-border px-5 py-2.5 text-sm font-medium transition hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                {{ link.label }}
+              </a>
+            </div>
+          </template>
           <p
-            v-if="project.stackTags?.length"
+            v-if="project.stackTags?.length && !project.launch"
             class="max-w-2xl text-sm text-muted-foreground"
           >
             <span class="font-medium text-foreground">Stack: </span>
             {{ project.stackTags.join(' · ') }}
           </p>
-          <div v-if="project.links?.length" class="flex flex-wrap gap-3">
-            <a
-              v-for="link in project.links"
-              :key="link.href"
-              :href="link.href"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="rounded-full border border-border px-5 py-2.5 text-sm font-medium transition hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            >
-              {{ link.label }}
-            </a>
-          </div>
         </div>
         <div
           id="project-hero-media"
@@ -123,6 +151,39 @@ const benefitsHeading = computed(() => (
           </p>
         </div>
       </header>
+
+      <ProjectTrustPanel
+        v-if="project.launch && project.github"
+        :trust-facts="project.launch.trustFacts"
+        :github-owner="project.github.owner"
+        :github-repo="project.github.repo"
+        :trademark="project.launch.trademark"
+      />
+
+      <section
+        v-if="project.launch && descriptionParagraphs.length"
+        aria-labelledby="project-how-heading"
+        class="space-y-4"
+      >
+        <h2 id="project-how-heading" class="text-2xl font-semibold">
+          How it works
+        </h2>
+        <div class="max-w-3xl space-y-4 text-muted-foreground">
+          <p
+            v-for="(paragraph, index) in descriptionParagraphs"
+            :key="index"
+          >
+            {{ paragraph }}
+          </p>
+        </div>
+        <p
+          v-if="project.stackTags?.length"
+          class="max-w-3xl text-sm text-muted-foreground"
+        >
+          <span class="font-medium text-foreground">Stack: </span>
+          {{ project.stackTags.join(' · ') }}
+        </p>
+      </section>
 
       <section
         v-if="project.benefits?.length"

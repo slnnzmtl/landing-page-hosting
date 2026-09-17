@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { ProductSpotlight } from '~/data/homepage'
-import { homepageHrefKind } from '~/data/homepage'
 import { useHomepageUi } from '~/composables/useHomepageUi'
 import { useGithubReleases } from '~/domains/projects/composables/useGithubReleases'
 import { findMacosUniversalAsset } from '~/domains/projects/utils/github-releases'
@@ -103,7 +102,7 @@ const secondaryLinkClass = [
           </div>
         </dl>
 
-        <div class="mt-6 flex flex-wrap items-center gap-3">
+        <div class="mt-6 flex flex-wrap items-center gap-5">
           <a
             v-if="primaryCta"
             :href="primaryHref"
@@ -112,26 +111,13 @@ const secondaryLinkClass = [
           >
             {{ primaryCta.label }}
           </a>
-          <template
-            v-for="cta in secondaryCtas"
-            :key="cta.label"
-          >
-            <a
-              v-if="homepageHrefKind(cta.href) === 'native'"
-              :href="cta.href"
-              v-bind="outboundAttrs(cta.href)"
-              :class="secondaryLinkClass"
-            >
-              {{ cta.label }}
-            </a>
-            <NuxtLink
-              v-else
-              :to="cta.href"
-              :class="secondaryLinkClass"
-            >
-              {{ cta.label }}
-            </NuxtLink>
-          </template>
+          <div class="flex flex-wrap items-center gap-3">
+            <div v-for="cta in secondaryCtas" :key="cta.label">
+              <a :href="cta.href" v-bind="outboundAttrs(cta.href)" :class="secondaryLinkClass">
+                {{ cta.label }}
+              </a>
+            </div>
+          </div>
         </div>
 
         <p

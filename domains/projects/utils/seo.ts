@@ -72,7 +72,8 @@ export function projectDetailSeo(siteUrl: string, project: Project): PageSeo {
   const path = projectPath(project.slug)
   const url = absoluteUrl(siteUrl, path)
   const description = project.seo?.description ?? project.shortDescription
-  const title = `${project.seo?.title ?? project.name} | ${SITE_NAME}`
+  const titleSuffix = project.seo?.titleSuffix ?? SITE_NAME
+  const title = `${project.seo?.title ?? project.name} | ${titleSuffix}`
   const image = socialImage(project)
   const software = project.softwareApplication
   const graph: Record<string, unknown>[] = [

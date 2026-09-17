@@ -271,7 +271,6 @@ export const homepageContent: HomepageContent = {
           summary:
             'Built and modernized reputation, credentialing, and enforcement experiences across a marketplace serving tens of millions of users. Owned frontend domains end-to-end and supported production systems through on-call responsibilities.',
           source: linkedInProfile,
-          tags: ['Vue 3', 'TypeScript'],
         },
         {
           slug: 'subbly-senior-software-developer',
@@ -282,7 +281,6 @@ export const homepageContent: HomepageContent = {
           summary:
             'Subscription commerce product engineering spanning setup UX, AI-assisted onboarding, and checkout. Reduced merchant setup time by 20%, raised AI-assisted onboarding completion by 25% for 500+ users, and cut payment abandonment by 15%.',
           source: ticket167,
-          tags: ['TypeScript', 'Vue'],
         },
         {
           slug: 'capgemini-software-developer',
@@ -293,7 +291,6 @@ export const homepageContent: HomepageContent = {
           summary:
             'Built interactive dashboards for a big data analytics system serving enterprise marketing and forecasting, managing 10M+ data points over HTTP in a React monorepo.',
           source: linkedInProfile,
-          tags: ['React', 'TypeScript', 'Redux'],
         },
       ],
     },
@@ -320,12 +317,9 @@ export const homepageContent: HomepageContent = {
           slug: 'woki-crm',
           title: 'Woki CRM',
           subtitle: 'Woki.one · Part-time · Jun 2023 – Dec 2023 · Remote',
-          icon: '/images/experience/woki.png',
-          iconAlt: 'Woki.one',
           summary:
             'Led a 4-person team in a fast-paced startup to build a modular CRM system using Vue 3 under tight deadlines.\nAchieving a 95+ Google PageSpeed score.\nEngineered user-friendly, configurable features for seamless customization.',
           source: linkedInProfile,
-          tags: ['Vue 2', 'Vue 3'],
         },
         {
           slug: 'kml-map-viewer',

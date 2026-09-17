@@ -26,11 +26,28 @@ describe('Simple Rekordbox Converter product data', () => {
     expect(guide?.steps[2].body).toMatch(/rekordbox xml/)
   })
 
-  it('links to source, usage docs, and GitHub releases', () => {
-    const hrefs = rekordboxPlaylistConverter.links?.map(link => link.href) || []
+  it('exposes launch CTAs for macOS download, CLI platforms, docs, and GitHub', () => {
+    const labels = rekordboxPlaylistConverter.launch?.ctas.map(cta => cta.label) || []
+    expect(labels).toEqual([
+      'Download for macOS',
+      'Other platforms / CLI',
+      'Documentation',
+      'GitHub',
+    ])
+    const hrefs = rekordboxPlaylistConverter.launch?.ctas.map(cta => cta.href) || []
     expect(hrefs).toContain('https://github.com/slnnzmtl/rekordbox-playlist-converter')
     expect(hrefs).toContain('https://github.com/slnnzmtl/rekordbox-playlist-converter/blob/master/USAGE.md')
     expect(hrefs).toContain('https://github.com/slnnzmtl/rekordbox-playlist-converter/releases')
+    expect(rekordboxPlaylistConverter.launch?.ctas[0].macosDownload).toBe(true)
+  })
+
+  it('documents product trust facts and trademark disclaimer', () => {
+    const labels = rekordboxPlaylistConverter.launch?.trustFacts.map(fact => fact.label) || []
+    expect(labels).toContain('License')
+    expect(labels).toContain('Privacy and analytics')
+    expect(labels).toContain('Report an issue')
+    expect(rekordboxPlaylistConverter.launch?.trademark).toMatch(/Rekordbox is a trademark/)
+    expect(rekordboxPlaylistConverter.seo?.titleSuffix).toBe('Daniel Kazansky')
   })
 
   it('does not hardcode a current version or release date', () => {
