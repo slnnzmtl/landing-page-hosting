@@ -20,7 +20,7 @@ watch(internal, v => emit('update:modelValue', v))
         type="radio"
         :name="props.name"
         :value="opt.value"
-        class="h-4 w-4 border border-input text-primary focus:ring-ring"
+        class="h-4 w-4 appearance-none rounded-full border border-input text-primary checked:border-primary checked:bg-primary focus:ring-ring"
       />
       <label :for="`${props.name}-${opt.value}`" class="text-sm leading-none cursor-pointer">{{ opt.label }}</label>
     </div>
