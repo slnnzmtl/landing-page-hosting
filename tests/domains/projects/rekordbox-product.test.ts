@@ -7,12 +7,13 @@ describe('Simple Rekordbox Converter product data', () => {
     expect(rekordboxPlaylistConverter.name).toBe('Simple Rekordbox Converter')
   })
 
-  it('covers the required evergreen benefits', () => {
+  it('documents feature highlights and stack tags', () => {
     const titles = rekordboxPlaylistConverter.benefits?.map(b => b.title).join(' ') || ''
     expect(titles).toMatch(/Rekordbox 6 and 7/)
-    expect(titles).toMatch(/Originals stay untouched/)
-    expect(titles).toMatch(/WAV or AIFF/)
-    expect(titles).toMatch(/Cues, beatgrid, and metadata/)
+    expect(titles).toMatch(/WAV and AIFF/)
+    expect(titles).toMatch(/GitHub Actions/)
+    expect(rekordboxPlaylistConverter.stackTags).toContain('Python')
+    expect(rekordboxPlaylistConverter.stackTags).toContain('FFmpeg')
   })
 
   it('documents the three-step import path and File → Import warning', () => {
@@ -20,7 +21,7 @@ describe('Simple Rekordbox Converter product data', () => {
     expect(guide?.steps).toHaveLength(3)
     expect(guide?.warning).toMatch(/File → Import/)
     expect(guide?.steps[0].body).toMatch(/Export Collection/)
-    expect(guide?.steps[1].title).toMatch(/macOS app/)
+    expect(guide?.steps[1].title).toMatch(/app or CLI/)
     expect(guide?.steps[2].body).toMatch(/Imported Library/)
     expect(guide?.steps[2].body).toMatch(/rekordbox xml/)
   })

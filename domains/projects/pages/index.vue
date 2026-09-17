@@ -26,7 +26,7 @@ useProjectPageSeo(projectsIndexSeo(siteUrl, projects))
           to="/"
           class="inline-flex items-center gap-2 text-sm font-medium text-primary transition hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
-          Back to the studio homepage
+          Back to the homepage
         </NuxtLink>
       </header>
 

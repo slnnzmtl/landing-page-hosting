@@ -1,0 +1,56 @@
+<script setup lang="ts">
+import type { HomepageContent, HomepageLink, SourcedText } from '~/data/homepage'
+import { useHomepageUi } from '~/composables/useHomepageUi'
+
+defineProps<{
+  person: HomepageContent['person']
+  valueProposition: SourcedText
+  workflow: SourcedText
+  primaryCtas: HomepageLink[]
+  profileLinks: HomepageLink[]
+}>()
+
+const { linkFocus } = useHomepageUi()
+</script>
+
+<template>
+  <header class="space-y-6">
+    <p class="text-sm uppercase tracking-[0.35em] text-primary">
+      {{ person.name.text }}
+    </p>
+    <h1 class="text-4xl font-semibold leading-tight sm:text-5xl">
+      {{ person.role.text }}
+    </h1>
+    <p class="text-lg font-medium text-foreground">
+      {{ person.heroSubtitle.text }}
+    </p>
+    <p class="max-w-2xl text-lg text-muted-foreground">
+      {{ valueProposition.text }}
+    </p>
+    <p class="max-w-2xl text-muted-foreground">
+      {{ workflow.text }}
+    </p>
+    <div class="flex flex-wrap items-center gap-6 sm:gap-8">
+      <div class="flex flex-wrap items-center gap-4">
+        <a
+          v-for="cta in primaryCtas"
+          :key="cta.href"
+          :href="cta.href"
+          :class="[
+            'rounded-full px-6 py-3 text-sm font-medium transition',
+            linkFocus,
+            cta.href === '#selected-work'
+              ? 'bg-primary text-primary-foreground shadow hover:bg-primary/90'
+              : 'border border-border text-foreground hover:border-primary hover:text-primary',
+          ]"
+        >
+          {{ cta.label }}
+        </a>
+      </div>
+
+      <nav aria-label="Profiles">
+        <HomeProfileLinkList :links="profileLinks" />
+      </nav>
+    </div>
+  </header>
+</template>

@@ -31,7 +31,7 @@ const handleError = () => clearError({ redirect: '/' })
           to="/"
           class="rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
-          Studio homepage
+          Homepage
         </NuxtLink>
         <NuxtLink
           to="/projects"

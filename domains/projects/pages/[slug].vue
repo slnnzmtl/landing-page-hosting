@@ -19,6 +19,15 @@ if (!project) {
 
 const siteUrl = resolveSiteUrl(useRuntimeConfig().public.siteUrl as string)
 useProjectPageSeo(projectDetailSeo(siteUrl, project))
+
+const descriptionParagraphs = computed(() => {
+  const text = project.description || project.shortDescription
+  return text.split(/\n{2,}/).map(paragraph => paragraph.trim()).filter(Boolean)
+})
+
+const benefitsHeading = computed(() => (
+  project.stackTags?.length ? 'Feature highlights' : 'Why use it'
+))
 </script>
 
 <template>
@@ -31,7 +40,7 @@ useProjectPageSeo(projectDetailSeo(siteUrl, project))
               to="/"
               class="transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
-              Studio homepage
+              Homepage
             </NuxtLink>
           </li>
           <li aria-hidden="true">
@@ -57,13 +66,25 @@ useProjectPageSeo(projectDetailSeo(siteUrl, project))
       <header class="grid gap-10 lg:grid-cols-[minmax(0,1.4fr)_minmax(12rem,16rem)] lg:items-center">
         <div class="space-y-5">
           <p class="text-sm uppercase tracking-[0.35em] text-primary">
-            Selected project
+            Product
           </p>
           <h1 class="text-4xl font-semibold leading-tight sm:text-5xl">
             {{ project.name }}
           </h1>
-          <p class="max-w-2xl text-lg text-muted-foreground">
-            {{ project.description || project.shortDescription }}
+          <div class="max-w-2xl space-y-4 text-lg text-muted-foreground">
+            <p
+              v-for="(paragraph, index) in descriptionParagraphs"
+              :key="index"
+            >
+              {{ paragraph }}
+            </p>
+          </div>
+          <p
+            v-if="project.stackTags?.length"
+            class="max-w-2xl text-sm text-muted-foreground"
+          >
+            <span class="font-medium text-foreground">Stack: </span>
+            {{ project.stackTags.join(' · ') }}
           </p>
           <div v-if="project.links?.length" class="flex flex-wrap gap-3">
             <a
@@ -109,9 +130,26 @@ useProjectPageSeo(projectDetailSeo(siteUrl, project))
         class="space-y-6"
       >
         <h2 id="project-benefits-heading" class="text-2xl font-semibold">
-          Why use it
+          {{ benefitsHeading }}
         </h2>
-        <ul class="grid gap-5 sm:grid-cols-2">
+        <ul
+          v-if="project.stackTags?.length"
+          class="list-disc space-y-2 pl-6 text-muted-foreground"
+        >
+          <li
+            v-for="benefit in project.benefits"
+            :key="benefit.title"
+          >
+            <span class="font-medium text-foreground">{{ benefit.title }}</span>
+            <template v-if="benefit.description">
+              — {{ benefit.description }}
+            </template>
+          </li>
+        </ul>
+        <ul
+          v-else
+          class="grid gap-5 sm:grid-cols-2"
+        >
           <li
             v-for="benefit in project.benefits"
             :key="benefit.title"

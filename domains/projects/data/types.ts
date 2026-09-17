@@ -61,6 +61,7 @@ export interface Project {
   github?: GithubRepoRef
   seo?: ProjectSeo
   softwareApplication?: ProjectSoftwareApplication
+  stackTags?: string[]
 }
 
 export function projectPath(slug: string): string {
