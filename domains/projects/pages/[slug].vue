@@ -30,14 +30,6 @@ const descriptionParagraphs = computed(() => {
 const benefitsHeading = computed(() => (
   project.stackTags?.length ? 'Feature highlights' : 'Why use it'
 ))
-
-const heroParagraphs = computed(() => {
-  if (project.launch) {
-    return []
-  }
-  const text = project.description || project.shortDescription
-  return text.split(/\n{2,}/).map(paragraph => paragraph.trim()).filter(Boolean)
-})
 </script>
 
 <template>
@@ -74,7 +66,7 @@ const heroParagraphs = computed(() => {
       </nav>
 
       <header class="grid gap-10 lg:grid-cols-[minmax(0,1.4fr)_minmax(12rem,16rem)] lg:items-center">
-        <div class="space-y-5">
+        <div class="order-2 space-y-5 lg:order-1">
           <p class="text-sm uppercase tracking-[0.35em] text-primary">
             Product
           </p>
@@ -100,7 +92,7 @@ const heroParagraphs = computed(() => {
           <template v-else>
             <div class="max-w-2xl space-y-4 text-lg text-muted-foreground">
               <p
-                v-for="(paragraph, index) in heroParagraphs"
+                v-for="(paragraph, index) in descriptionParagraphs"
                 :key="index"
               >
                 {{ paragraph }}
@@ -129,7 +121,7 @@ const heroParagraphs = computed(() => {
         </div>
         <div
           id="project-hero-media"
-          class="flex items-center justify-center rounded-3xl border border-border bg-[hsl(64,0%,1.43%)] p-8 ring-1 ring-[hsl(64,0%,98%)]/15"
+          class="order-1 flex items-center justify-center rounded-3xl border border-border bg-[hsl(64,0%,1.43%)] p-8 ring-1 ring-[hsl(64,0%,98%)]/15 lg:order-2"
         >
           <img
             v-if="project.logo"
@@ -190,12 +182,12 @@ const heroParagraphs = computed(() => {
         aria-labelledby="project-benefits-heading"
         class="space-y-6"
       >
-        <h2 id="project-benefits-heading" class="text-2xl font-semibold">
+        <h2 id="project-benefits-heading" class="text-xl font-semibold sm:text-2xl">
           {{ benefitsHeading }}
         </h2>
         <ul
           v-if="project.stackTags?.length"
-          class="list-disc space-y-2 pl-6 text-muted-foreground"
+          class="list-disc space-y-1.5 pl-5 text-sm text-muted-foreground sm:space-y-2 sm:pl-6 sm:text-base"
         >
           <li
             v-for="benefit in project.benefits"
@@ -203,7 +195,7 @@ const heroParagraphs = computed(() => {
           >
             <span class="font-medium text-foreground">{{ benefit.title }}</span>
             <template v-if="benefit.description">
-              — {{ benefit.description }}
+              <span class="hidden sm:inline"> — {{ benefit.description }}</span>
             </template>
           </li>
         </ul>

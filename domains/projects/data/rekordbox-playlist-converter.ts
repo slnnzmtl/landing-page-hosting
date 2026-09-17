@@ -189,20 +189,6 @@ export const rekordboxPlaylistConverter: Project = {
       },
     ],
   },
-  links: [
-    {
-      label: 'Source code on GitHub',
-      href: 'https://github.com/slnnzmtl/rekordbox-playlist-converter',
-    },
-    {
-      label: 'Full usage documentation',
-      href: 'https://github.com/slnnzmtl/rekordbox-playlist-converter/blob/master/USAGE.md',
-    },
-    {
-      label: 'GitHub releases',
-      href: 'https://github.com/slnnzmtl/rekordbox-playlist-converter/releases',
-    },
-  ],
   github: {
     owner: 'slnnzmtl',
     repo: 'rekordbox-playlist-converter',

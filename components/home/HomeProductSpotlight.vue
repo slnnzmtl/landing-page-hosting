@@ -1,45 +1,22 @@
 <script setup lang="ts">
 import type { ProductSpotlight } from '~/data/homepage'
 import { useHomepageUi } from '~/composables/useHomepageUi'
-import { useGithubReleases } from '~/domains/projects/composables/useGithubReleases'
-import { findMacosUniversalAsset } from '~/domains/projects/utils/github-releases'
+import { useMacosReleaseDownload } from '~/domains/projects/composables/useMacosReleaseDownload'
 
 const props = defineProps<{
   product: ProductSpotlight
 }>()
 
 const { linkFocus, outboundAttrs } = useHomepageUi()
-const { result } = useGithubReleases(props.product.github.owner, props.product.github.repo)
+const { ctaHref, versionLabel } = useMacosReleaseDownload(
+  props.product.github.owner,
+  props.product.github.repo,
+  { versionLabelStyle: 'spotlight' },
+)
 
 const primaryCta = computed(() => props.product.ctas.find(cta => cta.kind === 'primary'))
 const secondaryCtas = computed(() => props.product.ctas.filter(cta => cta.kind === 'secondary'))
-
-const macosAsset = computed(() => {
-  if (!result.value.latest) return undefined
-  return findMacosUniversalAsset(result.value.latest.assets)
-})
-
-const primaryHref = computed(() => {
-  if (primaryCta.value?.macosDownload && macosAsset.value) {
-    return macosAsset.value.browserDownloadUrl
-  }
-  return primaryCta.value?.href ?? '#'
-})
-
-const versionLabel = computed(() => {
-  const latest = result.value.latest
-  if (!latest) {
-    if (result.value.status === 'loading' || result.value.status === 'idle') {
-      return 'Checking latest release…'
-    }
-    if (result.value.status === 'empty') {
-      return 'No public release listed yet'
-    }
-    return 'See releases on GitHub'
-  }
-  const status = latest.prerelease ? 'Pre-release' : 'Latest release'
-  return `${status} ${latest.tagName}`
-})
+const primaryHref = computed(() => (primaryCta.value ? ctaHref(primaryCta.value) : '#'))
 
 const primaryLinkClass = [
   'inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90',
@@ -102,7 +79,7 @@ const secondaryLinkClass = [
           </div>
         </dl>
 
-        <div class="mt-6 flex flex-wrap items-center gap-5">
+        <div class="mt-6 grid sm:flex flex-wrap items-center gap-5">
           <a
             v-if="primaryCta"
             :href="primaryHref"
@@ -111,7 +88,7 @@ const secondaryLinkClass = [
           >
             {{ primaryCta.label }}
           </a>
-          <div class="flex flex-wrap items-center gap-3">
+          <div class="grid sm:flex flex-wrap items-center gap-3">
             <div v-for="cta in secondaryCtas" :key="cta.label">
               <a :href="cta.href" v-bind="outboundAttrs(cta.href)" :class="secondaryLinkClass">
                 {{ cta.label }}

@@ -102,6 +102,29 @@ export function formatReleaseDate(iso: string | null): string {
   }).format(date)
 }
 
+export type GithubReleaseVersionLabelStyle = 'tag' | 'spotlight'
+
+export function formatGithubReleaseVersionLabel(
+  result: Pick<GithubReleasesResult, 'status' | 'latest'>,
+  style: GithubReleaseVersionLabelStyle = 'tag',
+): string {
+  const latest = result.latest
+  if (!latest) {
+    if (result.status === 'loading' || result.status === 'idle') {
+      return 'Checking latest release…'
+    }
+    if (result.status === 'empty') {
+      return 'No public release listed yet'
+    }
+    return 'See releases on GitHub'
+  }
+  if (style === 'spotlight') {
+    const status = latest.prerelease ? 'Pre-release' : 'Latest release'
+    return `${status} ${latest.tagName}`
+  }
+  return latest.tagName
+}
+
 export function releaseNotesToPlainText(raw: string | null | undefined): string {
   if (!raw) return ''
   let text = raw.replace(/<[^>]+>/g, '')

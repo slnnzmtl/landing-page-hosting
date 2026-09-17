@@ -1,3 +1,6 @@
+import { rekordboxPlaylistConverter } from '~/domains/projects/data/rekordbox-playlist-converter'
+import type { ProjectLaunchCta } from '~/domains/projects/data/types'
+
 export type ClaimStatus = 'approved' | 'pending-validation' | 'internal-only'
 
 export interface ClaimSource {
@@ -71,13 +74,8 @@ export interface ProductSpotlightFact {
   value: string
 }
 
-export interface ProductSpotlightCta {
-  label: string
-  href: string
-  kind: 'primary' | 'secondary'
-  /** When true, primary CTA is resolved from the latest GitHub macOS asset at runtime */
-  macosDownload?: boolean
-}
+/** Same shape as project launch CTAs; resolved via GitHub when `macosDownload` is set */
+export type ProductSpotlightCta = ProjectLaunchCta
 
 export interface ProductSpotlight {
   slug: string
@@ -423,10 +421,7 @@ export const homepageContent: HomepageContent = {
           },
         ],
         tags: ['Python', 'Tkinter', 'FFmpeg', 'PyInstaller', 'Rekordbox XML'],
-        github: {
-          owner: 'slnnzmtl',
-          repo: 'rekordbox-playlist-converter',
-        },
+        github: rekordboxPlaylistConverter.github!,
         source: rekordboxProduct,
       },
     ],
