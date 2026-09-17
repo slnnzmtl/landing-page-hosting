@@ -33,8 +33,9 @@ const benefitsHeading = computed(() => (
 </script>
 
 <template>
-  <article class="min-h-screen bg-background text-foreground">
-    <div class="mx-auto flex max-w-5xl flex-col gap-16 px-6 py-20 lg:px-12">
+  <article class="relative min-h-screen text-foreground">
+    <StarBackdrop />
+    <div class="relative z-10 mx-auto flex max-w-5xl flex-col gap-16 px-6 py-20 lg:px-12">
       <nav aria-label="Breadcrumb">
         <ol class="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
           <li>
@@ -65,14 +66,39 @@ const benefitsHeading = computed(() => (
         </ol>
       </nav>
 
-      <header class="grid gap-10 lg:grid-cols-[minmax(0,1.4fr)_minmax(12rem,16rem)] lg:items-center">
-        <div class="order-2 space-y-5 lg:order-1">
+      <header class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(12rem,16rem)] lg:gap-10">
+        <div class="min-w-0 space-y-1 sm:space-y-2 lg:space-y-5">
           <p class="text-sm uppercase tracking-[0.35em] text-primary">
             Product
           </p>
-          <h1 class="text-4xl font-semibold leading-tight sm:text-5xl">
+          <h1 class="text-3xl font-semibold leading-tight sm:text-4xl lg:text-5xl">
             {{ project.name }}
           </h1>
+        </div>
+        <div
+          id="project-hero-media"
+          class="flex size-16 shrink-0 items-center justify-center rounded-xl border border-border bg-[hsl(64,0%,1.43%)] p-1.5 ring-1 ring-[hsl(64,0%,98%)]/15 sm:size-20 sm:rounded-2xl sm:p-2 lg:row-span-2 lg:size-auto lg:w-full lg:rounded-3xl lg:p-8"
+        >
+          <img
+            v-if="project.logo"
+            :src="project.logo.srcThumb || project.logo.src"
+            :srcset="project.logo.srcset"
+            :sizes="project.logo.sizes"
+            :alt="project.logo.alt"
+            :width="project.logo.width"
+            :height="project.logo.height"
+            fetchpriority="high"
+            decoding="async"
+            class="h-auto w-full max-w-[14rem]"
+          />
+          <p
+            v-else
+            class="text-center text-sm font-medium text-[hsl(64,0%,98%)]"
+          >
+            {{ project.name }}
+          </p>
+        </div>
+        <div class="max-lg:col-span-2 space-y-5">
           <template v-if="project.launch">
             <div class="max-w-2xl space-y-3">
               <p class="text-lg text-foreground">
@@ -117,29 +143,6 @@ const benefitsHeading = computed(() => (
           >
             <span class="font-medium text-foreground">Stack: </span>
             {{ project.stackTags.join(' · ') }}
-          </p>
-        </div>
-        <div
-          id="project-hero-media"
-          class="order-1 flex items-center justify-center rounded-3xl border border-border bg-[hsl(64,0%,1.43%)] p-8 ring-1 ring-[hsl(64,0%,98%)]/15 lg:order-2"
-        >
-          <img
-            v-if="project.logo"
-            :src="project.logo.srcThumb || project.logo.src"
-            :srcset="project.logo.srcset"
-            :sizes="project.logo.sizes"
-            :alt="project.logo.alt"
-            :width="project.logo.width"
-            :height="project.logo.height"
-            fetchpriority="high"
-            decoding="async"
-            class="h-auto w-full max-w-[14rem]"
-          />
-          <p
-            v-else
-            class="text-center text-sm font-medium text-[hsl(64,0%,98%)]"
-          >
-            {{ project.name }}
           </p>
         </div>
       </header>

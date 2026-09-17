@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { homepageStarBackdropClass } from '~/utils/homepage-star-backdrop'
+import { starBackdropClass } from '~/utils/star-backdrop'
 
 const STAR_COLORS = [
   '#FFFFFF',
@@ -394,7 +394,7 @@ onBeforeUnmount(() => {
 <template>
   <div
     ref="rootRef"
-    :class="homepageStarBackdropClass"
+    :class="starBackdropClass"
     aria-hidden="true"
   >
     <canvas

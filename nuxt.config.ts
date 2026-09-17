@@ -9,21 +9,16 @@ export default defineNuxtConfig({
     './domains/service',
     './domains/projects',
   ],
-  modules: ['@nuxtjs/tailwindcss', '@nuxtjs/color-mode'],
+  modules: ['@nuxtjs/tailwindcss'],
   ssr: true,
-  devtools: { enabled: true },
+  devtools: { enabled: process.env.NODE_ENV !== 'production' },
   app: {
     head: {
       htmlAttrs: {
         lang: 'en',
+        class: 'dark',
       },
     },
-  },
-  css: ['@/assets/main.css'],
-  colorMode: {
-    classSuffix: '',
-    preference: 'system',
-    fallback: 'light',
   },
   runtimeConfig: {
     public: {
@@ -56,5 +51,8 @@ export default defineNuxtConfig({
         '/robots.txt',
       ],
     },
+  },
+  tailwindcss: {
+    cssPath: '@/assets/main.css',
   },
 })

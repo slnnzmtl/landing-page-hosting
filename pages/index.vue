@@ -1,35 +1,14 @@
 <script setup lang="ts">
 import { publishedHomepage } from '~/data/homepage'
 import { useHomepageHead } from '~/composables/useHomepageHead'
-import { homepageStarBackdropClass } from '~/utils/homepage-star-backdrop'
 
 const home = publishedHomepage()
 useHomepageHead(home)
-
-const starsReady = ref(false)
-
-onMounted(() => {
-  const mountStars = () => {
-    starsReady.value = true
-  }
-
-  if (typeof requestIdleCallback !== 'undefined') {
-    requestIdleCallback(mountStars, { timeout: 1500 })
-  }
-  else {
-    setTimeout(mountStars, 0)
-  }
-})
 </script>
 
 <template>
-  <div class="dark relative min-h-screen text-foreground">
-    <div
-      v-if="!starsReady"
-      :class="homepageStarBackdropClass"
-      aria-hidden="true"
-    />
-    <LazyBackgroundPixelStars v-if="starsReady" />
+  <div class="relative min-h-screen text-foreground">
+    <StarBackdrop />
 
     <a
       href="#main-content"
