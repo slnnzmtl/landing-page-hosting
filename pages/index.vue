@@ -1,13 +1,36 @@
 <script setup lang="ts">
 import { publishedHomepage } from '~/data/homepage'
 import { useHomepageHead } from '~/composables/useHomepageHead'
+import { homepageStarBackdropClass } from '~/utils/homepage-star-backdrop'
 
 const home = publishedHomepage()
 useHomepageHead(home)
+
+const starsReady = ref(false)
+
+onMounted(() => {
+  const mountStars = () => {
+    starsReady.value = true
+  }
+
+  if (typeof requestIdleCallback !== 'undefined') {
+    requestIdleCallback(mountStars, { timeout: 1500 })
+  }
+  else {
+    setTimeout(mountStars, 0)
+  }
+})
 </script>
 
 <template>
-  <div class="min-h-screen bg-background text-foreground">
+  <div class="dark relative min-h-screen text-foreground">
+    <div
+      v-if="!starsReady"
+      :class="homepageStarBackdropClass"
+      aria-hidden="true"
+    />
+    <LazyBackgroundPixelStars v-if="starsReady" />
+
     <a
       href="#main-content"
       class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-foreground"
@@ -17,7 +40,7 @@ useHomepageHead(home)
 
     <div
       id="main-content"
-      class="mx-auto flex max-w-5xl flex-col gap-12 md:gap-24 px-6 py-20 lg:px-12"
+      class="relative z-10 mx-auto flex max-w-5xl flex-col gap-12 md:gap-24 px-6 py-20 lg:px-12"
       tabindex="-1"
     >
       <HomeHero
