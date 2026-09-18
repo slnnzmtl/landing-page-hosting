@@ -1,13 +1,17 @@
 <script setup lang="ts">
 import { useGithubReleases } from '../composables/useGithubReleases'
+import { useDownloadWarningDialog } from '../composables/useDownloadWarningDialog'
 import type { GithubRelease } from '../utils/github-releases'
+import MacosDownloadWarningDialog from './MacosDownloadWarningDialog.vue'
 
 const props = defineProps<{
   owner: string
   repo: string
+  macosDownloadWarning?: string
 }>()
 
 const { result } = useGithubReleases(props.owner, props.repo)
+const { isOpen, interceptClick, close, confirm } = useDownloadWarningDialog()
 
 function releaseHeading(release: GithubRelease) {
   return release.name === release.tagName ? release.name : `${release.name} (${release.tagName})`
@@ -96,9 +100,9 @@ function releaseHeading(release: GithubRelease) {
             target="_blank"
             rel="noopener noreferrer"
             class="rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            @click="interceptClick($event, asset.browserDownloadUrl, Boolean(macosDownloadWarning))"
           >
-            Download {{ asset.name }}
-            <span>({{ asset.sizeLabel }})</span>
+            Download
           </a>
         </div>
         <a
@@ -155,6 +159,13 @@ function releaseHeading(release: GithubRelease) {
       >
         View all releases on GitHub
       </a>
+
+      <MacosDownloadWarningDialog
+        v-if="isOpen && macosDownloadWarning"
+        :message="macosDownloadWarning"
+        @close="close"
+        @confirm="confirm"
+      />
     </template>
   </div>
 </template>

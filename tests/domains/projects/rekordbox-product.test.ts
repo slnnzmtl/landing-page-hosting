@@ -26,6 +26,10 @@ describe('Simple Rekordbox Converter product data', () => {
     expect(guide?.steps[2].body).toMatch(/rekordbox xml/)
   })
 
+  it('warns about ad hoc signing before macOS download', () => {
+    expect(rekordboxPlaylistConverter.launch?.macosDownloadWarning).toMatch(/ad hoc signed/)
+  })
+
   it('exposes launch CTAs for macOS download, CLI platforms, docs, and GitHub', () => {
     const labels = rekordboxPlaylistConverter.launch?.ctas.map(cta => cta.label) || []
     expect(labels).toEqual([

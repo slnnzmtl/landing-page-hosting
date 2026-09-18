@@ -12,6 +12,8 @@ export const rekordboxPlaylistConverter: Project = {
       'Convert Rekordbox XML playlists and lossless tracks to WAV or AIFF without changing your original files.',
     supportingLine:
       'Download the universal macOS app, or use the Python CLI on macOS, Windows, and Linux.',
+    macosDownloadWarning:
+      'On first open do right click -> open because the app is ad hoc signed',
     ctas: [
       {
         label: 'Download for macOS',

@@ -281,6 +281,7 @@ const benefitsHeading = computed(() => (
         <GithubReleases
           :owner="project.github.owner"
           :repo="project.github.repo"
+          :macos-download-warning="project.launch?.macosDownloadWarning"
         />
       </section>
     </div>
