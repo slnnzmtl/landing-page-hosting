@@ -2,7 +2,7 @@
 
 A Nuxt 3 + Vue 3 multi-domain app for landing pages, public product pages, JSON-driven surveys, and service marketing pages. Domains are Nuxt layers under `domains/`, with Tailwind UI, Zod validation, and static generation for Vercel. Personal finance lives in the sibling [`personal-finance`](../personal-finance) app.
 
-- **Live site:** https://landing-hosting.vercel.app
+- **Live site:** https://kazansky.dev
 - **Repository:** https://github.com/slnnzmtl/landing-hosting
 
 ## Tech Stack
@@ -78,12 +78,12 @@ Copy or create `.env` in the project root (gitignored):
 
 ```bash
 SURVEY_WEBHOOK_URL=https://example.com/webhook/survey/submit
-NUXT_PUBLIC_SITE_URL=https://landing-hosting.vercel.app
+NUXT_PUBLIC_SITE_URL=https://kazansky.dev
 ```
 
 `SURVEY_WEBHOOK_URL` maps to `runtimeConfig.public.surveyWebhookUrl` and is the live survey POST target; JSON `action` fields in survey files are inert placeholders only.
 
-`NUXT_PUBLIC_SITE_URL` (or `SITE_URL`) is the production origin used for canonical URLs, Open Graph tags, `sitemap.xml`, and `robots.txt`. Do not set this to a Vercel preview hostname. If unset, it defaults to `https://landing-hosting.vercel.app`.
+`NUXT_PUBLIC_SITE_URL` (or `SITE_URL`) is the production origin used for canonical URLs, Open Graph tags, `sitemap.xml`, and `robots.txt`. Do not set this to a Vercel preview hostname. If unset, it defaults to `https://kazansky.dev`. Set this on Vercel production to `https://kazansky.dev` so custom-domain sitemap and robots output stay correct.
 
 Personal finance env vars (`SUPABASE_*`, `ALLOWED_EMAILS`) belong in the sibling `personal-finance` app, not here.
 
@@ -179,7 +179,7 @@ pnpm preview
 
 Set `SURVEY_WEBHOOK_URL` in the Vercel project environment for survey submissions. Set `NUXT_PUBLIC_SITE_URL` to the production origin for canonical/social URLs. Deploy finance separately via `personal-finance`.
 
-Homepage: https://landing-hosting.vercel.app
+Homepage: https://kazansky.dev
 
 ## Quality & Tooling
 

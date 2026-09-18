@@ -6,7 +6,7 @@ export function useHomepageHead(home: HomepageContent) {
     meta: [
       {
         name: 'description',
-        content: `${home.person.name} is an ${home.person.role} with ${home.person.experience} of experience. ${home.valueProposition}`,
+        content: `${home.person.name} is an ${home.person.role} with ${home.person.heroSubtitle}. ${home.valueProposition}`,
       },
       {
         name: 'robots',

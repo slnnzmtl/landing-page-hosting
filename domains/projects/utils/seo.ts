@@ -1,7 +1,7 @@
 import { projectPath, type Project } from '../data/types'
 import { getProjectRoutes } from '../project-routes'
 
-export const DEFAULT_SITE_URL = 'https://landing-hosting.vercel.app'
+export const DEFAULT_SITE_URL = 'https://kazansky.dev'
 export const SITE_NAME = 'Kazansky Development'
 
 export interface PageSeo {
@@ -9,7 +9,7 @@ export interface PageSeo {
   description: string
   path: string
   robots: string
-  ogType: 'website' | 'article'
+  ogType: 'website' | 'article' | 'profile'
   image?: { src: string, alt: string, width: number, height: number }
   jsonLd: Record<string, unknown>
 }
@@ -126,6 +126,57 @@ export function projectDetailSeo(siteUrl: string, project: Project): PageSeo {
     jsonLd: {
       '@context': 'https://schema.org',
       '@graph': graph,
+    },
+  }
+}
+
+export interface ExperiencePagePerson {
+  name: string
+  role: string
+  sameAs: string[]
+}
+
+export function experiencePageSeo(
+  siteUrl: string,
+  person: ExperiencePagePerson,
+): PageSeo {
+  const path = '/experience'
+  const url = absoluteUrl(siteUrl, path)
+  const title = `Professional Experience | ${person.name}`
+  const description
+    = `Professional timeline for ${person.name}, ${person.role}: digital products, websites, and software delivery from 2018 through AI-native full-stack systems.`
+  return {
+    title,
+    description,
+    path,
+    robots: 'index, follow',
+    ogType: 'profile',
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@graph': [
+        {
+          '@type': 'ProfilePage',
+          'name': title,
+          description,
+          url,
+          'isPartOf': {
+            '@type': 'WebSite',
+            'name': SITE_NAME,
+            'url': absoluteUrl(siteUrl, '/'),
+          },
+          'mainEntity': {
+            '@id': `${url}#person`,
+          },
+        },
+        {
+          '@type': 'Person',
+          '@id': `${url}#person`,
+          'name': person.name,
+          'jobTitle': person.role,
+          'url': absoluteUrl(siteUrl, '/'),
+          'sameAs': person.sameAs,
+        },
+      ],
     },
   }
 }

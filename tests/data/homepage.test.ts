@@ -4,7 +4,7 @@ import {
   homepageHrefKind,
   opensInNewTab,
 } from '~/data/homepage'
-import { publishedExperienceRoles } from '~/data/experience'
+import { homepageProfessionalCards } from '~/data/experience'
 
 describe('homepage content model', () => {
   const published = homepageContent
@@ -13,7 +13,12 @@ describe('homepage content model', () => {
     expect(published.person.name).toBe('Daniel Kazansky')
     expect(published.person.role).toBe('AI-Native Full-Stack Engineer')
     expect(published.person.experience).toBe('8+ years')
-    expect(published.person.heroSubtitle).toContain('shipping reliable products')
+    expect(published.person.heroSubtitle).toBe(
+      '8+ years across digital products and software delivery',
+    )
+    expect(published.person.heroSubtitle.toLowerCase()).not.toMatch(
+      /8\+ years as a software engineer/,
+    )
     expect(published.valueProposition).toMatch(/AI agents/)
     expect(published.valueProposition).toMatch(/full-stack/)
   })
@@ -75,7 +80,7 @@ describe('homepage content model', () => {
 
     const professional = published.workSections.find(section => section.id === 'professional')
     expect(professional?.items.map(item => item.subtitle)).toEqual([
-      'Upwork · Jan 2025 – May 2026 · Remote',
+      'Upwork · Long-term contractor · Jan 2025 – May 2026 · Remote',
       'Subbly® · Full-time · Nov 2023 – Dec 2024 · Remote',
       'Capgemini Engineering · Full-time · Jun 2022 – May 2023 · Remote',
     ])
@@ -158,19 +163,8 @@ describe('homepage content model', () => {
     expect(subbly?.summary).toMatch(/500\+/)
   })
 
-  it('keeps full professional writeups on /experience', () => {
-    const roles = publishedExperienceRoles()
-    expect(roles.map(role => role.slug)).toEqual([
-      'upwork-reputation-team',
-      'subbly-senior-software-developer',
-      'capgemini-software-developer',
-    ])
-    expect(roles[0].summary.split(/\n{2,}/).length).toBeGreaterThan(1)
-    expect(roles[0].summary).toContain('Core Feature Ownership')
-    expect(roles[0].summary).not.toMatch(/massive scale/i)
-    expect(roles[0].summary).not.toMatch(/state-of-the-art/i)
-    expect(roles[0].summary).not.toMatch(/cutting-edge productivity/i)
-    expect(roles[0].summary).not.toMatch(/evaluation scoring paradigm/i)
+  it('derives professional selected-work cards from canonical experience roles', () => {
+    expect(published.workSections[0].items).toEqual(homepageProfessionalCards())
   })
 
   it('covers agentic, full-stack, and production capabilities', () => {

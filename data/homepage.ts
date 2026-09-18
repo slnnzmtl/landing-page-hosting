@@ -1,3 +1,5 @@
+import { homepageProfessionalCards, professionalTenure } from './experience'
+
 export interface HomepageLink {
   label: string
   href: string
@@ -91,8 +93,8 @@ export const homepageContent: HomepageContent = {
   person: {
     name: 'Daniel Kazansky',
     role: 'AI-Native Full-Stack Engineer',
-    experience: '8+ years',
-    heroSubtitle: '8+ years shipping reliable products',
+    experience: professionalTenure.short,
+    heroSubtitle: professionalTenure.heroSubtitle,
   },
   valueProposition:
     'I build production software—from AI agents and workflow automation to full-stack applications, CRM integrations, and data-heavy interfaces.',
@@ -119,7 +121,7 @@ export const homepageContent: HomepageContent = {
   proof: [
     {
       value: '8+',
-      label: 'Years shipping production software',
+      label: professionalTenure.label,
     },
     {
       value: '20M+',
@@ -140,35 +142,7 @@ export const homepageContent: HomepageContent = {
       title: 'Professional Experience',
       description:
         'Product engineering within commercial teams, working on marketplace, analytics, and SaaS platforms.',
-      items: [
-        {
-          slug: 'upwork-reputation-team',
-          title: 'Senior Software Engineer (Reputation Team)',
-          subtitle: 'Upwork · Jan 2025 – May 2026 · Remote',
-          icon: '/images/experience/upwork.png',
-          iconAlt: 'Upwork',
-          summary:
-            'Built and modernized reputation, credentialing, and enforcement experiences across a marketplace serving tens of millions of users. Owned frontend domains end-to-end and supported production systems through on-call responsibilities.',
-        },
-        {
-          slug: 'subbly-senior-software-developer',
-          title: 'Senior Software Developer',
-          subtitle: 'Subbly® · Full-time · Nov 2023 – Dec 2024 · Remote',
-          icon: '/images/experience/subbly.png',
-          iconAlt: 'Subbly',
-          summary:
-            'Subscription commerce product engineering spanning setup UX, AI-assisted onboarding, and checkout. Reduced merchant setup time by 20%, raised AI-assisted onboarding completion by 25% for 500+ users, and cut payment abandonment by 15%.',
-        },
-        {
-          slug: 'capgemini-software-developer',
-          title: 'Software Developer',
-          subtitle: 'Capgemini Engineering · Full-time · Jun 2022 – May 2023 · Remote',
-          icon: '/images/experience/capgemini.png',
-          iconAlt: 'Capgemini Engineering',
-          summary:
-            'Built interactive dashboards for a big data analytics system serving enterprise marketing and forecasting, managing 10M+ data points over HTTP in a React monorepo.',
-        },
-      ],
+      items: homepageProfessionalCards(),
     },
     {
       id: 'independent',

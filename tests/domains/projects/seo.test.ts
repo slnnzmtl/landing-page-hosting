@@ -6,6 +6,7 @@ import {
   absoluteUrl,
   buildRobotsTxt,
   buildSitemapXml,
+  experiencePageSeo,
   projectDetailSeo,
   projectsIndexSeo,
   resolveSiteUrl,
@@ -17,7 +18,7 @@ describe('site origin', () => {
   it('defaults to the production origin, not a Vercel preview host', () => {
     expect(resolveSiteUrl()).toBe(DEFAULT_SITE_URL)
     expect(resolveSiteUrl('')).toBe(DEFAULT_SITE_URL)
-    expect(DEFAULT_SITE_URL).toBe('https://landing-hosting.vercel.app')
+    expect(DEFAULT_SITE_URL).toBe('https://kazansky.dev')
     expect(DEFAULT_SITE_URL).not.toMatch(/vercel\.app\/.*-/)
   })
 
@@ -26,8 +27,8 @@ describe('site origin', () => {
   })
 
   it('builds absolute URLs from the configured origin', () => {
-    expect(absoluteUrl('https://landing-hosting.vercel.app', '/projects')).toBe(
-      'https://landing-hosting.vercel.app/projects',
+    expect(absoluteUrl('https://kazansky.dev', '/projects')).toBe(
+      'https://kazansky.dev/projects',
     )
   })
 })
@@ -92,6 +93,30 @@ describe('projects SEO documents', () => {
   })
 })
 
+describe('experience page SEO', () => {
+  it('builds indexable ProfilePage + Person JSON-LD for /experience', () => {
+    const page = experiencePageSeo(DEFAULT_SITE_URL, {
+      name: 'Daniel Kazansky',
+      role: 'AI-Native Full-Stack Engineer',
+      sameAs: [
+        'https://github.com/slnnzmtl',
+        'https://www.linkedin.com/in/daniel-kazansky/',
+      ],
+    })
+    expect(page.robots).toBe('index, follow')
+    expect(page.path).toBe('/experience')
+    expect(page.ogType).toBe('profile')
+    const types = (page.jsonLd['@graph'] as Array<Record<string, unknown>>).map(
+      node => node['@type'],
+    )
+    expect(types).toEqual(['ProfilePage', 'Person'])
+    const head = seoHead(DEFAULT_SITE_URL, page)
+    expect(head.link).toEqual([
+      { rel: 'canonical', href: `${DEFAULT_SITE_URL}/experience` },
+    ])
+  })
+})
+
 describe('sitemap and robots', () => {
   it('lists the homepage, experience page, projects index, and every registered project', () => {
     const xml = buildSitemapXml(DEFAULT_SITE_URL)
@@ -99,16 +124,16 @@ describe('sitemap and robots', () => {
     expect(sitemapPaths()).toContain('/experience')
     expect(sitemapPaths()).toContain('/projects')
     expect(sitemapPaths()).toContain('/projects/rekordbox-playlist-converter')
-    expect(xml).toContain('<loc>https://landing-hosting.vercel.app/</loc>')
-    expect(xml).toContain('<loc>https://landing-hosting.vercel.app/experience</loc>')
-    expect(xml).toContain('<loc>https://landing-hosting.vercel.app/projects</loc>')
-    expect(xml).toContain('<loc>https://landing-hosting.vercel.app/projects/rekordbox-playlist-converter</loc>')
+    expect(xml).toContain('<loc>https://kazansky.dev/</loc>')
+    expect(xml).toContain('<loc>https://kazansky.dev/experience</loc>')
+    expect(xml).toContain('<loc>https://kazansky.dev/projects</loc>')
+    expect(xml).toContain('<loc>https://kazansky.dev/projects/rekordbox-playlist-converter</loc>')
   })
 
   it('allows crawlers on /projects and points at the sitemap', () => {
     const robots = buildRobotsTxt(DEFAULT_SITE_URL)
     expect(robots).toContain('Allow: /projects')
-    expect(robots).toContain('Sitemap: https://landing-hosting.vercel.app/sitemap.xml')
+    expect(robots).toContain('Sitemap: https://kazansky.dev/sitemap.xml')
     expect(robots).toContain('Disallow: /finance')
   })
 })

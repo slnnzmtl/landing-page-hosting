@@ -1,50 +1,62 @@
 <script setup lang="ts">
-import { publishedExperienceRoles } from '~/data/experience'
+import { publishedExperienceRoles, professionalTenure } from '~/data/experience'
+import { homepageContent } from '~/data/homepage'
+import { experiencePageSeo, resolveSiteUrl } from '~/domains/projects/utils/seo'
+import { useProjectPageSeo } from '~/domains/projects/composables/useProjectPageSeo'
 
 const roles = publishedExperienceRoles()
-
-useHead({
-  title: 'Professional Experience | Daniel Kazansky',
-  meta: [
-    {
-      name: 'description',
-      content:
-        'Full professional role details for Daniel Kazansky: Upwork, Subbly, and Capgemini Engineering.',
-    },
-    {
-      name: 'robots',
-      content: 'noindex, nofollow',
-    },
-  ],
-})
+const siteUrl = resolveSiteUrl(useRuntimeConfig().public.siteUrl as string)
+useProjectPageSeo(
+  experiencePageSeo(siteUrl, {
+    name: homepageContent.person.name,
+    role: homepageContent.person.role,
+    sameAs: homepageContent.profileLinks.map(link => link.href),
+  }),
+)
 </script>
 
 <template>
-  <div class="min-h-screen bg-background text-foreground">
-    <div class="mx-auto flex max-w-3xl flex-col gap-10 px-6 py-20 lg:px-12">
-      <div>
+  <div class="relative min-h-screen text-foreground">
+    <StarBackdrop />
+
+    <a
+      href="#main-content"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-foreground"
+    >
+      Skip to main content
+    </a>
+
+    <div
+      id="main-content"
+      class="relative z-10 mx-auto flex max-w-5xl flex-col gap-12 px-6 py-20 lg:px-12"
+      tabindex="-1"
+    >
+      <header>
         <NuxtLink
           to="/#selected-work"
           class="text-sm font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           Back to selected work
         </NuxtLink>
-        <h1 class="mt-6 text-3xl font-semibold tracking-tight">
+        <p class="mt-6 text-sm uppercase tracking-[0.35em] text-primary">
+          {{ homepageContent.person.name }}
+        </p>
+        <h1 class="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
           Professional experience
         </h1>
         <p class="mt-3 max-w-2xl text-muted-foreground">
-          Full role writeups for commercial product engineering. Homepage cards stay condensed; this page keeps the detail.
+          Evidence-based timeline from media and web delivery through frontend and full-stack engineering,
+          senior production ownership, and AI-native systems.
+          {{ professionalTenure.heroSubtitle }}; {{ professionalTenure.softwareEngineeringSince.toLowerCase() }}.
         </p>
-      </div>
+      </header>
 
-      <ul class="divide-y divide-border border-y border-border">
-        <li
-          v-for="role in roles"
-          :key="role.slug"
-        >
-          <HomeFeaturedCaseCard :item="role" />
-        </li>
-      </ul>
+      <ExperienceTimeline :roles="roles" />
+
+      <HomeContact
+        :contact="homepageContent.contact"
+        :profile-links="homepageContent.profileLinks"
+      />
     </div>
   </div>
 </template>
