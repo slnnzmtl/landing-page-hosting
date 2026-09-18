@@ -1,16 +1,44 @@
 <script setup lang="ts">
 import { useGithubReleases } from '../composables/useGithubReleases'
 import type { GithubRelease } from '../utils/github-releases'
+import MacosDownloadWarningDialog from './MacosDownloadWarningDialog.vue'
 
 const props = defineProps<{
   owner: string
   repo: string
+  macosDownloadWarning?: string
 }>()
 
 const { result } = useGithubReleases(props.owner, props.repo)
 
+const downloadWarningOpen = ref(false)
+const pendingDownloadHref = ref('')
+
 function releaseHeading(release: GithubRelease) {
   return release.name === release.tagName ? release.name : `${release.name} (${release.tagName})`
+}
+
+function openDownloadWarning(url: string) {
+  pendingDownloadHref.value = url
+  downloadWarningOpen.value = true
+}
+
+function closeDownloadWarning() {
+  downloadWarningOpen.value = false
+}
+
+function confirmDownload() {
+  const url = pendingDownloadHref.value
+  downloadWarningOpen.value = false
+  if (url) {
+    window.open(url, '_blank', 'noopener,noreferrer')
+  }
+}
+
+function onAssetDownloadClick(event: MouseEvent, url: string) {
+  if (!props.macosDownloadWarning) return
+  event.preventDefault()
+  openDownloadWarning(url)
 }
 </script>
 
@@ -96,6 +124,7 @@ function releaseHeading(release: GithubRelease) {
             target="_blank"
             rel="noopener noreferrer"
             class="rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            @click="onAssetDownloadClick($event, asset.browserDownloadUrl)"
           >
             Download
           </a>
@@ -154,6 +183,14 @@ function releaseHeading(release: GithubRelease) {
       >
         View all releases on GitHub
       </a>
+
+      <MacosDownloadWarningDialog
+        v-if="macosDownloadWarning"
+        :open="downloadWarningOpen"
+        :message="macosDownloadWarning"
+        @close="closeDownloadWarning"
+        @confirm="confirmDownload"
+      />
     </template>
   </div>
 </template>

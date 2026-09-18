@@ -33,6 +33,8 @@ export interface ProjectLaunch {
   lead: string
   supportingLine: string
   ctas: ProjectLaunchCta[]
+  /** Shown before macOS app download (ad hoc signing, Gatekeeper, etc.) */
+  macosDownloadWarning?: string
   /** Evergreen trust copy; version and release date are filled from GitHub when linked */
   trustFacts: ProjectTrustFact[]
   trademark?: string
