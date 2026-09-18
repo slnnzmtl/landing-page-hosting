@@ -27,9 +27,9 @@ const { linkFocus } = useHomepageUi()
     <p class="max-w-2xl text-lg text-muted-foreground">
       {{ valueProposition.text }}
     </p>
-    <p class="max-w-2xl text-muted-foreground">
+    <!-- <p class="max-w-2xl text-muted-foreground">
       {{ workflow.text }}
-    </p>
+    </p> -->
     <div class="flex flex-wrap items-center justify-center sm:justify-start gap-6 sm:gap-8">
       <div class="flex flex-wrap items-center gap-4">
         <a
@@ -48,7 +48,7 @@ const { linkFocus } = useHomepageUi()
         </a>
       </div>
 
-      <nav aria-label="Profiles"  class="mt-2 sm:mt-0">
+      <nav aria-label="Profiles" class="mt-2 sm:mt-0">
         <HomeProfileLinkList :links="profileLinks" />
       </nav>
     </div>

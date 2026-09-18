@@ -12,6 +12,10 @@ const { linkFocus } = useHomepageUi()
 const contactEmailDisplay = computed(() =>
   props.contact.email.href.replace(/^mailto:/i, ''),
 )
+
+const contactTelegramDisplay = computed(() =>
+  props.contact.telegram.href.replace(/^https?:\/\/t\.me\//i, ''),
+)
 </script>
 
 <template>
@@ -44,6 +48,17 @@ const contactEmailDisplay = computed(() =>
           :class="['text-base font-medium text-foreground hover:text-primary', linkFocus]"
         >
           {{ contactEmailDisplay }}
+        </a>
+      </p>
+      <p class="mt-6">
+        <span class="block text-sm text-muted-foreground">
+          {{ contact.telegram.label }}
+        </span>
+        <a
+          :href="contact.telegram.href"
+          :class="['text-base font-medium text-foreground hover:text-primary', linkFocus]"
+        >
+          {{ contactTelegramDisplay }}
         </a>
       </p>
       <HomeProfileLinkList
