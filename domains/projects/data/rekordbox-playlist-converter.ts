@@ -22,12 +22,12 @@ export const rekordboxPlaylistConverter: Project = {
         macosDownload: true,
       },
       {
-        label: 'Other platforms / CLI',
+        label: 'Other platforms',
         href: 'https://github.com/slnnzmtl/rekordbox-playlist-converter/releases',
         kind: 'secondary',
       },
       {
-        label: 'Documentation',
+        label: 'Docs',
         href: 'https://github.com/slnnzmtl/rekordbox-playlist-converter/blob/master/USAGE.md',
         kind: 'secondary',
       },
@@ -171,7 +171,7 @@ export const rekordboxPlaylistConverter: Project = {
       'Do not use File → Import. Load the generated XML from the rekordbox xml pane via Imported Library.',
     steps: [
       {
-        title: 'Export collection XML',
+        title: 'Export XML',
         body:
           'Wait for analysis, then File → Export Collection in xml format. Rekordbox 7: enable Export BeatGrid information.',
       },
@@ -181,7 +181,7 @@ export const rekordboxPlaylistConverter: Project = {
           'Open the XML, pick playlists, convert. Writes stereo PCM WAV or AIFF plus rekordbox-import.xml. Originals stay put.',
       },
       {
-        title: 'Import via Imported Library',
+        title: 'Import playlist',
         body:
           'Point Imported Library at rekordbox-import.xml — not the original export. Then import the [WAV] or [AIFF] playlist from rekordbox xml → Playlists.',
       },

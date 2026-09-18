@@ -140,26 +140,10 @@ const benefitsHeading = computed(() => (
         </div>
       </header>
 
-      <ProjectTrustPanel
-        v-if="project.launch && project.github"
-        :trust-facts="project.launch.trustFacts"
-        :github-owner="project.github.owner"
-        :github-repo="project.github.repo"
-        :trademark="project.launch.trademark"
-      />
-
       <ProjectHowItWorks
         v-if="project.guide"
         :guide="project.guide"
       />
-
-      <p
-        v-if="project.stackTags?.length"
-        class="max-w-3xl text-sm text-muted-foreground"
-      >
-        <span class="font-medium text-foreground">Stack: </span>
-        {{ project.stackTags.join(' · ') }}
-      </p>
 
       <section
         v-if="project.benefits?.length"
@@ -232,6 +216,20 @@ const benefitsHeading = computed(() => (
           :macos-download-warning="project.launch?.macosDownloadWarning"
         />
       </section>
+
+      <ProjectTrustPanel
+        v-if="project.launch && project.github"
+        :trust-facts="project.launch.trustFacts"
+        :github-owner="project.github.owner"
+        :github-repo="project.github.repo"
+      />
+
+      <p
+        v-if="project.launch?.trademark"
+        class="max-w-3xl text-xs leading-relaxed text-muted-foreground"
+      >
+        {{ project.launch.trademark }}
+      </p>
     </div>
   </article>
 </template>

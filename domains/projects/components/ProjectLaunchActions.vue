@@ -24,14 +24,14 @@ const primaryClass = [
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
 ].join(' ')
 
-const secondaryClass = [
-  'inline-flex items-center justify-center rounded-full border border-border px-5 py-2.5 text-sm font-medium transition hover:border-primary hover:text-primary',
+const linkClass = [
+  'text-sm font-medium text-primary underline-offset-4 hover:underline',
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
 ].join(' ')
 </script>
 
 <template>
-  <div class="flex flex-wrap items-center gap-3">
+  <div class="flex flex-wrap items-center gap-x-5 gap-y-3">
     <a
       v-if="primaryCta"
       :href="ctaHref(primaryCta)"
@@ -48,7 +48,7 @@ const secondaryClass = [
       :href="ctaHref(cta)"
       target="_blank"
       rel="noopener noreferrer"
-      :class="secondaryClass"
+      :class="linkClass"
     >
       {{ cta.label }}
     </a>

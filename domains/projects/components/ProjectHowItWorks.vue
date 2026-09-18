@@ -19,34 +19,38 @@ defineProps<{
     </h2>
     <p
       v-if="guide.warning"
-      class="max-w-3xl rounded-2xl border border-amber-500 bg-amber-400 px-4 py-3 text-sm font-medium text-amber-950"
+      class="max-w-3xl border-l-2 border-amber-400 pl-3 text-sm text-muted-foreground"
       role="note"
     >
       {{ guide.warning }}
     </p>
-    <ol class="flex max-w-5xl flex-col items-stretch gap-2 md:flex-row md:gap-2">
-      <li
+    <ol class="grid grid-cols-1 items-stretch gap-3 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)] md:gap-x-3 md:gap-y-0">
+      <template
         v-for="(step, index) in guide.steps"
         :key="step.title"
-        class="flex min-w-0 flex-1 flex-col items-stretch gap-2 md:flex-row md:items-center"
       >
-        <div class="h-full min-w-0 flex-1 rounded-2xl border border-border bg-muted/40 p-5">
-          <p class="text-xs font-semibold uppercase tracking-wide text-primary">
-            Step {{ index + 1 }}
-          </p>
-          <h3 class="mt-1.5 text-base font-semibold text-foreground">
-            {{ step.title }}
-          </h3>
-          <p class="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-            {{ step.body }}
-          </p>
-        </div>
-        <span
+        <li class="h-full min-w-0">
+          <div class="flex h-full flex-col rounded-2xl border border-border bg-muted/40 p-5">
+            <p class="text-xs font-semibold uppercase tracking-wide text-primary">
+              Step {{ index + 1 }}
+            </p>
+            <h3 class="mt-1.5 text-base font-semibold text-foreground">
+              {{ step.title }}
+            </h3>
+            <p class="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+              {{ step.body }}
+            </p>
+          </div>
+        </li>
+        <li
           v-if="index < guide.steps.length - 1"
-          class="select-none self-center text-lg leading-none text-primary before:content-['↓'] md:before:content-['→']"
+          class="flex items-center justify-center text-2xl leading-none text-primary"
           aria-hidden="true"
-        />
-      </li>
+        >
+          <span class="md:hidden">↓</span>
+          <span class="hidden md:inline">→</span>
+        </li>
+      </template>
     </ol>
   </section>
 </template>

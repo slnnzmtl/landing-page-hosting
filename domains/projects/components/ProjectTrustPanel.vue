@@ -6,7 +6,6 @@ const props = defineProps<{
   trustFacts: ProjectTrustFact[]
   githubOwner: string
   githubRepo: string
-  trademark?: string
 }>()
 
 const { versionLabel, releaseDateLabel } = useMacosReleaseDownload(props.githubOwner, props.githubRepo)
@@ -25,7 +24,7 @@ const facts = computed(() => [
   >
     <h2
       id="project-trust-heading"
-      class="text-2xl font-semibold"
+      class="text-lg font-semibold"
     >
       Product information
     </h2>
@@ -54,11 +53,5 @@ const facts = computed(() => [
         </dd>
       </div>
     </dl>
-    <p
-      v-if="trademark"
-      class="max-w-3xl text-xs leading-relaxed text-muted-foreground"
-    >
-      {{ trademark }}
-    </p>
   </section>
 </template>

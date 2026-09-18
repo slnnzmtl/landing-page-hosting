@@ -20,8 +20,10 @@ describe('Simple Rekordbox Converter product data', () => {
     const guide = rekordboxPlaylistConverter.guide
     expect(guide?.steps).toHaveLength(3)
     expect(guide?.warning).toMatch(/File → Import/)
+    expect(guide?.steps[0].title).toBe('Export XML')
     expect(guide?.steps[0].body).toMatch(/Export Collection/)
     expect(guide?.steps[1].title).toMatch(/CDJ-safe/)
+    expect(guide?.steps[2].title).toBe('Import playlist')
     expect(guide?.steps[2].body).toMatch(/Imported Library/)
     expect(guide?.steps[2].body).toMatch(/rekordbox xml/)
   })
@@ -34,8 +36,8 @@ describe('Simple Rekordbox Converter product data', () => {
     const labels = rekordboxPlaylistConverter.launch?.ctas.map(cta => cta.label) || []
     expect(labels).toEqual([
       'Download for macOS',
-      'Other platforms / CLI',
-      'Documentation',
+      'Other platforms',
+      'Docs',
       'GitHub',
     ])
     const hrefs = rekordboxPlaylistConverter.launch?.ctas.map(cta => cta.href) || []
