@@ -1,30 +1,18 @@
 <script setup lang="ts">
-import type { ProductSpotlight } from '~/data/homepage'
+import { homepageHrefKind, type ProductSpotlight } from '~/data/homepage'
 import { useHomepageUi } from '~/composables/useHomepageUi'
-import { useMacosReleaseDownload } from '~/domains/projects/composables/useMacosReleaseDownload'
 
 const props = defineProps<{
   product: ProductSpotlight
 }>()
 
 const { linkFocus, outboundAttrs } = useHomepageUi()
-const { ctaHref, versionLabel } = useMacosReleaseDownload(
-  props.product.github.owner,
-  props.product.github.repo,
-  { versionLabelStyle: 'spotlight' },
-)
 
-const primaryCta = computed(() => props.product.ctas.find(cta => cta.kind === 'primary'))
-const secondaryCtas = computed(() => props.product.ctas.filter(cta => cta.kind === 'secondary'))
-const primaryHref = computed(() => (primaryCta.value ? ctaHref(primaryCta.value) : '#'))
+const ctaHref = computed(() => props.product.cta.href)
+const isRouteCta = computed(() => homepageHrefKind(ctaHref.value) === 'route')
 
-const primaryLinkClass = [
+const ctaClass = [
   'inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90',
-  linkFocus,
-].join(' ')
-
-const secondaryLinkClass = [
-  'inline-flex items-center gap-1.5 text-sm font-medium text-primary underline-offset-4 hover:underline',
   linkFocus,
 ].join(' ')
 </script>
@@ -56,45 +44,22 @@ const secondaryLinkClass = [
           {{ product.supportingLine }}
         </p>
 
-        <dl class="mt-6 grid gap-3 sm:grid-cols-2">
-          <div
-            v-for="fact in product.facts"
-            :key="fact.label"
-            class="rounded-2xl border border-border bg-muted/30 px-4 py-3"
+        <div class="mt-6">
+          <NuxtLink
+            v-if="isRouteCta"
+            :to="ctaHref"
+            :class="ctaClass"
           >
-            <dt class="text-xs font-semibold uppercase tracking-wide text-primary">
-              {{ fact.label }}
-            </dt>
-            <dd class="mt-1 text-sm text-muted-foreground">
-              {{ fact.value }}
-            </dd>
-          </div>
-          <div class="rounded-2xl border border-border bg-muted/30 px-4 py-3">
-            <dt class="text-xs font-semibold uppercase tracking-wide text-primary">
-              Release
-            </dt>
-            <dd class="mt-1 text-sm text-muted-foreground">
-              {{ versionLabel }}
-            </dd>
-          </div>
-        </dl>
-
-        <div class="mt-6 grid sm:flex flex-wrap items-center gap-5">
+            {{ product.cta.label }}
+          </NuxtLink>
           <a
-            v-if="primaryCta"
-            :href="primaryHref"
-            v-bind="outboundAttrs(primaryHref)"
-            :class="primaryLinkClass"
+            v-else
+            :href="ctaHref"
+            v-bind="outboundAttrs(ctaHref)"
+            :class="ctaClass"
           >
-            {{ primaryCta.label }}
+            {{ product.cta.label }}
           </a>
-          <div class="grid sm:flex flex-wrap items-center gap-3">
-            <div v-for="cta in secondaryCtas" :key="cta.label">
-              <a :href="cta.href" v-bind="outboundAttrs(cta.href)" :class="secondaryLinkClass">
-                {{ cta.label }}
-              </a>
-            </div>
-          </div>
         </div>
 
         <p

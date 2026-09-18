@@ -3,17 +3,14 @@ import {
   findMacosUniversalAsset,
   formatGithubReleaseVersionLabel,
   githubReleasesPageUrl,
-  type GithubReleaseVersionLabelStyle,
 } from '../utils/github-releases'
 
 export function useMacosReleaseDownload(
   owner: string,
   repo: string,
-  options?: { versionLabelStyle?: GithubReleaseVersionLabelStyle },
 ) {
   const { result } = useGithubReleases(owner, repo)
   const releasesUrl = githubReleasesPageUrl(owner, repo)
-  const versionLabelStyle = options?.versionLabelStyle ?? 'tag'
 
   const macosAsset = computed(() => {
     if (!result.value.latest) return undefined
@@ -28,7 +25,7 @@ export function useMacosReleaseDownload(
   }
 
   const versionLabel = computed(() =>
-    formatGithubReleaseVersionLabel(result.value, versionLabelStyle),
+    formatGithubReleaseVersionLabel(result.value),
   )
 
   const releaseDateLabel = computed(() => result.value.latest?.publishedLabel ?? '—')

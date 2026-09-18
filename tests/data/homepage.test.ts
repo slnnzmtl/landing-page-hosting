@@ -1,52 +1,21 @@
 import { describe, expect, it } from 'vitest'
 import {
-  collectClaimSources,
   homepageContent,
-  isApproved,
   homepageHrefKind,
   opensInNewTab,
-  publishedHomepage,
 } from '~/data/homepage'
 import { publishedExperienceRoles } from '~/data/experience'
 
 describe('homepage content model', () => {
-  const published = publishedHomepage()
+  const published = homepageContent
 
   it('identifies the person, role, and experience for a first-time visitor', () => {
-    expect(published.person.name.text).toBe('Daniel Kazansky')
-    expect(published.person.role.text).toBe('AI-Native Full-Stack Engineer')
-    expect(published.person.experience.text).toBe('8+ years')
-    expect(published.person.heroSubtitle.text).toContain('shipping production software')
-    expect(published.person.heroSubtitle.text).toContain('AI-native')
-    expect(published.valueProposition.text.length).toBeGreaterThan(20)
-    expect(published.workflow.text).toMatch(/LLMs/)
-    expect(published.workflow.text).toMatch(/APIs/)
-    expect(published.workflow.text).toMatch(/CRMs/)
-  })
-
-  it('requires a source or approval note on every claim', () => {
-    const sources = collectClaimSources(homepageContent)
-    expect(sources.length).toBeGreaterThan(10)
-    for (const source of sources) {
-      expect(source.origin.length).toBeGreaterThan(3)
-      expect(source.note.length).toBeGreaterThan(10)
-      expect(['approved', 'pending-validation', 'internal-only']).toContain(source.status)
-    }
-  })
-
-  it('publishes only approved claims', () => {
-    const sources = [
-      ...published.proof.map(item => item.source),
-      ...published.workSections.flatMap(section => [
-        section.description.source,
-        ...section.items.map(item => item.source),
-      ]),
-      published.products.heading.source,
-      published.products.description.source,
-      ...published.products.items.map(item => item.source),
-      ...published.capabilities.map(item => item.source),
-    ]
-    expect(sources.every(isApproved)).toBe(true)
+    expect(published.person.name).toBe('Daniel Kazansky')
+    expect(published.person.role).toBe('AI-Native Full-Stack Engineer')
+    expect(published.person.experience).toBe('8+ years')
+    expect(published.person.heroSubtitle).toContain('shipping reliable products')
+    expect(published.valueProposition).toMatch(/AI agents/)
+    expect(published.valueProposition).toMatch(/full-stack/)
   })
 
   it('includes selected-work and contact CTAs plus GitHub, LinkedIn', () => {
@@ -73,7 +42,7 @@ describe('homepage content model', () => {
   })
 
   it('groups selected work into professional, independent, and open-source', () => {
-    expect(published.selectedWorkIntro.text).toBe(
+    expect(published.selectedWorkIntro).toBe(
       'Commercial product engineering, independent delivery, and publicly inspectable open-source systems.',
     )
     expect(published.workSections.map(section => section.id)).toEqual([
@@ -86,9 +55,9 @@ describe('homepage content model', () => {
       'Independent Work',
       'Open-Source Engineering',
     ])
-    expect(published.workSections[0].description.text).toContain('marketplace, analytics, and SaaS')
-    expect(published.workSections[1].description.text).toContain('AI-native workflows')
-    expect(published.workSections[2].description.text).toContain('Publicly inspectable systems')
+    expect(published.workSections[0].description).toContain('marketplace, analytics, and SaaS')
+    expect(published.workSections[1].description).toContain('AI-native workflows')
+    expect(published.workSections[2].description).toContain('Publicly inspectable systems')
   })
 
   it('lists condensed selected-work cards with Woki under independent and Rekordbox under products', () => {
@@ -155,8 +124,8 @@ describe('homepage content model', () => {
   })
 
   it('publishes a Products section with a Rekordbox spotlight', () => {
-    expect(published.products.heading.text).toBe('Products')
-    expect(published.products.description.text).toContain('design, build, package, and maintain')
+    expect(published.products.heading).toBe('Products')
+    expect(published.products.description).toContain('design, build, package, and maintain')
     expect(published.products.items).toHaveLength(1)
     const rekordbox = published.products.items[0]
     expect(rekordbox.slug).toBe('rekordbox-playlist-converter')
@@ -170,13 +139,10 @@ describe('homepage content model', () => {
       'PyInstaller',
       'Rekordbox XML',
     ])
-    expect(rekordbox.ctas.map(cta => cta.label)).toEqual([
-      'Download for macOS',
-      'View product',
-      'Documentation',
-      'Source code',
-    ])
-    expect(rekordbox.ctas[0].macosDownload).toBe(true)
+    expect(rekordbox.cta).toEqual({
+      label: 'View product',
+      href: '/projects/rekordbox-playlist-converter',
+    })
     expect(rekordbox.image.src).toContain('macos-app-main-window')
   })
 
@@ -190,7 +156,6 @@ describe('homepage content model', () => {
     expect(subbly?.summary).toMatch(/25%/)
     expect(subbly?.summary).toMatch(/15%/)
     expect(subbly?.summary).toMatch(/500\+/)
-    expect(isApproved(subbly!.source)).toBe(true)
   })
 
   it('keeps full professional writeups on /experience', () => {
@@ -218,19 +183,18 @@ describe('homepage content model', () => {
 
   it('keeps confidential client details and unapproved metrics out of published copy', () => {
     const userFacingCopy = [
-      published.person.name.text,
-      published.person.role.text,
-      published.person.experience.text,
-      published.person.heroSubtitle.text,
-      published.valueProposition.text,
-      published.workflow.text,
+      published.person.name,
+      published.person.role,
+      published.person.experience,
+      published.person.heroSubtitle,
+      published.valueProposition,
       ...published.primaryCtas.map(item => `${item.label} ${item.href}`),
       ...published.profileLinks.map(item => `${item.label} ${item.href}`),
       ...published.proof.map(item => `${item.value} ${item.label}`),
-      published.selectedWorkIntro.text,
+      published.selectedWorkIntro,
       ...published.workSections.flatMap(section => [
         section.title,
-        section.description.text,
+        section.description,
         ...section.items.flatMap(item => [
           item.title,
           item.subtitle ?? '',
@@ -240,21 +204,23 @@ describe('homepage content model', () => {
           ...(item.tags ?? []),
         ]),
       ]),
-      published.products.heading.text,
-      published.products.description.text,
+      published.products.heading,
+      published.products.description,
       ...published.products.items.flatMap(item => [
         item.title,
         item.lead,
         item.supportingLine,
-        ...item.facts.flatMap(fact => [fact.label, fact.value]),
-        ...item.ctas.flatMap(cta => [cta.label, cta.href]),
+        item.cta.label,
+        item.cta.href,
         ...item.tags,
       ]),
       ...published.capabilities.map(item => `${item.title} ${item.summary}`),
-      published.contact.heading.text,
-      published.contact.summary.text,
+      published.contact.heading,
+      published.contact.summary,
       published.contact.email.label,
       published.contact.email.href,
+      published.contact.telegram.label,
+      published.contact.telegram.href,
     ].join(' ').toLowerCase()
 
     expect(userFacingCopy).not.toMatch(/password|secret|api[_-]?key|webhook token/)
@@ -288,9 +254,22 @@ describe('homepage content model', () => {
   it('classifies homepage hrefs for link rendering', () => {
     expect(homepageHrefKind('https://github.com/slnnzmtl')).toBe('native')
     expect(homepageHrefKind('mailto:kazanskydaniel@gmail.com')).toBe('native')
+    expect(homepageHrefKind('https://t.me/slnnzmtl')).toBe('native')
     expect(homepageHrefKind('#contact')).toBe('native')
     expect(homepageHrefKind('/projects/rekordbox-playlist-converter')).toBe('route')
     expect(opensInNewTab('https://github.com/slnnzmtl')).toBe(true)
+    expect(opensInNewTab('https://t.me/slnnzmtl')).toBe(true)
     expect(opensInNewTab('mailto:kazanskydaniel@gmail.com')).toBe(false)
+  })
+
+  it('publishes email and Telegram contact links', () => {
+    expect(published.contact.email).toEqual({
+      label: 'Email',
+      href: 'mailto:kazanskydaniel@gmail.com',
+    })
+    expect(published.contact.telegram).toEqual({
+      label: 'Telegram',
+      href: 'https://t.me/slnnzmtl',
+    })
   })
 })

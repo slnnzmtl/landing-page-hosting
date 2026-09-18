@@ -17,10 +17,10 @@ defineProps<{
         id="products-heading"
         class="text-2xl font-semibold"
       >
-        {{ products.heading.text }}
+        {{ products.heading }}
       </h2>
       <p class="mt-3 max-w-2xl text-muted-foreground">
-        {{ products.description.text }}
+        {{ products.description }}
       </p>
     </div>
     <ul

@@ -29,10 +29,10 @@ const contactTelegramDisplay = computed(() =>
         id="contact-heading"
         class="text-2xl font-semibold"
       >
-        {{ contact.heading.text }}
+        {{ contact.heading }}
       </h2>
       <p class="mt-3 text-muted-foreground">
-        {{ contact.summary.text }}
+        {{ contact.summary }}
       </p>
     </div>
     <div class="rounded-3xl border border-dashed border-primary/40 bg-card p-8 shadow-sm">

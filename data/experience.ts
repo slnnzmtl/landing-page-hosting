@@ -1,4 +1,15 @@
-import type { ClaimSource, WorkCard } from './homepage'
+import type { WorkCard } from './homepage'
+
+type ClaimStatus = 'approved' | 'pending-validation' | 'internal-only'
+
+interface ClaimSource {
+  /** Linear ticket, public repo, or approval note. Never shown on the page. */
+  origin: string
+  status: ClaimStatus
+  note: string
+}
+
+type ExperienceRole = WorkCard & { source: ClaimSource }
 
 const linkedInProfile: ClaimSource = {
   origin: 'https://www.linkedin.com/in/daniel-kazansky/',
@@ -14,7 +25,7 @@ const ticket167: ClaimSource = {
 }
 
 /** Full professional role writeups shown on /experience; homepage cards stay condensed. */
-export const experienceRoles: WorkCard[] = [
+export const experienceRoles: ExperienceRole[] = [
   {
     slug: 'upwork-reputation-team',
     title: 'Senior Software Engineer (Reputation Team)',
@@ -50,6 +61,6 @@ export const experienceRoles: WorkCard[] = [
   },
 ]
 
-export function publishedExperienceRoles(roles: WorkCard[] = experienceRoles): WorkCard[] {
+export function publishedExperienceRoles(roles: ExperienceRole[] = experienceRoles): WorkCard[] {
   return roles.filter(role => role.source.status === 'approved')
 }

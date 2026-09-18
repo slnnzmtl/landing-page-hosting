@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { SourcedText, WorkSection } from '~/data/homepage'
+import type { WorkSection } from '~/data/homepage'
 
 defineProps<{
-  intro: SourcedText
+  intro: string
   sections: WorkSection[]
 }>()
 </script>
@@ -21,7 +21,7 @@ defineProps<{
         Selected work
       </h2>
       <p class="mt-3 max-w-2xl text-muted-foreground">
-        {{ intro.text }}
+        {{ intro }}
       </p>
     </div>
     <div class="mt-10 space-y-14">
@@ -35,7 +35,7 @@ defineProps<{
               {{ section.title }}
             </h3>
             <p class="mt-2 max-w-2xl text-sm text-muted-foreground">
-              {{ section.description.text }}
+              {{ section.description }}
             </p>
           </div>
           <NuxtLink

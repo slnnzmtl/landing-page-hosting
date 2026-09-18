@@ -102,11 +102,8 @@ export function formatReleaseDate(iso: string | null): string {
   }).format(date)
 }
 
-export type GithubReleaseVersionLabelStyle = 'tag' | 'spotlight'
-
 export function formatGithubReleaseVersionLabel(
   result: Pick<GithubReleasesResult, 'status' | 'latest'>,
-  style: GithubReleaseVersionLabelStyle = 'tag',
 ): string {
   const latest = result.latest
   if (!latest) {
@@ -117,10 +114,6 @@ export function formatGithubReleaseVersionLabel(
       return 'No public release listed yet'
     }
     return 'See releases on GitHub'
-  }
-  if (style === 'spotlight') {
-    const status = latest.prerelease ? 'Pre-release' : 'Latest release'
-    return `${status} ${latest.tagName}`
   }
   return latest.tagName
 }

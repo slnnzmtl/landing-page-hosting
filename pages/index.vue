@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { publishedHomepage } from '~/data/homepage'
+import { homepageContent } from '~/data/homepage'
 import { useHomepageHead } from '~/composables/useHomepageHead'
 
-const home = publishedHomepage()
+const home = homepageContent
 useHomepageHead(home)
 </script>
 
@@ -25,7 +25,6 @@ useHomepageHead(home)
       <HomeHero
         :person="home.person"
         :value-proposition="home.valueProposition"
-        :workflow="home.workflow"
         :primary-ctas="home.primaryCtas"
         :profile-links="home.profileLinks"
       />

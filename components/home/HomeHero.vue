@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import type { HomepageContent, HomepageLink, SourcedText } from '~/data/homepage'
+import type { HomepageContent, HomepageLink } from '~/data/homepage'
 import { useHomepageUi } from '~/composables/useHomepageUi'
 
 defineProps<{
   person: HomepageContent['person']
-  valueProposition: SourcedText
-  workflow: SourcedText
+  valueProposition: string
   primaryCtas: HomepageLink[]
   profileLinks: HomepageLink[]
 }>()
@@ -16,20 +15,17 @@ const { linkFocus } = useHomepageUi()
 <template>
   <header class="space-y-6">
     <p class="text-sm uppercase tracking-[0.35em] text-primary">
-      {{ person.name.text }}
+      {{ person.name }}
     </p>
     <h1 class="text-4xl font-semibold leading-tight sm:text-5xl">
-      {{ person.role.text }}
+      {{ person.role }}
     </h1>
     <p class="text-lg font-medium text-foreground">
-      {{ person.heroSubtitle.text }}
+      {{ person.heroSubtitle }}
     </p>
     <p class="max-w-2xl text-lg text-muted-foreground">
-      {{ valueProposition.text }}
+      {{ valueProposition }}
     </p>
-    <!-- <p class="max-w-2xl text-muted-foreground">
-      {{ workflow.text }}
-    </p> -->
     <div class="flex flex-wrap items-center justify-center sm:justify-start gap-6 sm:gap-8">
       <div class="flex flex-wrap items-center gap-4">
         <a

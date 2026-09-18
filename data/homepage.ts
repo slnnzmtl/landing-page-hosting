@@ -1,10 +1,3 @@
-import { rekordboxPlaylistConverter } from '~/domains/projects/data/rekordbox-playlist-converter'
-import type { ProjectLaunchCta } from '~/domains/projects/data/types'
-
-export interface SourcedText {
-  text: string
-}
-
 export interface HomepageLink {
   label: string
   href: string
@@ -36,7 +29,7 @@ export interface WorkCard {
 export interface WorkSection {
   id: WorkSectionId
   title: string
-  description: SourcedText
+  description: string
   items: WorkCard[]
 }
 
@@ -55,54 +48,40 @@ export interface ProductSpotlightImage {
   height: number
 }
 
-export interface ProductSpotlightFact {
-  label: string
-  value: string
-}
-
-/** Same shape as project launch CTAs; resolved via GitHub when `macosDownload` is set */
-export type ProductSpotlightCta = ProjectLaunchCta
-
 export interface ProductSpotlight {
   slug: string
   title: string
   lead: string
   supportingLine: string
   image: ProductSpotlightImage
-  facts: ProductSpotlightFact[]
-  ctas: ProductSpotlightCta[]
+  cta: HomepageLink
   tags: string[]
-  github: {
-    owner: string
-    repo: string
-  }
 }
 
 export interface ProductsSection {
-  heading: SourcedText
-  description: SourcedText
+  heading: string
+  description: string
   items: ProductSpotlight[]
 }
 
 export interface HomepageContent {
   person: {
-    name: SourcedText
-    role: SourcedText
-    experience: SourcedText
-    heroSubtitle: SourcedText
+    name: string
+    role: string
+    experience: string
+    heroSubtitle: string
   }
-  valueProposition: SourcedText
-  workflow: SourcedText
+  valueProposition: string
   primaryCtas: HomepageLink[]
   profileLinks: HomepageLink[]
   proof: ProofItem[]
   workSections: WorkSection[]
   products: ProductsSection
   capabilities: Capability[]
-  selectedWorkIntro: SourcedText
+  selectedWorkIntro: string
   contact: {
-    heading: SourcedText
-    summary: SourcedText
+    heading: string
+    summary: string
     email: HomepageLink
     telegram: HomepageLink
   }
@@ -110,25 +89,13 @@ export interface HomepageContent {
 
 export const homepageContent: HomepageContent = {
   person: {
-    name: {
-      text: 'Daniel Kazansky',
-    },
-    role: {
-      text: 'AI-Native Full-Stack Engineer',
-    },
-    experience: {
-      text: '8+ years',
-    },
-    heroSubtitle: {
-      text: '8+ years shipping reliable products',
-    },
+    name: 'Daniel Kazansky',
+    role: 'AI-Native Full-Stack Engineer',
+    experience: '8+ years',
+    heroSubtitle: '8+ years shipping reliable products',
   },
-  valueProposition: {
-    text: 'I build production software—from AI agents and workflow automation to full-stack applications, CRM integrations, and data-heavy interfaces.',
-  },
-  workflow: {
-    text: 'The work connects LLMs to APIs, databases, CRMs, messaging platforms, and real business workflows — with explicit tool boundaries and human approval for consequential actions.',
-  },
+  valueProposition:
+    'I build production software—from AI agents and workflow automation to full-stack applications, CRM integrations, and data-heavy interfaces.',
   primaryCtas: [
     {
       label: 'Selected work',
@@ -171,10 +138,8 @@ export const homepageContent: HomepageContent = {
     {
       id: 'professional',
       title: 'Professional Experience',
-      description: {
-        text:
-          'Product engineering within commercial teams, working on marketplace, analytics, and SaaS platforms.',
-      },
+      description:
+        'Product engineering within commercial teams, working on marketplace, analytics, and SaaS platforms.',
       items: [
         {
           slug: 'upwork-reputation-team',
@@ -208,10 +173,8 @@ export const homepageContent: HomepageContent = {
     {
       id: 'independent',
       title: 'Independent Work',
-      description: {
-        text:
-          'End-to-end delivery of client systems, automations, and AI-native workflows.',
-      },
+      description:
+        'End-to-end delivery of client systems, automations, and AI-native workflows.',
       items: [
         {
           slug: 'ai-appointment-crm-automation',
@@ -242,10 +205,8 @@ export const homepageContent: HomepageContent = {
     {
       id: 'open-source',
       title: 'Open-Source Engineering',
-      description: {
-        text:
-          'Publicly inspectable systems, reusable architectures, and developer tools demonstrating how I design and build software.',
-      },
+      description:
+        'Publicly inspectable systems, reusable architectures, and developer tools demonstrating how I design and build software.',
       items: [
         {
           slug: 'langgraph-personal-assistant',
@@ -267,12 +228,8 @@ export const homepageContent: HomepageContent = {
     },
   ],
   products: {
-    heading: {
-      text: 'Products',
-    },
-    description: {
-      text: 'Software I design, build, package, and maintain for real users.',
-    },
+    heading: 'Products',
+    description: 'Software I design, build, package, and maintain for real users.',
     items: [
       {
         slug: 'rekordbox-playlist-converter',
@@ -291,41 +248,11 @@ export const homepageContent: HomepageContent = {
           width: 2240,
           height: 1440,
         },
-        facts: [
-          {
-            label: 'Platforms',
-            value: 'Universal macOS app · CLI on macOS, Windows, and Linux',
-          },
-          {
-            label: 'Formats',
-            value: 'WAV and AIFF output',
-          },
-        ],
-        ctas: [
-          {
-            label: 'Download for macOS',
-            href: 'https://github.com/slnnzmtl/rekordbox-playlist-converter/releases',
-            kind: 'primary',
-            macosDownload: true,
-          },
-          {
-            label: 'View product',
-            href: '/projects/rekordbox-playlist-converter',
-            kind: 'secondary',
-          },
-          {
-            label: 'Documentation',
-            href: 'https://github.com/slnnzmtl/rekordbox-playlist-converter/blob/master/USAGE.md',
-            kind: 'secondary',
-          },
-          {
-            label: 'Source code',
-            href: 'https://github.com/slnnzmtl/rekordbox-playlist-converter',
-            kind: 'secondary',
-          },
-        ],
+        cta: {
+          label: 'View product',
+          href: '/projects/rekordbox-playlist-converter',
+        },
         tags: ['Python', 'Tkinter', 'FFmpeg', 'PyInstaller', 'Rekordbox XML'],
-        github: rekordboxPlaylistConverter.github!,
       },
     ],
   },
@@ -346,18 +273,12 @@ export const homepageContent: HomepageContent = {
         'Reliable delivery for commercial products: modernization, observability, testing, maintainable architecture, and production ownership.',
     },
   ],
-  selectedWorkIntro: {
-    text:
-      'Commercial product engineering, independent delivery, and publicly inspectable open-source systems.',
-  },
+  selectedWorkIntro:
+    'Commercial product engineering, independent delivery, and publicly inspectable open-source systems.',
   contact: {
-    heading: {
-      text: 'Have a system that needs to ship?',
-    },
-    summary: {
-      text:
-        'I help teams build AI-native products, connect agents to real business workflows, and ship reliable full-stack systems.',
-    },
+    heading: 'Have a system that needs to ship?',
+    summary:
+      'I help teams build AI-native products, connect agents to real business workflows, and ship reliable full-stack systems.',
     email: {
       label: 'Email',
       href: 'mailto:kazanskydaniel@gmail.com',
@@ -367,22 +288,6 @@ export const homepageContent: HomepageContent = {
       href: 'https://t.me/slnnzmtl',
     },
   },
-}
-
-export function publishedHomepage(content: HomepageContent = homepageContent): HomepageContent {
-  return {
-    ...content,
-    primaryCtas: content.primaryCtas,
-    profileLinks: content.profileLinks,
-    proof: content.proof,
-    workSections: content.workSections,
-    products: {
-      heading: content.products.heading,
-      description: content.products.description,
-      items: content.products.items,
-    },
-    capabilities: content.capabilities,
-  }
 }
 
 export type HomepageHrefKind = 'native' | 'route'
