@@ -19,6 +19,9 @@ tests/
 ├─ composables/
 │  ├─ useSurveys.test.ts
 │  └─ useSurveyResponses.test.ts
+├─ data/
+│  ├─ experience.test.ts
+│  └─ homepage.test.ts
 ├─ domains/projects/
 │  ├─ registry.test.ts
 │  ├─ rekordbox-product.test.ts
@@ -60,7 +63,9 @@ tests/
 
 **GitHub releases** — mocked `fetch` for success, empty, 403/429, network error, prerelease, and stale localStorage cache. Notes are plain text.
 
-**SEO** — production site origin, canonical/OG tags, CollectionPage/SoftwareApplication JSON-LD, sitemap and robots output.
+**SEO** — production site origin, canonical/OG tags, homepage Person/WebSite/CreativeWork JSON-LD, CollectionPage/SoftwareApplication for projects, sitemap and robots output.
+
+**Homepage content** — approved copy, href classification, and conversion events for contact/case CTAs (`conversionEventName` + `trackConversion` window CustomEvent).
 
 Finance unit tests moved to the sibling `personal-finance` app.
 

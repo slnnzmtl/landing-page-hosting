@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { useProjects } from '../composables/useProjects'
 import { projectPath } from '../data/types'
-import { useProjectPageSeo } from '../composables/useProjectPageSeo'
+import { usePageSeo } from '../composables/usePageSeo'
 import { projectsIndexSeo, resolveSiteUrl } from '../utils/seo'
 
 const { projects } = useProjects()
 const siteUrl = resolveSiteUrl(useRuntimeConfig().public.siteUrl as string)
-useProjectPageSeo(projectsIndexSeo(siteUrl, projects))
+usePageSeo(projectsIndexSeo(siteUrl, projects))
 </script>
 
 <template>

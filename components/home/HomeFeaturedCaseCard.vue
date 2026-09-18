@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { homepageHrefKind, opensInNewTab, type WorkCard } from '~/data/homepage'
+import { conversionEventName, homepageHrefKind, opensInNewTab, type WorkCard } from '~/data/homepage'
 import { useHomepageUi } from '~/composables/useHomepageUi'
+import { trackConversion } from '~/utils/track-conversion'
 
 const COLLAPSED_LINES_MOBILE = 2
 const COLLAPSED_LINES_DESKTOP = 5
@@ -32,6 +33,18 @@ const hasCta = computed(() => Boolean(props.item.href && props.item.hrefLabel))
 const isExternal = computed(() =>
   props.item.href ? opensInNewTab(props.item.href) : false,
 )
+
+function onCaseCtaClick() {
+  const href = props.item.href
+  if (!href) return
+  const name = conversionEventName(href)
+  if (!name) return
+  if (name === 'case_outbound') {
+    trackConversion(name, { slug: props.item.slug })
+    return
+  }
+  trackConversion(name)
+}
 
 const linkClass = [
   'inline-flex items-center gap-1.5 text-sm font-medium text-primary underline-offset-4 hover:underline',
@@ -199,6 +212,7 @@ watch(() => props.item.summary, () => {
             :href="item.href"
             v-bind="outboundAttrs(item.href)"
             :class="['mt-3', linkClass]"
+            @click="onCaseCtaClick"
           >
             {{ item.hrefLabel }}
             <svg
@@ -221,6 +235,7 @@ watch(() => props.item.summary, () => {
             v-else
             :to="item.href"
             :class="['mt-3', linkClass]"
+            @click="onCaseCtaClick"
           >
             {{ item.hrefLabel }}
           </NuxtLink>
