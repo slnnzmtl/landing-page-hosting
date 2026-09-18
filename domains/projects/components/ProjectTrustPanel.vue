@@ -16,6 +16,8 @@ const dynamicFacts = computed(() => [
   { label: 'Release date', value: releaseDateLabel.value },
 ])
 
+const allFacts = computed(() => [...dynamicFacts.value, ...props.trustFacts])
+
 const linkClass = [
   'text-primary underline-offset-4 hover:underline',
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
@@ -33,28 +35,17 @@ const linkClass = [
     >
       Product information
     </h2>
-    <dl class="grid gap-3 sm:grid-cols-2">
+    <dl class="max-w-3xl space-y-2 text-sm leading-relaxed text-muted-foreground">
       <div
-        v-for="fact in dynamicFacts"
+        v-for="fact in allFacts"
         :key="fact.label"
-        class="rounded-2xl border border-border bg-muted/30 px-4 py-3"
       >
-        <dt class="text-xs font-semibold uppercase tracking-wide text-primary">
+        <dt class="sr-only">
           {{ fact.label }}
         </dt>
-        <dd class="mt-1 text-sm text-muted-foreground">
-          {{ fact.value }}
-        </dd>
-      </div>
-      <div
-        v-for="fact in trustFacts"
-        :key="fact.label"
-        class="rounded-2xl border border-border bg-muted/30 px-4 py-3"
-      >
-        <dt class="text-xs font-semibold uppercase tracking-wide text-primary">
-          {{ fact.label }}
-        </dt>
-        <dd class="mt-1 text-sm text-muted-foreground">
+        <dd>
+          <span class="font-medium text-foreground">{{ fact.label }}:</span>
+          {{ ' ' }}
           <a
             v-if="fact.href"
             :href="fact.href"
@@ -72,7 +63,7 @@ const linkClass = [
     </dl>
     <p
       v-if="trademark"
-      class="text-xs leading-relaxed text-muted-foreground"
+      class="max-w-3xl text-xs leading-relaxed text-muted-foreground"
     >
       {{ trademark }}
     </p>

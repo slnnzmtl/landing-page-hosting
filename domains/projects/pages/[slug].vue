@@ -4,6 +4,7 @@ import ProjectGallery from '../components/ProjectGallery.vue'
 import GithubReleases from '../components/GithubReleases.vue'
 import ProjectLaunchActions from '../components/ProjectLaunchActions.vue'
 import ProjectTrustPanel from '../components/ProjectTrustPanel.vue'
+import ProjectHowItWorks from '../components/ProjectHowItWorks.vue'
 import { usePageSeo } from '../composables/usePageSeo'
 import { projectDetailSeo, resolveSiteUrl } from '../utils/seo'
 
@@ -154,8 +155,13 @@ const benefitsHeading = computed(() => (
         :trademark="project.launch.trademark"
       />
 
+      <ProjectHowItWorks
+        v-if="project.launch && project.guide"
+        :guide="project.guide"
+      />
+
       <section
-        v-if="project.launch && descriptionParagraphs.length"
+        v-else-if="descriptionParagraphs.length"
         aria-labelledby="project-how-heading"
         class="space-y-4"
       >
@@ -170,14 +176,15 @@ const benefitsHeading = computed(() => (
             {{ paragraph }}
           </p>
         </div>
-        <p
-          v-if="project.stackTags?.length"
-          class="max-w-3xl text-sm text-muted-foreground"
-        >
-          <span class="font-medium text-foreground">Stack: </span>
-          {{ project.stackTags.join(' · ') }}
-        </p>
       </section>
+
+      <p
+        v-if="project.stackTags?.length && (project.launch || descriptionParagraphs.length)"
+        class="max-w-3xl text-sm text-muted-foreground"
+      >
+        <span class="font-medium text-foreground">Stack: </span>
+        {{ project.stackTags.join(' · ') }}
+      </p>
 
       <section
         v-if="project.benefits?.length"
@@ -218,40 +225,6 @@ const benefitsHeading = computed(() => (
             </p>
           </li>
         </ul>
-      </section>
-
-      <section
-        v-if="project.guide"
-        aria-labelledby="project-guide-heading"
-        class="space-y-6"
-      >
-        <h2 id="project-guide-heading" class="text-2xl font-semibold">
-          {{ project.guide.title }}
-        </h2>
-        <p
-          v-if="project.guide.warning"
-          class="rounded-2xl border border-amber-500 bg-amber-400 px-5 py-4 text-sm font-medium text-amber-950"
-          role="note"
-        >
-          {{ project.guide.warning }}
-        </p>
-        <ol class="grid gap-5 md:grid-cols-3">
-          <li
-            v-for="(step, index) in project.guide.steps"
-            :key="step.title"
-            class="rounded-2xl border border-border bg-muted/40 p-6"
-          >
-            <p class="text-sm font-semibold uppercase tracking-wide text-primary">
-              Step {{ index + 1 }}
-            </p>
-            <h3 class="mt-2 text-lg font-semibold">
-              {{ step.title }}
-            </h3>
-            <p class="mt-2 text-sm text-muted-foreground">
-              {{ step.body }}
-            </p>
-          </li>
-        </ol>
       </section>
 
       <section

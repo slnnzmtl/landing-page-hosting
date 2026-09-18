@@ -170,7 +170,7 @@ export const rekordboxPlaylistConverter: Project = {
     'unittest',
   ],
   guide: {
-    title: 'Convert a playlist in three steps',
+    title: 'How it works',
     warning:
       'Do not use File → Import. Rekordbox must load this XML from the rekordbox xml pane via Imported Library.',
     steps: [
@@ -182,7 +182,7 @@ export const rekordboxPlaylistConverter: Project = {
       {
         title: 'Convert with the app or CLI',
         body:
-          'Download Simple Rekordbox Converter from GitHub Releases or run the CLI on macOS, Linux, or Windows. Choose the collection XML, pick playlists, and convert. The tool writes audio plus rekordbox-import.xml into the output folder. Preview mode shows the batch before anything is written.',
+          'Download Simple Rekordbox Converter from GitHub Releases or run the CLI on macOS, Linux, or Windows. Choose the collection XML, pick playlists, and convert. The tool writes CDJ-safe stereo PCM WAV or AIFF files plus rekordbox-import.xml into the output folder. Preview mode shows the batch before anything is written.',
       },
       {
         title: 'Point Imported Library at the generated XML',

@@ -22,6 +22,7 @@ describe('Simple Rekordbox Converter product data', () => {
     expect(guide?.warning).toMatch(/File → Import/)
     expect(guide?.steps[0].body).toMatch(/Export Collection/)
     expect(guide?.steps[1].title).toMatch(/app or CLI/)
+    expect(guide?.steps[1].body).toMatch(/CDJ-safe/)
     expect(guide?.steps[2].body).toMatch(/Imported Library/)
     expect(guide?.steps[2].body).toMatch(/rekordbox xml/)
   })
