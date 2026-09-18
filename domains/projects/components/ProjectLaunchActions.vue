@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import type { ProjectLaunch, ProjectLaunchCta } from '../data/types'
+import type { ProjectLaunch } from '../data/types'
 import { useMacosReleaseDownload } from '../composables/useMacosReleaseDownload'
+import { useDownloadWarningDialog } from '../composables/useDownloadWarningDialog'
 import MacosDownloadWarningDialog from './MacosDownloadWarningDialog.vue'
 
 const props = defineProps<{
@@ -10,33 +11,13 @@ const props = defineProps<{
 }>()
 
 const { ctaHref } = useMacosReleaseDownload(props.githubOwner, props.githubRepo)
+const { isOpen, interceptClick, close, confirm } = useDownloadWarningDialog()
 
 const primaryCta = computed(() => props.launch.ctas.find(cta => cta.kind === 'primary'))
 const secondaryCtas = computed(() => props.launch.ctas.filter(cta => cta.kind === 'secondary'))
-
-const downloadWarningOpen = ref(false)
-const pendingDownloadHref = ref('')
-
-const primaryUsesDownloadWarning = computed(() =>
+const warnOnPrimaryDownload = computed(() =>
   Boolean(props.launch.macosDownloadWarning && primaryCta.value?.macosDownload),
 )
-
-function openDownloadWarning(cta: ProjectLaunchCta) {
-  pendingDownloadHref.value = ctaHref(cta)
-  downloadWarningOpen.value = true
-}
-
-function closeDownloadWarning() {
-  downloadWarningOpen.value = false
-}
-
-function confirmDownload() {
-  const url = pendingDownloadHref.value
-  downloadWarningOpen.value = false
-  if (url) {
-    window.open(url, '_blank', 'noopener,noreferrer')
-  }
-}
 
 const primaryClass = [
   'inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90',
@@ -51,20 +32,13 @@ const secondaryClass = [
 
 <template>
   <div class="flex flex-wrap items-center gap-3">
-    <button
-      v-if="primaryCta && primaryUsesDownloadWarning"
-      type="button"
-      :class="primaryClass"
-      @click="openDownloadWarning(primaryCta)"
-    >
-      {{ primaryCta.label }}
-    </button>
     <a
-      v-else-if="primaryCta"
+      v-if="primaryCta"
       :href="ctaHref(primaryCta)"
       target="_blank"
       rel="noopener noreferrer"
       :class="primaryClass"
+      @click="interceptClick($event, ctaHref(primaryCta), warnOnPrimaryDownload)"
     >
       {{ primaryCta.label }}
     </a>
@@ -79,11 +53,10 @@ const secondaryClass = [
       {{ cta.label }}
     </a>
     <MacosDownloadWarningDialog
-      v-if="launch.macosDownloadWarning"
-      :open="downloadWarningOpen"
+      v-if="isOpen && launch.macosDownloadWarning"
       :message="launch.macosDownloadWarning"
-      @close="closeDownloadWarning"
-      @confirm="confirmDownload"
+      @close="close"
+      @confirm="confirm"
     />
   </div>
 </template>

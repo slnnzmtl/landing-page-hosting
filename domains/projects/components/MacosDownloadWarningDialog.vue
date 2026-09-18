@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { onBeforeUnmount, ref, watch } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 
-const props = defineProps<{
-  open: boolean
+defineProps<{
   message: string
 }>()
 
@@ -14,18 +13,13 @@ const emit = defineEmits<{
 const confirmButton = ref<HTMLButtonElement | null>(null)
 
 function onKeydown(event: KeyboardEvent) {
-  if (!props.open) return
   if (event.key === 'Escape') {
     event.preventDefault()
     emit('close')
   }
 }
 
-watch(() => props.open, (isOpen) => {
-  if (!isOpen) {
-    window.removeEventListener('keydown', onKeydown)
-    return
-  }
+onMounted(() => {
   window.addEventListener('keydown', onKeydown)
   requestAnimationFrame(() => confirmButton.value?.focus())
 })
@@ -37,7 +31,6 @@ onBeforeUnmount(() => {
 
 <template>
   <div
-    v-if="open"
     class="fixed inset-0 z-50 flex items-center justify-center bg-[hsl(64,0%,1.43%)]/90 p-4"
     role="dialog"
     aria-modal="true"
