@@ -137,15 +137,36 @@ function createStar(): BackgroundStar {
   }
 }
 
+function targetStarCount() {
+  if (!canvasWidth || !canvasHeight) return 0
+  return Math.floor(canvasWidth * canvasHeight * starDensity)
+}
+
 function initBackgroundStars() {
   backgroundStars.length = 0
-  if (!canvasWidth || !canvasHeight) return
-
-  const area = canvasWidth * canvasHeight
-  const numStars = Math.floor(area * starDensity)
-
+  const numStars = targetStarCount()
   for (let i = 0; i < numStars; i++) {
     backgroundStars.push(createStar())
+  }
+}
+
+function syncStarsToCanvasSize() {
+  if (!canvasWidth || !canvasHeight) {
+    backgroundStars.length = 0
+    return
+  }
+
+  for (const star of backgroundStars) {
+    star.x = Math.floor(wrap(star.x, canvasWidth) / pixelSize) * pixelSize
+    star.y = Math.floor(wrap(star.y, canvasHeight) / pixelSize) * pixelSize
+  }
+
+  const numStars = targetStarCount()
+  while (backgroundStars.length < numStars) {
+    backgroundStars.push(createStar())
+  }
+  if (backgroundStars.length > numStars) {
+    backgroundStars.length = numStars
   }
 }
 
@@ -313,13 +334,21 @@ function resizeCanvas() {
 
   const width = root.clientWidth
   const height = root.clientHeight
+  if (!width || !height) return
   if (width === canvasWidth && height === canvasHeight) return
 
+  const hadStars = backgroundStars.length > 0
   canvasWidth = width
   canvasHeight = height
   canvas.width = width
   canvas.height = height
-  initBackgroundStars()
+
+  if (hadStars) {
+    syncStarsToCanvasSize()
+  }
+  else {
+    initBackgroundStars()
+  }
 
   if (reducedMotion) {
     drawStaticFrame()
@@ -353,13 +382,19 @@ function cleanup() {
     resizeObserver.disconnect()
     resizeObserver = null
   }
-  backgroundStars.length = 0
-  shootingStars.length = 0
-  scrollTarget = 0
-  scrollSmoothed = 0
 }
 
-onMounted(() => {
+const route = useRoute()
+watch(
+  () => route.path,
+  () => {
+    if (!import.meta.client) return
+    scrollTarget = window.scrollY
+    scrollSmoothed = window.scrollY
+  },
+)
+
+function start() {
   unmounted = false
   reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
@@ -380,15 +415,13 @@ onMounted(() => {
   scrollTarget = window.scrollY
   scrollSmoothed = scrollTarget
   lastTwinkleTime = performance.now()
-
   animationFrameId = requestAnimationFrame(animateCanvas)
   scheduleShootingStar()
   regenerationIntervalId = setInterval(regenerateBackgroundStars, starRegenerationInterval)
-})
+}
 
-onBeforeUnmount(() => {
-  cleanup()
-})
+onMounted(start)
+onBeforeUnmount(cleanup)
 </script>
 
 <template>

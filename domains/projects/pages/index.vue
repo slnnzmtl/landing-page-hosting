@@ -11,7 +11,6 @@ usePageSeo(projectsIndexSeo(siteUrl, projects))
 
 <template>
   <div class="relative min-h-screen text-foreground">
-    <StarBackdrop />
     <div class="relative z-10 mx-auto flex max-w-5xl flex-col gap-12 px-6 py-20 lg:px-12">
       <header class="space-y-4">
         <p class="text-sm uppercase tracking-[0.35em] text-primary">

@@ -10,8 +10,6 @@ usePageSeo(homepageSeo(siteUrl, home))
 
 <template>
   <div class="relative min-h-screen text-foreground">
-    <StarBackdrop />
-
     <div class="relative z-10 mx-auto flex max-w-5xl flex-col gap-12 md:gap-24 px-6 py-20 lg:px-12">
       <HomeHero
         :person="home.person"

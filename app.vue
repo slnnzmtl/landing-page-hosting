@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const route = useRoute()
 
-const showSidebar = computed(() => {
+const showSiteChrome = computed(() => {
   const path = route.path
   return !path.startsWith('/survey') && !path.startsWith('/service')
 })
@@ -15,10 +15,11 @@ const showSidebar = computed(() => {
     >
       Skip to main content
     </a>
-    <AppSidebar v-if="showSidebar" />
+    <StarBackdrop v-if="showSiteChrome" />
+    <AppSidebar v-if="showSiteChrome" />
     <main
       id="main-content"
-      class="app col-start-1 row-start-1 bg-black"
+      class="app col-start-1 row-start-1 bg-transparent"
       tabindex="-1"
     >
       <NuxtPage />
