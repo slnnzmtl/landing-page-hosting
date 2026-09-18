@@ -11,16 +11,16 @@ const STAR_COLORS = [
   '#AAFFFF',
 ] as const
 
-const starDensity = 0.00004
+const starDensity = 0.00003
 
 const twinkleProbability = 0.7
 const minTwinkleSpeed = 2
-const maxTwinkleSpeed = 4
-const pixelSize = 5
+const maxTwinkleSpeed = 5
+const pixelSize = 2
 const starRegenerationInterval = 5000
 const percentToRegenerate = 0.15
 const shootingStarPixelSize = 2
-const targetFps = 16
+const targetFps = 25
 const frameInterval = 1000 / targetFps
 const parallaxFactor = -0.35
 const parallaxLerp = 0.14
