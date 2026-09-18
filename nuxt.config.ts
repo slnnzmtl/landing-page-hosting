@@ -13,6 +13,7 @@ export default defineNuxtConfig({
   ssr: true,
   devtools: { enabled: process.env.NODE_ENV !== 'production' },
   app: {
+    pageTransition: { name: 'page', mode: 'out-in' },
     head: {
       htmlAttrs: {
         lang: 'en',

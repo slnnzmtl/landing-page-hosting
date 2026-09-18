@@ -26,7 +26,7 @@
 }
 
 body {
-  @apply bg-background text-foreground;
+  @apply bg-black text-foreground;
   overflow-x: hidden;
 }
 
@@ -43,6 +43,26 @@ body {
 .table-h-scroll {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+}
+
+.page-enter-active,
+.page-leave-active {
+  transition:
+    opacity 280ms ease,
+    transform 280ms ease;
+  background-color: #000;
+}
+
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(0.5rem);
+  background-color: #000;
+}
+
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-0.25rem);
+  background-color: #000;
 }
 
 @media (prefers-reduced-motion: reduce) {
