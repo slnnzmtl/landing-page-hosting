@@ -137,13 +137,6 @@ const benefitsHeading = computed(() => (
               </a>
             </div>
           </template>
-          <p
-            v-if="project.stackTags?.length && !project.launch"
-            class="max-w-2xl text-sm text-muted-foreground"
-          >
-            <span class="font-medium text-foreground">Stack: </span>
-            {{ project.stackTags.join(' · ') }}
-          </p>
         </div>
       </header>
 
@@ -156,30 +149,12 @@ const benefitsHeading = computed(() => (
       />
 
       <ProjectHowItWorks
-        v-if="project.launch && project.guide"
+        v-if="project.guide"
         :guide="project.guide"
       />
 
-      <section
-        v-else-if="descriptionParagraphs.length"
-        aria-labelledby="project-how-heading"
-        class="space-y-4"
-      >
-        <h2 id="project-how-heading" class="text-2xl font-semibold">
-          How it works
-        </h2>
-        <div class="max-w-3xl space-y-4 text-muted-foreground">
-          <p
-            v-for="(paragraph, index) in descriptionParagraphs"
-            :key="index"
-          >
-            {{ paragraph }}
-          </p>
-        </div>
-      </section>
-
       <p
-        v-if="project.stackTags?.length && (project.launch || descriptionParagraphs.length)"
+        v-if="project.stackTags?.length"
         class="max-w-3xl text-sm text-muted-foreground"
       >
         <span class="font-medium text-foreground">Stack: </span>

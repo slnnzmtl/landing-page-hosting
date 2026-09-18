@@ -39,12 +39,8 @@ export const rekordboxPlaylistConverter: Project = {
     ],
     trustFacts: [
       {
-        label: 'Supported macOS',
-        value: 'macOS 11 (Big Sur) and later',
-      },
-      {
-        label: 'Apple Silicon and Intel',
-        value: 'Universal macOS app (universal2)',
+        label: 'macOS',
+        value: '11 (Big Sur)+ · universal2',
       },
       {
         label: 'License',
@@ -52,12 +48,12 @@ export const rekordboxPlaylistConverter: Project = {
         href: 'https://www.gnu.org/licenses/gpl-3.0.html',
       },
       {
-        label: 'Privacy and analytics',
-        value: 'Optional anonymous analytics; not required to convert playlists',
+        label: 'Privacy',
+        value: 'Optional; not required to convert',
       },
       {
-        label: 'Report an issue',
-        value: 'GitHub Issues',
+        label: 'Issues',
+        value: 'GitHub',
         href: 'https://github.com/slnnzmtl/rekordbox-playlist-converter/issues',
       },
     ],
@@ -172,22 +168,22 @@ export const rekordboxPlaylistConverter: Project = {
   guide: {
     title: 'How it works',
     warning:
-      'Do not use File → Import. Rekordbox must load this XML from the rekordbox xml pane via Imported Library.',
+      'Do not use File → Import. Load the generated XML from the rekordbox xml pane via Imported Library.',
     steps: [
       {
-        title: 'Export the Rekordbox collection XML',
+        title: 'Export collection XML',
         body:
-          'In Rekordbox, wait until analysis has finished on the tracks you care about. Then use File → Export Collection in xml format and save the file locally. In Rekordbox 7, enable Preferences → Advanced → rekordbox xml → Export BeatGrid information so grids are included.',
+          'Wait for analysis, then File → Export Collection in xml format. Rekordbox 7: enable Export BeatGrid information.',
       },
       {
-        title: 'Convert with the app or CLI',
+        title: 'Convert to CDJ-safe files',
         body:
-          'Download Simple Rekordbox Converter from GitHub Releases or run the CLI on macOS, Linux, or Windows. Choose the collection XML, pick playlists, and convert. The tool writes CDJ-safe stereo PCM WAV or AIFF files plus rekordbox-import.xml into the output folder. Preview mode shows the batch before anything is written.',
+          'Open the XML, pick playlists, convert. Writes stereo PCM WAV or AIFF plus rekordbox-import.xml. Originals stay put.',
       },
       {
-        title: 'Point Imported Library at the generated XML',
+        title: 'Import via Imported Library',
         body:
-          'In Rekordbox, show the rekordbox xml pane (Preferences → View → Layout → Media Browser). Under Preferences → Advanced → Database → rekordbox xml, set Imported Library to the generated rekordbox-import.xml — not your original collection export. Open rekordbox xml → Playlists, then import the {playlist} [WAV] or {playlist} [AIFF] playlist into your library.',
+          'Point Imported Library at rekordbox-import.xml — not the original export. Then import the [WAV] or [AIFF] playlist from rekordbox xml → Playlists.',
       },
     ],
   },

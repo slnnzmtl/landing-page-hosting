@@ -108,7 +108,7 @@ export function formatGithubReleaseVersionLabel(
   const latest = result.latest
   if (!latest) {
     if (result.status === 'loading' || result.status === 'idle') {
-      return 'Checking latest release…'
+      return 'Checking…'
     }
     if (result.status === 'empty') {
       return 'No public release listed yet'

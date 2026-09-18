@@ -11,23 +11,17 @@ const props = defineProps<{
 
 const { versionLabel, releaseDateLabel } = useMacosReleaseDownload(props.githubOwner, props.githubRepo)
 
-const dynamicFacts = computed(() => [
-  { label: 'Current version', value: versionLabel.value },
-  { label: 'Release date', value: releaseDateLabel.value },
+const facts = computed(() => [
+  { label: 'Version', value: versionLabel.value },
+  { label: 'Released', value: releaseDateLabel.value },
+  ...props.trustFacts,
 ])
-
-const allFacts = computed(() => [...dynamicFacts.value, ...props.trustFacts])
-
-const linkClass = [
-  'text-primary underline-offset-4 hover:underline',
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-].join(' ')
 </script>
 
 <template>
   <section
     aria-labelledby="project-trust-heading"
-    class="space-y-4"
+    class="space-y-3"
   >
     <h2
       id="project-trust-heading"
@@ -35,23 +29,22 @@ const linkClass = [
     >
       Product information
     </h2>
-    <dl class="max-w-3xl space-y-2 text-sm leading-relaxed text-muted-foreground">
+    <dl class="max-w-3xl space-y-1.5 text-sm leading-relaxed text-muted-foreground">
       <div
-        v-for="fact in allFacts"
+        v-for="fact in facts"
         :key="fact.label"
+        class="flex flex-wrap gap-x-2"
       >
-        <dt class="sr-only">
+        <dt class="font-medium text-foreground after:content-[':']">
           {{ fact.label }}
         </dt>
         <dd>
-          <span class="font-medium text-foreground">{{ fact.label }}:</span>
-          {{ ' ' }}
           <a
             v-if="fact.href"
             :href="fact.href"
             target="_blank"
             rel="noopener noreferrer"
-            :class="linkClass"
+            class="text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             {{ fact.value }}
           </a>

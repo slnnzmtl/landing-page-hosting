@@ -21,8 +21,7 @@ describe('Simple Rekordbox Converter product data', () => {
     expect(guide?.steps).toHaveLength(3)
     expect(guide?.warning).toMatch(/File → Import/)
     expect(guide?.steps[0].body).toMatch(/Export Collection/)
-    expect(guide?.steps[1].title).toMatch(/app or CLI/)
-    expect(guide?.steps[1].body).toMatch(/CDJ-safe/)
+    expect(guide?.steps[1].title).toMatch(/CDJ-safe/)
     expect(guide?.steps[2].body).toMatch(/Imported Library/)
     expect(guide?.steps[2].body).toMatch(/rekordbox xml/)
   })
@@ -49,8 +48,8 @@ describe('Simple Rekordbox Converter product data', () => {
   it('documents product trust facts and trademark disclaimer', () => {
     const labels = rekordboxPlaylistConverter.launch?.trustFacts.map(fact => fact.label) || []
     expect(labels).toContain('License')
-    expect(labels).toContain('Privacy and analytics')
-    expect(labels).toContain('Report an issue')
+    expect(labels).toContain('Privacy')
+    expect(labels).toContain('Issues')
     expect(rekordboxPlaylistConverter.launch?.trademark).toMatch(/Rekordbox is a trademark/)
     expect(rekordboxPlaylistConverter.seo?.titleSuffix).toBe('Daniel Kazansky')
   })
