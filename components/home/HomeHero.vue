@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { HomepageContent, HomepageLink } from '~/data/homepage'
+import { conversionEventName } from '~/data/homepage'
 import { useHomepageUi } from '~/composables/useHomepageUi'
+import { trackConversion } from '~/utils/track-conversion'
 
 defineProps<{
   person: HomepageContent['person']
@@ -10,6 +12,11 @@ defineProps<{
 }>()
 
 const { linkFocus } = useHomepageUi()
+
+function onPrimaryCtaClick(href: string) {
+  const name = conversionEventName(href)
+  if (name) trackConversion(name)
+}
 </script>
 
 <template>
@@ -39,6 +46,7 @@ const { linkFocus } = useHomepageUi()
               ? 'bg-primary text-primary-foreground shadow hover:bg-primary/90'
               : 'border border-border text-foreground hover:border-primary hover:text-primary',
           ]"
+          @click="onPrimaryCtaClick(cta.href)"
         >
           {{ cta.label }}
         </a>

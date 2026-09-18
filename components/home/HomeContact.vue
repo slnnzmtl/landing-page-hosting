@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { HomepageContent, HomepageLink } from '~/data/homepage'
+import { conversionEventName } from '~/data/homepage'
 import { useHomepageUi } from '~/composables/useHomepageUi'
+import { trackConversion } from '~/utils/track-conversion'
 
 const props = defineProps<{
   contact: HomepageContent['contact']
@@ -16,6 +18,11 @@ const contactEmailDisplay = computed(() =>
 const contactTelegramDisplay = computed(() =>
   props.contact.telegram.href.replace(/^https?:\/\/t\.me\//i, ''),
 )
+
+function onContactClick(href: string) {
+  const name = conversionEventName(href)
+  if (name) trackConversion(name)
+}
 </script>
 
 <template>
@@ -46,6 +53,7 @@ const contactTelegramDisplay = computed(() =>
         <a
           :href="contact.email.href"
           :class="['text-base font-medium text-foreground hover:text-primary', linkFocus]"
+          @click="onContactClick(contact.email.href)"
         >
           {{ contactEmailDisplay }}
         </a>
@@ -57,6 +65,7 @@ const contactTelegramDisplay = computed(() =>
         <a
           :href="contact.telegram.href"
           :class="['text-base font-medium text-foreground hover:text-primary', linkFocus]"
+          @click="onContactClick(contact.telegram.href)"
         >
           {{ contactTelegramDisplay }}
         </a>

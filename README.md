@@ -175,9 +175,11 @@ pnpm build
 pnpm preview
 ```
 
-`vercel.json` builds with `@vercel/static-build` (`distDir: .output/public`). Known files (including prerendered `/projects/*`) are served from the filesystem. Unknown `/projects/*` paths return `404.html`. Legacy `/finance` and `/login` also return `404.html`. Other unmatched paths fall back to `/200.html` for client-side routes.
+`vercel.json` builds with `@vercel/static-build` (`distDir: .output/public`). Known files (including prerendered `/projects/*`) are served from the filesystem. Unknown `/projects/*` paths return `404.html`. Legacy `/finance` and `/login` also return `404.html`. `/service/**` falls back to `/200.html` for the client-only service layer. All other unmatched paths return `404.html`.
 
 Set `SURVEY_WEBHOOK_URL` in the Vercel project environment for survey submissions. Set `NUXT_PUBLIC_SITE_URL` to the production origin for canonical/social URLs. Deploy finance separately via `personal-finance`.
+
+The portfolio homepage, `/experience`, and `/projects` are indexable (`index, follow`) with canonical URLs, Open Graph tags, and JSON-LD (Person, WebSite, CreativeWork / SoftwareApplication). Survey and service routes remain `noindex`.
 
 Homepage: https://kazansky.dev
 

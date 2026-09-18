@@ -4,7 +4,7 @@ import ProjectGallery from '../components/ProjectGallery.vue'
 import GithubReleases from '../components/GithubReleases.vue'
 import ProjectLaunchActions from '../components/ProjectLaunchActions.vue'
 import ProjectTrustPanel from '../components/ProjectTrustPanel.vue'
-import { useProjectPageSeo } from '../composables/useProjectPageSeo'
+import { usePageSeo } from '../composables/usePageSeo'
 import { projectDetailSeo, resolveSiteUrl } from '../utils/seo'
 
 const route = useRoute()
@@ -20,7 +20,7 @@ if (!project) {
 }
 
 const siteUrl = resolveSiteUrl(useRuntimeConfig().public.siteUrl as string)
-useProjectPageSeo(projectDetailSeo(siteUrl, project))
+usePageSeo(projectDetailSeo(siteUrl, project))
 
 const descriptionParagraphs = computed(() => {
   const text = project.description || project.shortDescription

@@ -133,8 +133,8 @@ describe('experience content model', () => {
     }
   })
 
-  it('qualifies tenure without claiming 8+ years specifically as a software engineer', () => {
-    expect(professionalTenure.short).toBe('8+ years')
+  it('qualifies tenure without claiming 7+ years specifically as a software engineer', () => {
+    expect(professionalTenure.short).toBe('7+ years')
     expect(professionalTenure.label).toMatch(/digital products and software delivery/i)
     expect(professionalTenure.heroSubtitle).toMatch(/digital products and software delivery/i)
     expect(professionalTenure.softwareEngineeringSince).toBe('Building software since 2019')

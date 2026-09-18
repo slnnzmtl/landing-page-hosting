@@ -2,11 +2,11 @@
 import { publishedExperienceRoles, professionalTenure } from '~/data/experience'
 import { homepageContent } from '~/data/homepage'
 import { experiencePageSeo, resolveSiteUrl } from '~/domains/projects/utils/seo'
-import { useProjectPageSeo } from '~/domains/projects/composables/useProjectPageSeo'
+import { usePageSeo } from '~/domains/projects/composables/usePageSeo'
 
 const roles = publishedExperienceRoles()
 const siteUrl = resolveSiteUrl(useRuntimeConfig().public.siteUrl as string)
-useProjectPageSeo(
+usePageSeo(
   experiencePageSeo(siteUrl, {
     name: homepageContent.person.name,
     role: homepageContent.person.role,
@@ -19,18 +19,7 @@ useProjectPageSeo(
   <div class="relative min-h-screen text-foreground">
     <StarBackdrop />
 
-    <a
-      href="#main-content"
-      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-foreground"
-    >
-      Skip to main content
-    </a>
-
-    <div
-      id="main-content"
-      class="relative z-10 mx-auto flex max-w-5xl flex-col gap-12 px-6 py-20 lg:px-12"
-      tabindex="-1"
-    >
+    <div class="relative z-10 mx-auto flex max-w-5xl flex-col gap-12 px-6 py-20 lg:px-12">
       <header>
         <NuxtLink
           to="/#selected-work"

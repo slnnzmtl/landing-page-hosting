@@ -74,9 +74,9 @@ const cvAndPublicRepos: ClaimSource = {
 
 /** Shared tenure copy used across homepage and experience SEO. */
 export const professionalTenure = {
-  short: '8+ years',
+  short: '7+ years',
   label: 'Years across digital products and software delivery',
-  heroSubtitle: '8+ years across digital products and software delivery',
+  heroSubtitle: '7+ years across digital products and software delivery',
   softwareEngineeringSince: 'Building software since 2019',
 } as const
 

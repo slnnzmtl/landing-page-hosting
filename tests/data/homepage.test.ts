@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import {
+  conversionEventName,
   homepageContent,
   homepageHrefKind,
   opensInNewTab,
 } from '~/data/homepage'
 import { homepageProfessionalCards } from '~/data/experience'
+import { CONVERSION_EVENT, trackConversion } from '~/utils/track-conversion'
 
 describe('homepage content model', () => {
   const published = homepageContent
@@ -12,12 +14,12 @@ describe('homepage content model', () => {
   it('identifies the person, role, and experience for a first-time visitor', () => {
     expect(published.person.name).toBe('Daniel Kazansky')
     expect(published.person.role).toBe('AI-Native Full-Stack Engineer')
-    expect(published.person.experience).toBe('8+ years')
+    expect(published.person.experience).toBe('7+ years')
     expect(published.person.heroSubtitle).toBe(
-      '8+ years across digital products and software delivery',
+      '7+ years across digital products and software delivery',
     )
     expect(published.person.heroSubtitle.toLowerCase()).not.toMatch(
-      /8\+ years as a software engineer/,
+      /7\+ years as a software engineer/,
     )
     expect(published.valueProposition).toMatch(/AI agents/)
     expect(published.valueProposition).toMatch(/full-stack/)
@@ -33,7 +35,7 @@ describe('homepage content model', () => {
 
   it('uses only the approved proof facts', () => {
     expect(published.proof.map(item => item.value)).toEqual([
-      '8+',
+      '7+',
       '20M+',
       '10M+',
       '25%',
@@ -254,6 +256,34 @@ describe('homepage content model', () => {
     expect(opensInNewTab('https://github.com/slnnzmtl')).toBe(true)
     expect(opensInNewTab('https://t.me/slnnzmtl')).toBe(true)
     expect(opensInNewTab('mailto:kazanskydaniel@gmail.com')).toBe(false)
+  })
+
+  it('maps contact and case hrefs to conversion event names', () => {
+    expect(conversionEventName('mailto:kazanskydaniel@gmail.com')).toBe('contact_email')
+    expect(conversionEventName('https://t.me/slnnzmtl')).toBe('contact_telegram')
+    expect(conversionEventName('#contact')).toBe('contact')
+    expect(conversionEventName('https://github.com/slnnzmtl/langgraph-appointment-bot')).toBe(
+      'case_outbound',
+    )
+    expect(conversionEventName('/projects/rekordbox-playlist-converter')).toBeNull()
+    expect(conversionEventName('#selected-work')).toBeNull()
+  })
+
+  it('trackConversion dispatches a window event without PII', () => {
+    const seen: Array<{ name: string, props?: Record<string, string> }> = []
+    const onConversion = (event: Event) => {
+      const detail = (event as CustomEvent).detail as { name: string, props?: Record<string, string> }
+      seen.push(detail)
+    }
+    window.addEventListener(CONVERSION_EVENT, onConversion)
+    trackConversion('contact_email')
+    trackConversion('case_outbound', { slug: 'woki-crm' })
+    window.removeEventListener(CONVERSION_EVENT, onConversion)
+    expect(seen).toEqual([
+      { name: 'contact_email', props: undefined },
+      { name: 'case_outbound', props: { slug: 'woki-crm' } },
+    ])
+    expect(JSON.stringify(seen)).not.toMatch(/mailto:|@gmail|kazanskydaniel/i)
   })
 
   it('publishes email and Telegram contact links', () => {

@@ -43,6 +43,7 @@
     { "src": "/finance", "status": 404, "dest": "/404.html" },
     { "src": "/finance/(.*)", "status": 404, "dest": "/404.html" },
     { "src": "/login", "status": 404, "dest": "/404.html" },
-    { "src": "/(.*)", "dest": "/200.html" }
+    { "src": "/service(?:/.*)?", "dest": "/200.html" },
+    { "src": "/(.*)", "status": 404, "dest": "/404.html" }
   ]
 }

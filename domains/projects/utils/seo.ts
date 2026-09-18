@@ -31,6 +31,14 @@ function socialImage(project: Project) {
   return project.socialImage || project.logo
 }
 
+export function personId(siteUrl: string): string {
+  return `${absoluteUrl(siteUrl, '/')}#person`
+}
+
+export function websiteId(siteUrl: string): string {
+  return `${absoluteUrl(siteUrl, '/')}#website`
+}
+
 export function projectsIndexSeo(siteUrl: string, projects: Project[]): PageSeo {
   const path = '/projects'
   const url = absoluteUrl(siteUrl, path)
@@ -130,6 +138,101 @@ export function projectDetailSeo(siteUrl: string, project: Project): PageSeo {
   }
 }
 
+export interface HomepageSeoInput {
+  person: {
+    name: string
+    role: string
+    heroSubtitle: string
+  }
+  valueProposition: string
+  profileLinks: Array<{ href: string }>
+  workSections: Array<{ items: Array<{ title: string, href?: string }> }>
+  products: { items: Array<{ title: string, cta: { href: string } }> }
+}
+
+function isPublicCreativeWorkHref(href: string): boolean {
+  return /^(?:https?:|\/(?!\/))/i.test(href) && !href.startsWith('#')
+}
+
+function homepageCreativeWorks(
+  siteUrl: string,
+  home: HomepageSeoInput,
+): Array<{ '@type': 'CreativeWork', 'name': string, 'url': string }> {
+  const works: Array<{ '@type': 'CreativeWork', 'name': string, 'url': string }> = []
+  const seen = new Set<string>()
+
+  for (const section of home.workSections) {
+    for (const item of section.items) {
+      if (!item.href || !isPublicCreativeWorkHref(item.href)) continue
+      const url = absoluteUrl(siteUrl, item.href)
+      if (seen.has(url)) continue
+      seen.add(url)
+      works.push({ '@type': 'CreativeWork', 'name': item.title, 'url': url })
+    }
+  }
+
+  for (const product of home.products.items) {
+    if (!isPublicCreativeWorkHref(product.cta.href)) continue
+    const url = absoluteUrl(siteUrl, product.cta.href)
+    if (seen.has(url)) continue
+    seen.add(url)
+    works.push({ '@type': 'CreativeWork', 'name': product.title, 'url': url })
+  }
+
+  return works
+}
+
+export function homepageSeo(siteUrl: string, home: HomepageSeoInput): PageSeo {
+  const path = '/'
+  const url = absoluteUrl(siteUrl, path)
+  const title = `${home.person.name} | ${home.person.role}`
+  const description
+    = `${home.person.name} is an ${home.person.role} with ${home.person.heroSubtitle}. ${home.valueProposition}`
+  const creativeWorks = homepageCreativeWorks(siteUrl, home)
+  const person = personId(siteUrl)
+  const website = websiteId(siteUrl)
+  const graph: Record<string, unknown>[] = [
+    {
+      '@type': 'WebSite',
+      '@id': website,
+      'name': SITE_NAME,
+      'url': url,
+      'publisher': { '@id': person },
+    },
+    {
+      '@type': 'Person',
+      '@id': person,
+      'name': home.person.name,
+      'jobTitle': home.person.role,
+      'url': url,
+      'sameAs': home.profileLinks.map(link => link.href),
+    },
+  ]
+  if (creativeWorks.length) {
+    graph.push({
+      '@type': 'ItemList',
+      'name': 'Selected work and products',
+      'itemListElement': creativeWorks.map((work, index) => ({
+        '@type': 'ListItem',
+        'position': index + 1,
+        'item': work,
+      })),
+    })
+  }
+
+  return {
+    title,
+    description,
+    path,
+    robots: 'index, follow',
+    ogType: 'website',
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@graph': graph,
+    },
+  }
+}
+
 export interface ExperiencePagePerson {
   name: string
   role: string
@@ -142,6 +245,8 @@ export function experiencePageSeo(
 ): PageSeo {
   const path = '/experience'
   const url = absoluteUrl(siteUrl, path)
+  const homeUrl = absoluteUrl(siteUrl, '/')
+  const personEntityId = personId(siteUrl)
   const title = `Professional Experience | ${person.name}`
   const description
     = `Professional timeline for ${person.name}, ${person.role}: digital products, websites, and software delivery from 2018 through AI-native full-stack systems.`
@@ -161,19 +266,20 @@ export function experiencePageSeo(
           url,
           'isPartOf': {
             '@type': 'WebSite',
+            '@id': websiteId(siteUrl),
             'name': SITE_NAME,
-            'url': absoluteUrl(siteUrl, '/'),
+            'url': homeUrl,
           },
           'mainEntity': {
-            '@id': `${url}#person`,
+            '@id': personEntityId,
           },
         },
         {
           '@type': 'Person',
-          '@id': `${url}#person`,
+          '@id': personEntityId,
           'name': person.name,
           'jobTitle': person.role,
-          'url': absoluteUrl(siteUrl, '/'),
+          'url': homeUrl,
           'sameAs': person.sameAs,
         },
       ],

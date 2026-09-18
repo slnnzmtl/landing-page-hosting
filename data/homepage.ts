@@ -120,7 +120,7 @@ export const homepageContent: HomepageContent = {
   ],
   proof: [
     {
-      value: '8+',
+      value: '7+',
       label: professionalTenure.label,
     },
     {
@@ -266,6 +266,12 @@ export const homepageContent: HomepageContent = {
 
 export type HomepageHrefKind = 'native' | 'route'
 
+export type ConversionEventName
+  = 'contact_email'
+    | 'contact_telegram'
+    | 'contact'
+    | 'case_outbound'
+
 /** `native` = plain `<a>` (https, mailto, hash). `route` = in-app `NuxtLink`. */
 export function homepageHrefKind(href: string): HomepageHrefKind {
   return /^(?:https?:|mailto:|#)/i.test(href) ? 'native' : 'route'
@@ -277,4 +283,13 @@ export function opensInNewTab(href: string): boolean {
 
 export function externalLinkRel(href: string): string | undefined {
   return opensInNewTab(href) ? 'noopener noreferrer' : undefined
+}
+
+/** Map contact and case-study hrefs to conversion event names. Routes return null. */
+export function conversionEventName(href: string): ConversionEventName | null {
+  if (/^mailto:/i.test(href)) return 'contact_email'
+  if (/^https?:\/\/(?:www\.)?t\.me\//i.test(href)) return 'contact_telegram'
+  if (href === '#contact') return 'contact'
+  if (/^https?:/i.test(href)) return 'case_outbound'
+  return null
 }
