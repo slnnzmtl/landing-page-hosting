@@ -26,16 +26,6 @@ export const rekordboxPlaylistConverter: Project = {
         href: 'https://github.com/slnnzmtl/rekordbox-playlist-converter/releases',
         kind: 'secondary',
       },
-      {
-        label: 'Docs',
-        href: 'https://github.com/slnnzmtl/rekordbox-playlist-converter/blob/master/USAGE.md',
-        kind: 'secondary',
-      },
-      {
-        label: 'GitHub',
-        href: 'https://github.com/slnnzmtl/rekordbox-playlist-converter',
-        kind: 'secondary',
-      },
     ],
     trustFacts: [
       {

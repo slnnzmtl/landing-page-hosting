@@ -32,18 +32,17 @@ describe('Simple Rekordbox Converter product data', () => {
     expect(rekordboxPlaylistConverter.launch?.macosDownloadWarning).toMatch(/ad hoc signed/)
   })
 
-  it('exposes launch CTAs for macOS download, CLI platforms, docs, and GitHub', () => {
+  it('exposes launch CTAs for macOS download and other platforms', () => {
     const labels = rekordboxPlaylistConverter.launch?.ctas.map(cta => cta.label) || []
     expect(labels).toEqual([
       'Download for macOS',
       'Other platforms',
-      'Docs',
-      'GitHub',
     ])
     const hrefs = rekordboxPlaylistConverter.launch?.ctas.map(cta => cta.href) || []
-    expect(hrefs).toContain('https://github.com/slnnzmtl/rekordbox-playlist-converter')
-    expect(hrefs).toContain('https://github.com/slnnzmtl/rekordbox-playlist-converter/blob/master/USAGE.md')
-    expect(hrefs).toContain('https://github.com/slnnzmtl/rekordbox-playlist-converter/releases')
+    expect(hrefs).toEqual([
+      'https://github.com/slnnzmtl/rekordbox-playlist-converter/releases',
+      'https://github.com/slnnzmtl/rekordbox-playlist-converter/releases',
+    ])
     expect(rekordboxPlaylistConverter.launch?.ctas[0].macosDownload).toBe(true)
   })
 
