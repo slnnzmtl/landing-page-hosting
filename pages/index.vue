@@ -3,6 +3,8 @@ import { homepageContent } from '~/data/homepage'
 import { homepageSeo, resolveSiteUrl } from '~/domains/projects/utils/seo'
 import { usePageSeo } from '~/domains/projects/composables/usePageSeo'
 
+useHashScroll()
+
 const home = homepageContent
 const siteUrl = resolveSiteUrl(useRuntimeConfig().public.siteUrl as string)
 usePageSeo(homepageSeo(siteUrl, home))

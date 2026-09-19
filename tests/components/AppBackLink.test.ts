@@ -11,7 +11,7 @@ describe('AppBackLink', () => {
         stubs: {
           NuxtLink: {
             props: ['to'],
-            template: '<a :href="to"><slot /></a>',
+            template: '<a :href="typeof to === \'string\' ? to : (to.path || \'\') + (to.hash || \'\')"><slot /></a>',
           },
         },
       },
@@ -20,5 +20,22 @@ describe('AppBackLink', () => {
     expect(wrapper.get('a').attributes('href')).toBe('/projects')
     expect(wrapper.text()).toContain('Back to products')
     expect(wrapper.find('svg').exists()).toBe(true)
+  })
+
+  it('passes path and hash separately so Vue Router does not remount on /#section', () => {
+    const wrapper = mount(AppBackLink, {
+      props: { to: '/#featured-work' },
+      slots: { default: 'Back to featured work' },
+      global: {
+        stubs: {
+          NuxtLink: {
+            props: ['to'],
+            template: '<a :href="typeof to === \'string\' ? to : (to.path || \'\') + (to.hash || \'\')"><slot /></a>',
+          },
+        },
+      },
+    })
+
+    expect(wrapper.get('a').attributes('href')).toBe('/#featured-work')
   })
 })

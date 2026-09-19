@@ -1,12 +1,17 @@
 <script setup lang="ts">
-defineProps<{
+import { computed } from 'vue'
+import { parseAppLink } from '~/utils/app-link'
+
+const props = defineProps<{
   to: string
 }>()
+
+const location = computed(() => parseAppLink(props.to))
 </script>
 
 <template>
   <NuxtLink
-    :to="to"
+    :to="location"
     class="group inline-flex items-center gap-1 text-sm font-medium text-muted-foreground transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
   >
     <svg
