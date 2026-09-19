@@ -18,8 +18,7 @@ usePageSeo(projectsIndexSeo(siteUrl, projects))
         :kicker="homepageContent.person.name"
         title="Products"
         description="Public products and tools. Each card opens a dedicated landing page with usage notes and downloads."
-        back-to="/"
-        back-label="Back to homepage"
+        :back="{ to: '/', label: 'Back to homepage' }"
       />
 
       <ul class="grid gap-5 sm:grid-cols-2">

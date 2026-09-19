@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { HomepageContent, HomepageLink, HeroFocus } from '~/data/homepage'
-import AppPageHeader from '~/components/AppPageHeader.vue'
 import { useHomepageUi } from '~/composables/useHomepageUi'
 import { trackHomepageHref } from '~/composables/useHomepageConversion'
 
@@ -31,9 +30,8 @@ function ctaClass(index: number) {
 </script>
 
 <template>
-  <header class="grid gap-8 lg:grid-cols-12 lg:items-start lg:gap-10">
+  <section class="grid gap-8 lg:grid-cols-12 lg:items-start lg:gap-10">
     <AppPageHeader
-      as="div"
       class="lg:col-span-7"
       :kicker="person.name"
       :title="person.role"
@@ -85,5 +83,5 @@ function ctaClass(index: number) {
         </li>
       </ul>
     </aside>
-  </header>
+  </section>
 </template>

@@ -1,31 +1,27 @@
 <script setup lang="ts">
 import AppBackLink from '~/components/AppBackLink.vue'
 
-withDefaults(defineProps<{
-  as?: string
+defineProps<{
   kicker: string
   title: string
   description?: string
-  backTo?: string
-  backLabel?: string
-}>(), {
-  as: 'header',
-})
+  back?: {
+    to: string
+    label: string
+  }
+}>()
 </script>
 
 <template>
-  <component
-    :is="as"
-    class="space-y-4"
-  >
+  <header class="space-y-4">
     <AppBackLink
-      v-if="backTo"
-      :to="backTo"
+      v-if="back"
+      :to="back.to"
     >
-      {{ backLabel }}
+      {{ back.label }}
     </AppBackLink>
-    <div :class="$slots.media ? 'grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(12rem,16rem)] lg:gap-10' : 'contents'">
-      <div :class="$slots.media ? 'min-w-0 space-y-4' : 'contents'">
+    <div :class="$slots.media ? 'grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(12rem,16rem)] lg:gap-10' : undefined">
+      <div class="min-w-0 space-y-4">
         <p class="text-sm uppercase tracking-[0.35em] text-primary">
           {{ kicker }}
         </p>
@@ -46,5 +42,5 @@ withDefaults(defineProps<{
       </slot>
     </div>
     <slot />
-  </component>
+  </header>
 </template>

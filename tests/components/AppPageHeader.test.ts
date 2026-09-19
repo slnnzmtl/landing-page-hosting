@@ -31,8 +31,7 @@ describe('AppPageHeader', () => {
         kicker: 'Daniel Kazansky',
         title: 'Professional experience',
         description: 'Evidence-based timeline.',
-        backTo: '/#featured-work',
-        backLabel: 'Back to featured work',
+        back: { to: '/#featured-work', label: 'Back to featured work' },
       },
       global: { stubs: { NuxtLink: nuxtLinkStub } },
     })
@@ -46,8 +45,7 @@ describe('AppPageHeader', () => {
       props: {
         kicker: 'Product',
         title: 'Simple Rekordbox Converter',
-        backTo: '/projects',
-        backLabel: 'Back to products',
+        back: { to: '/projects', label: 'Back to products' },
       },
       slots: {
         media: '<img alt="logo" src="/logo.png">',
@@ -59,5 +57,6 @@ describe('AppPageHeader', () => {
     expect(wrapper.get('img').attributes('alt')).toBe('logo')
     expect(wrapper.get('h1').text()).toBe('Simple Rekordbox Converter')
     expect(wrapper.get('.lead').text()).toContain('Convert playlists')
+    expect(wrapper.html()).toContain('grid')
   })
 })

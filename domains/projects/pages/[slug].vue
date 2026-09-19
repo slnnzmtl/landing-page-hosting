@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppPageHeader from '~/components/AppPageHeader.vue'
+import { useHomepageUi } from '~/composables/useHomepageUi'
 import { useProjects } from '../composables/useProjects'
 import ProjectGallery from '../components/ProjectGallery.vue'
 import GithubReleases from '../components/GithubReleases.vue'
@@ -8,6 +9,8 @@ import ProjectTrustPanel from '../components/ProjectTrustPanel.vue'
 import ProjectHowItWorks from '../components/ProjectHowItWorks.vue'
 import { usePageSeo } from '../composables/usePageSeo'
 import { projectDetailSeo, resolveSiteUrl } from '../utils/seo'
+
+const { outboundAttrs } = useHomepageUi()
 
 const route = useRoute()
 const slug = String(route.params.slug || '')
@@ -40,8 +43,7 @@ const benefitsHeading = computed(() => (
       <AppPageHeader
         kicker="Product"
         :title="project.name"
-        back-to="/projects"
-        back-label="Back to products"
+        :back="{ to: '/projects', label: 'Back to products' }"
       >
         <template #media>
           <div
@@ -69,16 +71,17 @@ const benefitsHeading = computed(() => (
           </div>
         </template>
         <template #description>
-          <template v-if="project.launch">
-            <div class="space-y-3">
-              <p class="text-lg text-foreground">
-                {{ project.launch.lead }}
-              </p>
-              <p class="text-base text-muted-foreground">
-                {{ project.launch.supportingLine }}
-              </p>
-            </div>
-          </template>
+          <div
+            v-if="project.launch"
+            class="space-y-3"
+          >
+            <p class="text-lg text-foreground">
+              {{ project.launch.lead }}
+            </p>
+            <p class="text-base text-muted-foreground">
+              {{ project.launch.supportingLine }}
+            </p>
+          </div>
           <div
             v-else
             class="space-y-4 text-lg text-muted-foreground"
@@ -105,8 +108,7 @@ const benefitsHeading = computed(() => (
             v-for="link in project.links"
             :key="link.href"
             :href="link.href"
-            target="_blank"
-            rel="noopener noreferrer"
+            v-bind="outboundAttrs(link.href)"
             class="rounded-full border border-border px-5 py-2.5 text-sm font-medium transition hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             {{ link.label }}

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import AppPageHeader from '~/components/AppPageHeader.vue'
 import { publishedExperienceRoles, professionalTenure } from '~/data/experience'
 import { homepageContent } from '~/data/homepage'
 import { experiencePageSeo, resolveSiteUrl } from '~/domains/projects/utils/seo'
@@ -8,10 +7,7 @@ import { usePageSeo } from '~/domains/projects/composables/usePageSeo'
 useHashScroll()
 
 const roles = publishedExperienceRoles()
-const intro = [
-  'Evidence-based timeline from media and web delivery through frontend and full-stack engineering, senior production ownership, and AI-native systems.',
-  `${professionalTenure.heroSubtitle}; ${professionalTenure.softwareEngineeringSince.toLowerCase()}.`,
-].join(' ')
+const intro = `${professionalTenure.pageIntro} ${professionalTenure.heroSubtitle}; ${professionalTenure.softwareEngineeringSince.toLowerCase()}.`
 const siteUrl = resolveSiteUrl(useRuntimeConfig().public.siteUrl as string)
 usePageSeo(
   experiencePageSeo(siteUrl, {
@@ -29,8 +25,7 @@ usePageSeo(
         :kicker="homepageContent.person.name"
         title="Professional experience"
         :description="intro"
-        back-to="/#featured-work"
-        back-label="Back to featured work"
+        :back="{ to: '/#featured-work', label: 'Back to featured work' }"
       />
 
       <ExperienceTimeline :roles="roles" />

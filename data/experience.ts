@@ -78,6 +78,7 @@ export const professionalTenure = {
   label: 'years across digital products',
   heroSubtitle: '8+ years across digital products and software delivery',
   softwareEngineeringSince: 'Building software since 2019',
+  pageIntro: 'Evidence-based timeline from media and web delivery through frontend and full-stack engineering, senior production ownership, and AI-native systems.',
 } as const
 
 /**
