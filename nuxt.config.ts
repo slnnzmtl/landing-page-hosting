@@ -3,6 +3,9 @@ import { getSurveyRoutes } from './domains/survey/survey-routes'
 import { getServiceRoutes } from './domains/service/service-routes'
 import { getProjectRoutes } from './domains/projects/project-routes'
 
+/** Build-time only; baked into the Umami script tag (safe to expose in HTML). */
+const umamiWebsiteId = process.env.UMAMI_WEBSITE_ID || process.env.NUXT_UMAMI_WEBSITE_ID || ''
+
 export default defineNuxtConfig({
   extends: [
     './domains/survey',
@@ -25,13 +28,22 @@ export default defineNuxtConfig({
         { rel: 'icon', type: 'image/png', href: '/favicon-16x16.png', sizes: '16x16' },
         { rel: 'apple-touch-icon', href: '/apple-touch-icon.png', sizes: '180x180' },
       ],
+      script: umamiWebsiteId
+        ? [
+            {
+              'src': 'https://cloud.umami.is/script.js',
+              'defer': true,
+              'data-website-id': umamiWebsiteId,
+            },
+          ]
+        : [],
     },
   },
   runtimeConfig: {
+    umamiWebsiteId,
     public: {
       surveyWebhookUrl: process.env.SURVEY_WEBHOOK_URL || '',
       siteUrl: process.env.NUXT_PUBLIC_SITE_URL || process.env.SITE_URL || '',
-      umamiWebsiteId: process.env.NUXT_PUBLIC_UMAMI_WEBSITE_ID || '',
     },
   },
   routeRules: {
