@@ -95,7 +95,7 @@ function linkClass(item: (typeof navItems)[number]) {
   <div class="xl:hidden">
     <button
       type="button"
-      class="fixed right-4 top-4 z-50 inline-flex h-10 w-10 items-center justify-center rounded-md bg-black/30 text-foreground backdrop-blur-sm"
+      class="fixed bottom-6 left-1/2 z-50 inline-flex h-11 w-11 -translate-x-1/2 items-center justify-center rounded-full border border-border/60 bg-black/40 text-foreground shadow-lg backdrop-blur-sm"
       :class="linkFocus"
       :aria-expanded="menuOpen"
       :aria-controls="menuId"
