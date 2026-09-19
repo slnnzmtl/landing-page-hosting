@@ -4,15 +4,15 @@ import { starBackdropClass } from '~/utils/star-backdrop'
 const starsReady = ref(false)
 
 onMounted(() => {
-  const mountStars = () => {
-    starsReady.value = true
-  }
-
   if (typeof requestIdleCallback !== 'undefined') {
-    requestIdleCallback(mountStars, { timeout: 1500 })
+    requestIdleCallback(() => {
+      starsReady.value = true
+    }, { timeout: 1500 })
   }
   else {
-    setTimeout(mountStars, 0)
+    setTimeout(() => {
+      starsReady.value = true
+    }, 0)
   }
 })
 </script>
