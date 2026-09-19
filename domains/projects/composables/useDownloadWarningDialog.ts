@@ -1,9 +1,14 @@
-export function useDownloadWarningDialog() {
+import { ref } from 'vue'
+
+export function useDownloadWarningDialog(options?: { onProceed?: () => void }) {
   const isOpen = ref(false)
   const pendingHref = ref<string | null>(null)
 
   function interceptClick(event: MouseEvent, href: string, enabled: boolean) {
-    if (!enabled) return
+    if (!enabled) {
+      options?.onProceed?.()
+      return
+    }
     event.preventDefault()
     pendingHref.value = href
     isOpen.value = true
@@ -16,7 +21,10 @@ export function useDownloadWarningDialog() {
   function confirm() {
     const href = pendingHref.value
     isOpen.value = false
-    if (href) window.open(href, '_blank', 'noopener,noreferrer')
+    if (href) {
+      options?.onProceed?.()
+      window.open(href, '_blank', 'noopener,noreferrer')
+    }
   }
 
   return { isOpen, interceptClick, close, confirm }

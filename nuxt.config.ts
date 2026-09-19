@@ -9,7 +9,7 @@ export default defineNuxtConfig({
     './domains/service',
     './domains/projects',
   ],
-  modules: ['@nuxtjs/tailwindcss'],
+  modules: ['@nuxtjs/tailwindcss', '@vercel/analytics'],
   ssr: true,
   devtools: { enabled: process.env.NODE_ENV !== 'production' },
   app: {
