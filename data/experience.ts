@@ -430,6 +430,11 @@ const HOMEPAGE_EXPERIENCE_PREVIEW_IDS = [
   'woki-lead-software-developer',
 ] as const
 
+/** In-app link to a role card on `/experience`. */
+export function experienceRolePath(roleId: string): string {
+  return `/experience#${roleId}`
+}
+
 /** Compact recent-role chips for the homepage, derived from canonical roles. */
 export function homepageExperiencePreview(
   roles: ExperienceRole[] = experienceRoles,

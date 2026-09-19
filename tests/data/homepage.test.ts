@@ -69,6 +69,9 @@ describe('homepage content model', () => {
       'upwork-reputation-team',
       'directus-website-builder',
     ])
+    expect(published.featuredCases.find(item => item.slug === 'upwork-reputation-team')?.href).toBe(
+      '/experience#upwork-reputation-team',
+    )
     expect(published.featuredCases[0].featured).toBe(true)
     expect(published.featuredCases.filter(item => item.featured)).toHaveLength(1)
     for (const item of published.featuredCases) {
@@ -220,6 +223,7 @@ describe('homepage content model', () => {
       'case-open',
     )
     expect(conversionEventName('/experience')).toBe('case-open')
+    expect(conversionEventName('/experience#upwork-reputation-team')).toBe('case-open')
     expect(conversionEventName('/projects/rekordbox-playlist-converter', { product: true })).toBe(
       'product-open',
     )

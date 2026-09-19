@@ -3,6 +3,7 @@ import {
   experienceRoles,
   experienceUserFacingCopy,
   formatExperienceRange,
+  experienceRolePath,
   homepageExperiencePreview,
   professionalTenure,
   publishedExperienceRoles,
@@ -140,6 +141,12 @@ describe('experience content model', () => {
     expect(professionalTenure.softwareEngineeringSince).toBe('Building software since 2019')
     expect(professionalTenure.heroSubtitle.toLowerCase()).not.toMatch(
       /8\+ years as a software engineer/,
+    )
+  })
+
+  it('builds experience role anchor paths for timeline scrolling', () => {
+    expect(experienceRolePath('upwork-reputation-team')).toBe(
+      '/experience#upwork-reputation-team',
     )
   })
 

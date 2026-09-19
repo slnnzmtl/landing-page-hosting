@@ -18,7 +18,7 @@ export default <RouterConfig>{
       return new Promise((resolve) => {
         setTimeout(() => {
           resolve(hashScroll(to.hash))
-        }, 50)
+        }, 150)
       })
     }
     if (savedPosition) {

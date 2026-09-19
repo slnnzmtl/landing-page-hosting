@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ExperiencePreview } from '~/data/homepage'
+import { experienceRolePath } from '~/data/experience'
 import { useHomepageUi } from '~/composables/useHomepageUi'
 
 defineProps<{
@@ -40,7 +41,7 @@ const { linkFocus } = useHomepageUi()
       >
         <li class="min-w-0 flex-1">
           <NuxtLink
-            :to="preview.cta.href"
+            :to="experienceRolePath(item.id)"
             :class="[
               'flex h-full items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3 shadow-sm transition hover:border-primary/50',
               linkFocus,

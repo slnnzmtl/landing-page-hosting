@@ -1,4 +1,4 @@
-import { homepageExperiencePreview, professionalTenure } from './experience'
+import { experienceRolePath, homepageExperiencePreview, professionalTenure } from './experience'
 
 export interface HomepageLink {
   label: string
@@ -189,7 +189,7 @@ export const homepageContent: HomepageContent = {
       outcome:
         'Production ownership on marketplace products serving millions of users, including PagerDuty on-call for reputation surfaces.',
       stack: ['Vue 3', 'Nuxt', 'TypeScript', 'Cursor', 'MCP'],
-      href: '/experience',
+      href: experienceRolePath('upwork-reputation-team'),
       hrefLabel: 'View role details',
     },
     {

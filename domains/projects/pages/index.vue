@@ -17,7 +17,7 @@ usePageSeo(projectsIndexSeo(siteUrl, projects))
           Daniel Kazansky
         </p>
         <h1 class="text-4xl font-semibold leading-tight sm:text-5xl">
-          Selected products
+          Products
         </h1>
         <p class="max-w-2xl text-lg text-muted-foreground">
           Public products and tools. Each card opens a dedicated landing page with usage notes and downloads.
