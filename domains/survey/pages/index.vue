@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import AppBackLink from '~/components/AppBackLink.vue'
 import { useSurveys } from '../composables/useSurveys'
 import { useSurveyResponses } from '../composables/useSurveyResponses'
 
@@ -67,13 +68,16 @@ onMounted(() => {
     <!-- Header -->
     <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div>
+        <AppBackLink to="/">
+          Назад
+        </AppBackLink>
         <a
           href="https://kazansky.dev"
           target="_blank"
           rel="noopener"
           class="hover:underline "
         >
-          <h1 class="text-3xl font-bold tracking-tight">Kazansky.dev</h1>
+          <h1 class="mt-3 text-3xl font-bold tracking-tight">Kazansky.dev</h1>
         </a>
         <p class="text-muted-foreground mt-2 max-w-prose">
           Короткие брифы для проектов по разработке ПО.  сохранённые ответы доступны для редактирования.

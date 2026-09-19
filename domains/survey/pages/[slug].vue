@@ -2,16 +2,16 @@
 import { useSurveys } from '../composables/useSurveys'
 import { useSurveyResponses } from '../composables/useSurveyResponses'
 import { resolveSurveyWebhookUrl } from '@/utils/survey-webhook'
+import AppBackLink from '~/components/AppBackLink.vue'
 import Button from '@/components/ui/button.vue'
 import Input from '@/components/ui/input.vue'
 import Textarea from '@/components/ui/textarea.vue'
 import RadioGroup from '@/components/ui/radio-group.vue'
 import Label from '@/components/ui/label.vue'
 import { ref, computed, watch, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 
 const route = useRoute()
-const router = useRouter()
 const slug = route.params.slug as string
 const { findSurvey } = useSurveys()
 const { setSurveyResponse, addSurveySlug, getSurveyResponse, getSurveySubmissionId, isSurveySubmitted } = useSurveyResponses()
@@ -161,10 +161,6 @@ async function submit() {
   }
 }
 
-function goBack() {
-  router.push('/survey')
-}
-
 function editResponses() {
   submitted.value = false
   if (survey) {
@@ -191,16 +187,9 @@ watch(() => survey, () => {
         <div class="space-y-6">
           <div class="flex items-start justify-between gap-4">
             <div class="space-y-3">
-              <button class="group inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition" aria-label="Назад к опросам" @click="goBack">
-                <svg viewBox="0 0 20 20" fill="none" class="h-3.5 w-3.5 -ml-0.5 transition-transform group-hover:-translate-x-0.5"><path
-                  d="M12 15l-5-5 5-5"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                /></svg>
+              <AppBackLink to="/survey" aria-label="Назад к опросам">
                 Назад
-              </button>
+              </AppBackLink>
               <div class="flex items-center gap-3 flex-wrap">
                 <h1 class="text-3xl font-bold tracking-tight flex items-center gap-3">
                   {{ survey.title }}
@@ -318,10 +307,10 @@ watch(() => survey, () => {
           <p class="text-muted-foreground max-w-md mx-auto">
             Ваши ответы были записаны. Мы ценим ваше время и мнение — это напрямую влияет на будущие улучшения.
           </p>
-          <div class="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button variant="secondary" @click="router.push('/survey')">
+          <div class="flex flex-col sm:flex-row gap-3 items-center justify-center">
+            <AppBackLink to="/survey">
               Назад к опросам
-            </Button>
+            </AppBackLink>
             <Button variant="outline" @click="editResponses">
               Изменить ответы
             </Button>
@@ -402,8 +391,8 @@ watch(() => survey, () => {
     <p class="text-muted-foreground">
       Возможно, опрос был удалён или ссылка некорректна.
     </p>
-    <Button variant="outline" @click="router.push('/survey')">
+    <AppBackLink to="/survey">
       Вернуться к списку
-    </Button>
+    </AppBackLink>
   </div>
 </template>

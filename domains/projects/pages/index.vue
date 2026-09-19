@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppBackLink from '~/components/AppBackLink.vue'
 import { useProjects } from '../composables/useProjects'
 import { projectPath } from '../data/types'
 import { usePageSeo } from '../composables/usePageSeo'
@@ -13,6 +14,9 @@ usePageSeo(projectsIndexSeo(siteUrl, projects))
   <div class="relative min-h-screen text-foreground">
     <div class="relative z-10 mx-auto flex max-w-6xl flex-col gap-12 px-6 py-20 lg:px-12">
       <header class="space-y-4">
+        <AppBackLink to="/">
+          Back to homepage
+        </AppBackLink>
         <p class="text-sm uppercase tracking-[0.35em] text-primary">
           Daniel Kazansky
         </p>
@@ -22,12 +26,6 @@ usePageSeo(projectsIndexSeo(siteUrl, projects))
         <p class="max-w-2xl text-lg text-muted-foreground">
           Public products and tools. Each card opens a dedicated landing page with usage notes and downloads.
         </p>
-        <NuxtLink
-          to="/"
-          class="inline-flex items-center gap-2 text-sm font-medium text-primary transition hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-        >
-          Back to the homepage
-        </NuxtLink>
       </header>
 
       <ul class="grid gap-5 sm:grid-cols-2">
