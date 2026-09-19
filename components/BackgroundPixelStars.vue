@@ -226,10 +226,10 @@ function animateCanvas(timestamp: number) {
   if (parallaxMoving || twinkleDue) {
     if (twinkleDue) {
       lastTwinkleTime = timestamp
+      twinkleBackgroundStars()
+      updateShootingStars()
     }
-
     drawBackgroundStars()
-    if (twinkleDue) twinkleBackgroundStars()
     drawShootingStars()
   }
 
@@ -238,8 +238,8 @@ function animateCanvas(timestamp: number) {
   }
 }
 
-function drawShootingStars() {
-  if (!ctx || shootingStars.length === 0) return
+function updateShootingStars() {
+  if (shootingStars.length === 0) return
 
   for (let i = shootingStars.length - 1; i >= 0; i--) {
     const star = shootingStars[i]
@@ -279,6 +279,10 @@ function drawShootingStars() {
       shootingStars.splice(i, 1)
     }
   }
+}
+
+function drawShootingStars() {
+  if (!ctx || shootingStars.length === 0) return
 
   for (const star of shootingStars) {
     for (const point of star.trail) {
