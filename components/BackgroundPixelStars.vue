@@ -45,11 +45,9 @@ type TrailPoint = {
 }
 
 type ShootingStar = {
-  id: number
   x: number
   y: number
   angle: number
-  scale: number
   speed: number
   distance: number
   trail: TrailPoint[]
@@ -65,6 +63,7 @@ let animationFrameId: number | null = null
 let regenerationIntervalId: ReturnType<typeof setInterval> | null = null
 let shootingStarTimeoutId: ReturnType<typeof setTimeout> | null = null
 let resizeObserver: ResizeObserver | null = null
+let ctx: CanvasRenderingContext2D | null = null
 let lastTwinkleTime = 0
 let unmounted = false
 let reducedMotion = false
@@ -78,12 +77,8 @@ function wrap(value: number, max: number) {
   return ((value % max) + max) % max
 }
 
-function getParallaxOffset() {
-  return scrollSmoothed * parallaxFactor
-}
-
 function getStarDrawY(starY: number) {
-  return Math.round(wrap(starY + getParallaxOffset(), canvasHeight))
+  return Math.round(wrap(starY + scrollSmoothed * parallaxFactor, canvasHeight))
 }
 
 function updateParallax() {
@@ -95,22 +90,11 @@ function isParallaxMoving() {
   return Math.abs(scrollTarget - scrollSmoothed) > parallaxSettleEpsilon
 }
 
-function getRandomStartPoint() {
+function createNewShootingStar(): ShootingStar {
   return {
     x: Math.random() * canvasWidth,
     y: 0,
     angle: 45 + Math.random() * 90,
-  }
-}
-
-function createNewShootingStar(): ShootingStar {
-  const { x, y, angle } = getRandomStartPoint()
-  return {
-    id: Date.now(),
-    x,
-    y,
-    angle,
-    scale: 1,
     speed: Math.random() * 5 + 8,
     distance: 0,
     trail: [],
@@ -127,7 +111,7 @@ function createStar(): BackgroundStar {
   return {
     x: gridX,
     y: gridY,
-    color: STAR_COLORS[colorIndex]!,
+    color: STAR_COLORS[colorIndex] ?? '#FFFFFF',
     baseOpacity,
     currentOpacity: baseOpacity,
     twinkle: shouldTwinkle,
@@ -184,19 +168,43 @@ function regenerateBackgroundStars() {
   }
 }
 
-function drawStaticFrame() {
+function bindContext() {
   const canvas = canvasRef.value
-  if (!canvas) return
-  const ctx = canvas.getContext('2d')
+  ctx = canvas ? canvas.getContext('2d') : null
+}
+
+function drawBackgroundStars() {
   if (!ctx) return
 
-  ctx.clearRect(0, 0, canvas.width, canvas.height)
+  ctx.clearRect(0, 0, canvasWidth, canvasHeight)
   for (const star of backgroundStars) {
     ctx.fillStyle = star.color
     ctx.globalAlpha = star.currentOpacity
     ctx.fillRect(star.x, getStarDrawY(star.y), pixelSize, pixelSize)
   }
   ctx.globalAlpha = 1
+}
+
+function twinkleBackgroundStars() {
+  for (const star of backgroundStars) {
+    if (!star.twinkle) continue
+
+    star.twinkleTimer += 1 / targetFps
+    if (star.twinkleTimer >= star.twinkleSpeed) {
+      star.twinkleTimer = 0
+      star.twinkleDirection *= -1
+    }
+
+    const progress = star.twinkleTimer / star.twinkleSpeed
+    if (progress < 0.5) {
+      star.currentOpacity
+        = star.twinkleDirection < 0 ? star.baseOpacity : star.baseOpacity * 0.3
+    }
+    else {
+      star.currentOpacity
+        = star.twinkleDirection < 0 ? star.baseOpacity * 0.3 : star.baseOpacity
+    }
+  }
 }
 
 function animateCanvas(timestamp: number) {
@@ -206,125 +214,97 @@ function animateCanvas(timestamp: number) {
 
   const parallaxMoving = isParallaxMoving()
   const twinkleDue = timestamp - lastTwinkleTime >= frameInterval
-  if (!parallaxMoving && !twinkleDue) {
-    animationFrameId = requestAnimationFrame(animateCanvas)
-    return
-  }
-  if (twinkleDue) {
-    lastTwinkleTime = timestamp
-  }
-
-  const canvas = canvasRef.value
-  if (!canvas) {
-    animationFrameId = requestAnimationFrame(animateCanvas)
-    return
-  }
-
-  const ctx = canvas.getContext('2d')
-  if (!ctx) {
-    animationFrameId = requestAnimationFrame(animateCanvas)
-    return
-  }
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height)
-
-  for (const star of backgroundStars) {
-    ctx.fillStyle = star.color
-    ctx.globalAlpha = star.currentOpacity
-    ctx.fillRect(star.x, getStarDrawY(star.y), pixelSize, pixelSize)
-
-    if (star.twinkle && twinkleDue) {
-      star.twinkleTimer += 1 / targetFps
-      if (star.twinkleTimer >= star.twinkleSpeed) {
-        star.twinkleTimer = 0
-        star.twinkleDirection *= -1
-      }
-
-      const progress = star.twinkleTimer / star.twinkleSpeed
-      if (progress < 0.5) {
-        star.currentOpacity
-          = star.twinkleDirection < 0 ? star.baseOpacity : star.baseOpacity * 0.3
-      }
-      else {
-        star.currentOpacity
-          = star.twinkleDirection < 0 ? star.baseOpacity * 0.3 : star.baseOpacity
-      }
+  if (parallaxMoving || twinkleDue) {
+    if (twinkleDue) {
+      lastTwinkleTime = timestamp
     }
+
+    drawBackgroundStars()
+    if (twinkleDue) twinkleBackgroundStars()
+    drawShootingStars()
   }
 
-  if (shootingStars.length) {
-    for (let i = shootingStars.length - 1; i >= 0; i--) {
-      const star = shootingStars[i]!
-      const newX = star.x + star.speed * Math.cos((star.angle * Math.PI) / 180)
-      const newY = star.y + star.speed * Math.sin((star.angle * Math.PI) / 180)
-      const newDistance = star.distance + star.speed
+  if (!unmounted) {
+    animationFrameId = requestAnimationFrame(animateCanvas)
+  }
+}
 
-      if (newDistance % 8 < star.speed) {
-        star.trail.push({
-          x: star.x,
-          y: star.y,
-          opacity: 1,
-        })
-      }
+function drawShootingStars() {
+  if (!ctx || shootingStars.length === 0) return
 
-      star.x = newX
-      star.y = newY
-      star.distance = newDistance
+  for (let i = shootingStars.length - 1; i >= 0; i--) {
+    const star = shootingStars[i]
+    if (!star) continue
 
-      for (let t = star.trail.length - 1; t >= 0; t--) {
-        const point = star.trail[t]!
-        point.opacity -= 0.1
-        if (point.opacity <= 0) {
-          star.trail.splice(t, 1)
-        }
-      }
+    const newX = star.x + star.speed * Math.cos((star.angle * Math.PI) / 180)
+    const newY = star.y + star.speed * Math.sin((star.angle * Math.PI) / 180)
+    const newDistance = star.distance + star.speed
 
-      if (
-        star.x < -30
-        || star.x > canvasWidth + 30
-        || star.y < -30
-        || star.y > canvasHeight + 30
-      ) {
-        shootingStars.splice(i, 1)
+    if (newDistance % 8 < star.speed) {
+      star.trail.push({
+        x: star.x,
+        y: star.y,
+        opacity: 1,
+      })
+    }
+
+    star.x = newX
+    star.y = newY
+    star.distance = newDistance
+
+    for (let t = star.trail.length - 1; t >= 0; t--) {
+      const point = star.trail[t]
+      if (!point) continue
+      point.opacity -= 0.1
+      if (point.opacity <= 0) {
+        star.trail.splice(t, 1)
       }
     }
 
-    for (const star of shootingStars) {
-      for (const point of star.trail) {
-        ctx.save()
-        ctx.translate(point.x, point.y)
-        ctx.rotate((star.angle * Math.PI) / 180)
-        ctx.translate(-point.x, -point.y)
-        ctx.fillStyle = `rgba(180, 242, 255, ${point.opacity})`
-        ctx.fillRect(point.x, point.y, shootingStarPixelSize, shootingStarPixelSize)
-        ctx.restore()
-      }
+    if (
+      star.x < -30
+      || star.x > canvasWidth + 30
+      || star.y < -30
+      || star.y > canvasHeight + 30
+    ) {
+      shootingStars.splice(i, 1)
+    }
+  }
 
-      const starWidth = 4
-      const starHeight = 2
+  for (const star of shootingStars) {
+    for (const point of star.trail) {
       ctx.save()
-      ctx.translate(star.x, star.y)
+      ctx.translate(point.x, point.y)
       ctx.rotate((star.angle * Math.PI) / 180)
-      ctx.translate(-star.x, -star.y)
-      ctx.fillStyle = '#ffffff'
-      ctx.globalAlpha = 1
-      for (let y = 0; y < starHeight; y++) {
-        for (let x = 0; x < starWidth; x++) {
-          if ((x === 0 && y === 1) || (x === 3 && y === 0)) continue
-          ctx.fillRect(
-            star.x + x * shootingStarPixelSize,
-            star.y + y * shootingStarPixelSize,
-            shootingStarPixelSize,
-            shootingStarPixelSize,
-          )
-        }
-      }
+      ctx.translate(-point.x, -point.y)
+      ctx.fillStyle = `rgba(180, 242, 255, ${point.opacity})`
+      ctx.fillRect(point.x, point.y, shootingStarPixelSize, shootingStarPixelSize)
       ctx.restore()
     }
+
+    const starWidth = 4
+    const starHeight = 2
+    ctx.save()
+    ctx.translate(star.x, star.y)
+    ctx.rotate((star.angle * Math.PI) / 180)
+    ctx.translate(-star.x, -star.y)
+    ctx.fillStyle = '#ffffff'
+    ctx.globalAlpha = 1
+    for (let y = 0; y < starHeight; y++) {
+      for (let x = 0; x < starWidth; x++) {
+        if ((x === 0 && y === 1) || (x === 3 && y === 0)) continue
+        ctx.fillRect(
+          star.x + x * shootingStarPixelSize,
+          star.y + y * shootingStarPixelSize,
+          shootingStarPixelSize,
+          shootingStarPixelSize,
+        )
+      }
+    }
+    ctx.restore()
   }
 
   ctx.globalAlpha = 1
-  animationFrameId = requestAnimationFrame(animateCanvas)
 }
 
 function resizeCanvas() {
@@ -342,6 +322,7 @@ function resizeCanvas() {
   canvasHeight = height
   canvas.width = width
   canvas.height = height
+  bindContext()
 
   if (hadStars) {
     syncStarsToCanvasSize()
@@ -351,7 +332,7 @@ function resizeCanvas() {
   }
 
   if (reducedMotion) {
-    drawStaticFrame()
+    drawBackgroundStars()
   }
 }
 
@@ -382,6 +363,7 @@ function cleanup() {
     resizeObserver.disconnect()
     resizeObserver = null
   }
+  ctx = null
 }
 
 const route = useRoute()
@@ -408,7 +390,7 @@ function start() {
   }
 
   if (reducedMotion) {
-    drawStaticFrame()
+    drawBackgroundStars()
     return
   }
 

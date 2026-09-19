@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { homepageContent } from '~/data/homepage'
+import { homepageContent, opensInNewTab } from '~/data/homepage'
 import { useHomepageUi } from '~/composables/useHomepageUi'
 
 const route = useRoute()
@@ -31,10 +31,6 @@ const navItems = [
 
 const menuOpen = ref(false)
 const menuId = 'site-nav-panel'
-
-function isExternalNav(to: string) {
-  return /^https?:/i.test(to)
-}
 
 function toggleMenu() {
   menuOpen.value = !menuOpen.value
@@ -72,10 +68,10 @@ onUnmounted(() => {
   document.body.style.overflow = ''
 })
 
-const sidebarLinkFocus = `${linkFocus} focus-visible:ring-offset-background`
+const sidebarLinkFocus = [linkFocus, 'focus-visible:ring-offset-background'].join(' ')
 
 function isActive(item: (typeof navItems)[number]) {
-  if (isExternalNav(item.to)) return false
+  if (opensInNewTab(item.to)) return false
   if (item.to === '/#contact') {
     return route.path === '/' && currentHash.value === '#contact'
   }
@@ -149,7 +145,7 @@ function linkClass(item: (typeof navItems)[number]) {
           :key="item.to"
         >
           <a
-            v-if="isExternalNav(item.to)"
+            v-if="opensInNewTab(item.to)"
             :href="item.to"
             v-bind="outboundAttrs(item.to)"
             :class="['w-full max-w-xs text-center text-lg', ...linkClass(item)]"
@@ -185,7 +181,7 @@ function linkClass(item: (typeof navItems)[number]) {
         :key="item.to"
       >
         <a
-          v-if="isExternalNav(item.to)"
+          v-if="opensInNewTab(item.to)"
           :href="item.to"
           v-bind="outboundAttrs(item.to)"
           :class="linkClass(item)"
