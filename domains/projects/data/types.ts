@@ -48,6 +48,8 @@ export interface ProjectBenefit {
 export interface ProjectGuideStep {
   title: string
   body: string
+  /** Optional screenshot shown under this walkthrough step. */
+  image?: ProjectImage
 }
 
 export interface ProjectGuide {

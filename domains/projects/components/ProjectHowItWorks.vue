@@ -1,15 +1,50 @@
 <script setup lang="ts">
-import type { ProjectGuide } from '../data/types'
+import { computed, ref } from 'vue'
+import type { ProjectGuide, ProjectImage } from '../data/types'
+import ProjectImageLightbox from './ProjectImageLightbox.vue'
 
-defineProps<{
+const props = defineProps<{
   guide: ProjectGuide
 }>()
+
+const walkthroughImages = computed(() => (
+  props.guide.steps
+    .map(step => step.image)
+    .filter((image): image is ProjectImage => Boolean(image))
+))
+
+const activeIndex = ref<number | null>(null)
+
+function imageIndex(image: ProjectImage) {
+  return walkthroughImages.value.findIndex(item => item.src === image.src)
+}
+
+function open(image: ProjectImage) {
+  const index = imageIndex(image)
+  if (index >= 0) activeIndex.value = index
+}
+
+function close() {
+  activeIndex.value = null
+}
+
+function showPrevious() {
+  if (activeIndex.value === null || walkthroughImages.value.length === 0) return
+  activeIndex.value = (
+    activeIndex.value + walkthroughImages.value.length - 1
+  ) % walkthroughImages.value.length
+}
+
+function showNext() {
+  if (activeIndex.value === null || walkthroughImages.value.length === 0) return
+  activeIndex.value = (activeIndex.value + 1) % walkthroughImages.value.length
+}
 </script>
 
 <template>
   <section
     aria-labelledby="project-how-heading"
-    class="space-y-5"
+    class="space-y-6"
   >
     <h2
       id="project-how-heading"
@@ -24,33 +59,53 @@ defineProps<{
     >
       {{ guide.warning }}
     </p>
-    <ol class="grid grid-cols-1 items-stretch gap-3 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)] md:gap-x-3 md:gap-y-0">
-      <template
+    <ol class="space-y-8">
+      <li
         v-for="(step, index) in guide.steps"
         :key="step.title"
+        class="space-y-4"
       >
-        <li class="h-full min-w-0">
-          <div class="flex h-full flex-col rounded-2xl border border-border bg-muted/40 p-5">
-            <p class="text-xs font-semibold uppercase tracking-wide text-primary">
-              Step {{ index + 1 }}
-            </p>
-            <h3 class="mt-1.5 text-base font-semibold text-foreground">
-              {{ step.title }}
-            </h3>
-            <p class="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-              {{ step.body }}
-            </p>
-          </div>
-        </li>
-        <li
-          v-if="index < guide.steps.length - 1"
-          class="flex items-center justify-center text-2xl leading-none text-primary"
-          aria-hidden="true"
-        >
-          <span class="md:hidden">↓</span>
-          <span class="hidden md:inline">→</span>
-        </li>
-      </template>
+        <div class="max-w-3xl">
+          <p class="text-xs font-semibold uppercase tracking-wide text-primary">
+            Step {{ index + 1 }}
+          </p>
+          <h3 class="mt-1.5 text-lg font-semibold text-foreground">
+            {{ step.title }}
+          </h3>
+          <p class="mt-2 text-sm leading-relaxed text-muted-foreground sm:text-base">
+            {{ step.body }}
+          </p>
+        </div>
+        <figure v-if="step.image">
+          <button
+            type="button"
+            class="block w-full overflow-hidden rounded-2xl border border-border bg-[hsl(64,0%,1.43%)] text-left shadow-sm transition hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            :aria-label="`View full size: ${step.image.alt}`"
+            @click="open(step.image)"
+          >
+            <img
+              :src="step.image.srcThumb || step.image.src"
+              :srcset="step.image.srcset"
+              :sizes="step.image.sizes"
+              :alt="step.image.alt"
+              :width="step.image.width"
+              :height="step.image.height"
+              loading="lazy"
+              decoding="async"
+              class="h-auto w-full"
+              :style="{ aspectRatio: `${step.image.width} / ${step.image.height}` }"
+            />
+          </button>
+        </figure>
+      </li>
     </ol>
+
+    <ProjectImageLightbox
+      :images="walkthroughImages"
+      :active-index="activeIndex"
+      @close="close"
+      @previous="showPrevious"
+      @next="showNext"
+    />
   </section>
 </template>
