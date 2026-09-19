@@ -30,17 +30,13 @@ function ctaClass(index: number) {
 </script>
 
 <template>
-  <header class="grid gap-8 lg:grid-cols-12 lg:items-start lg:gap-10">
-    <div class="space-y-6 lg:col-span-7">
-      <p class="text-sm uppercase tracking-[0.35em] text-primary">
-        {{ person.name }}
-      </p>
-      <h1 class="text-4xl font-semibold leading-tight sm:text-5xl">
-        {{ person.role }}
-      </h1>
-      <p class="max-w-2xl text-lg text-muted-foreground">
-        {{ valueProposition }}
-      </p>
+  <section class="grid gap-8 lg:grid-cols-12 lg:items-start lg:gap-10">
+    <AppPageHeader
+      class="lg:col-span-7"
+      :kicker="person.name"
+      :title="person.role"
+      :description="valueProposition"
+    >
       <div class="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-8">
         <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
           <a
@@ -61,7 +57,7 @@ function ctaClass(index: number) {
           <HomeProfileLinkList :links="profileLinks" />
         </nav>
       </div>
-    </div>
+    </AppPageHeader>
 
     <aside
       class="rounded-2xl border border-border bg-card p-6 shadow-sm sm:rounded-3xl sm:p-8 lg:col-span-5"
@@ -87,5 +83,5 @@ function ctaClass(index: number) {
         </li>
       </ul>
     </aside>
-  </header>
+  </section>
 </template>

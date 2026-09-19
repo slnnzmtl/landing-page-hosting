@@ -139,6 +139,7 @@ describe('experience content model', () => {
     expect(professionalTenure.label).toMatch(/digital products/i)
     expect(professionalTenure.heroSubtitle).toMatch(/digital products and software delivery/i)
     expect(professionalTenure.softwareEngineeringSince).toBe('Building software since 2019')
+    expect(professionalTenure.pageIntro).toMatch(/evidence-based timeline/i)
     expect(professionalTenure.heroSubtitle.toLowerCase()).not.toMatch(
       /8\+ years as a software engineer/,
     )
