@@ -4,8 +4,10 @@ import { homepageContent } from '~/data/homepage'
 import { experiencePageSeo, resolveSiteUrl } from '~/domains/projects/utils/seo'
 import { usePageSeo } from '~/domains/projects/composables/usePageSeo'
 import { useHomepageUi } from '~/composables/useHomepageUi'
+import { useExperienceHashScroll } from '~/composables/useExperienceHashScroll'
 
 const { linkFocus } = useHomepageUi()
+useExperienceHashScroll()
 
 const roles = publishedExperienceRoles()
 const siteUrl = resolveSiteUrl(useRuntimeConfig().public.siteUrl as string)

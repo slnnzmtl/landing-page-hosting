@@ -4,6 +4,7 @@ import {
   experienceUserFacingCopy,
   formatExperienceRange,
   experienceRolePath,
+  experienceRoleRoute,
   homepageExperiencePreview,
   professionalTenure,
   publishedExperienceRoles,
@@ -148,6 +149,10 @@ describe('experience content model', () => {
     expect(experienceRolePath('upwork-reputation-team')).toBe(
       '/experience#upwork-reputation-team',
     )
+    expect(experienceRoleRoute('upwork-reputation-team')).toEqual({
+      path: '/experience',
+      hash: '#upwork-reputation-team',
+    })
   })
 
   it('derives homepage experience preview chips from recent role ids', () => {

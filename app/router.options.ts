@@ -15,6 +15,10 @@ export default <RouterConfig>{
       if (sameDocument) {
         return hashScroll(to.hash)
       }
+      if (to.path === '/experience') {
+        // Role anchors mount on the experience page; it scrolls after hydration.
+        return { top: 0, left: 0 }
+      }
       return new Promise((resolve) => {
         setTimeout(() => {
           resolve(hashScroll(to.hash))

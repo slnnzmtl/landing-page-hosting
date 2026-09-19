@@ -435,6 +435,11 @@ export function experienceRolePath(roleId: string): string {
   return `/experience#${roleId}`
 }
 
+/** Vue Router location for a role anchor on `/experience`. */
+export function experienceRoleRoute(roleId: string): { path: string, hash: string } {
+  return { path: '/experience', hash: `#${roleId}` }
+}
+
 /** Compact recent-role chips for the homepage, derived from canonical roles. */
 export function homepageExperiencePreview(
   roles: ExperienceRole[] = experienceRoles,
