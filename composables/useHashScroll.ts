@@ -1,5 +1,6 @@
 import { onMounted, watch } from 'vue'
 import { hashElementId } from '~/utils/app-link'
+import { isPopstateNavigation } from '~/utils/navigation-popstate'
 
 const MAX_ATTEMPTS = 16
 const RETRY_MS = 50
@@ -14,6 +15,7 @@ export function useHashScroll() {
 
   function scrollToHash() {
     if (!import.meta.client) return
+    if (isPopstateNavigation()) return
     const id = hashElementId(route.hash)
     if (!id) return
 

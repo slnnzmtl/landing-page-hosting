@@ -1,9 +1,16 @@
 <script setup lang="ts">
+import { popstateNavigation } from '~/utils/navigation-popstate'
+
 const route = useRoute()
 
 const showSiteChrome = computed(() => {
   const path = route.path
   return !path.startsWith('/survey') && !path.startsWith('/service')
+})
+
+const pageTransition = computed(() => {
+  if (popstateNavigation.value) return false
+  return { name: 'page', mode: 'out-in' as const }
 })
 </script>
 
@@ -26,7 +33,7 @@ const showSiteChrome = computed(() => {
       :class="showSiteChrome ? 'col-start-1 xl:col-start-2' : 'col-start-1'"
       tabindex="-1"
     >
-      <NuxtPage />
+      <NuxtPage :transition="pageTransition" />
     </main>
   </div>
 </template>
