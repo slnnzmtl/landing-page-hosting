@@ -27,6 +27,12 @@ export function useExperienceHashScroll() {
     })
   }
 
-  onMounted(scrollToRoleAnchor)
-  watch(() => route.hash, scrollToRoleAnchor)
+  onMounted(() => {
+    if (isPopstateNavigation()) return
+    scrollToRoleAnchor()
+  })
+  watch(() => route.hash, () => {
+    if (isPopstateNavigation()) return
+    scrollToRoleAnchor()
+  })
 }

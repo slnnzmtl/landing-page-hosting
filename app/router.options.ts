@@ -13,6 +13,12 @@ export default <RouterConfig>{
   scrollBehavior(to, from, savedPosition) {
     const instant = isPopstateNavigation()
 
+    // Back/forward should restore the previous viewport immediately.
+    // Hash routes must not jump to top first — that is the back-nav flash.
+    if (instant && savedPosition) {
+      return { left: savedPosition.left, top: savedPosition.top, behavior: 'auto' }
+    }
+
     if (to.hash) {
       const sameDocument = to.path === from.path
       const behavior = instant ? 'auto' : 'smooth'
@@ -30,7 +36,7 @@ export default <RouterConfig>{
       })
     }
     if (savedPosition) {
-      return savedPosition
+      return { left: savedPosition.left, top: savedPosition.top, behavior: 'auto' }
     }
     return { top: 0, left: 0, behavior: instant ? 'auto' : 'smooth' }
   },
