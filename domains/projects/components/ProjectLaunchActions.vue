@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { track } from '@vercel/analytics/nuxt/runtime'
 import type { ProjectLaunch } from '../data/types'
 import { useMacosReleaseDownload } from '../composables/useMacosReleaseDownload'
 import { useDownloadWarningDialog } from '../composables/useDownloadWarningDialog'
+import { trackUmami } from '~/utils/track-umami'
 import MacosDownloadWarningDialog from './MacosDownloadWarningDialog.vue'
 
 const props = defineProps<{
@@ -21,7 +21,7 @@ const warnOnPrimaryDownload = computed(() =>
 
 function trackRekordboxDownload() {
   if (primaryCta.value?.macosDownload) {
-    track('Rekordbox Converter Download')
+    trackUmami('Rekordbox Converter Download')
   }
 }
 

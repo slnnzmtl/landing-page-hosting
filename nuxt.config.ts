@@ -9,7 +9,7 @@ export default defineNuxtConfig({
     './domains/service',
     './domains/projects',
   ],
-  modules: ['@nuxtjs/tailwindcss', '@vercel/analytics'],
+  modules: ['@nuxtjs/tailwindcss'],
   ssr: true,
   devtools: { enabled: process.env.NODE_ENV !== 'production' },
   app: {
@@ -31,6 +31,7 @@ export default defineNuxtConfig({
     public: {
       surveyWebhookUrl: process.env.SURVEY_WEBHOOK_URL || '',
       siteUrl: process.env.NUXT_PUBLIC_SITE_URL || process.env.SITE_URL || '',
+      umamiWebsiteId: process.env.NUXT_PUBLIC_UMAMI_WEBSITE_ID || '',
     },
   },
   routeRules: {

@@ -1,10 +1,24 @@
 <script setup lang="ts">
 const route = useRoute()
+const config = useRuntimeConfig()
 
 const showSiteChrome = computed(() => {
   const path = route.path
   return !path.startsWith('/survey') && !path.startsWith('/service')
 })
+
+const umamiWebsiteId = config.public.umamiWebsiteId as string
+if (umamiWebsiteId) {
+  useHead({
+    script: [
+      {
+        'src': 'https://cloud.umami.is/script.js',
+        'defer': true,
+        'data-website-id': umamiWebsiteId,
+      },
+    ],
+  })
+}
 </script>
 
 <template>

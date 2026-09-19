@@ -50,7 +50,6 @@
     ]
   },
   "dependencies": {
-    "@vercel/analytics": "^2.0.1",
     "chart.js": "^4.5.0",
     "zod": "^4.1.9"
   }
