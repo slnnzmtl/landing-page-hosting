@@ -1,5 +1,9 @@
 <script setup lang="ts">
+import { homepageContent } from '~/data/homepage'
+import { useHomepageUi } from '~/composables/useHomepageUi'
+
 const route = useRoute()
+const { linkFocus, outboundAttrs } = useHomepageUi()
 
 /** Route hash can lag behind location.hash on hash-only navigations. */
 const liveHash = ref('')
@@ -15,16 +19,22 @@ watch(() => route.fullPath, () => {
 
 const currentHash = computed(() => route.hash || liveHash.value)
 
+const githubLink = homepageContent.profileLinks.find(link => link.label === 'GitHub')
+
 const navItems = [
-  { label: 'Work', to: '/', external: false },
-  { label: 'Experience', to: '/experience', external: false },
-  { label: 'Products', to: '/projects', external: false },
-  { label: 'Contact', to: '/#contact', external: false },
-  { label: 'GitHub', to: 'https://github.com/slnnzmtl', external: true },
+  { label: 'Work', to: '/' },
+  { label: 'Experience', to: '/experience' },
+  { label: 'Products', to: '/projects' },
+  { label: 'Contact', to: '/#contact' },
+  ...(githubLink ? [{ label: githubLink.label, to: githubLink.href }] : []),
 ]
 
 const menuOpen = ref(false)
 const menuId = 'site-nav-panel'
+
+function isExternalNav(to: string) {
+  return /^https?:/i.test(to)
+}
 
 function toggleMenu() {
   menuOpen.value = !menuOpen.value
@@ -62,11 +72,10 @@ onUnmounted(() => {
   document.body.style.overflow = ''
 })
 
-const linkFocus
-  = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
+const sidebarLinkFocus = `${linkFocus} focus-visible:ring-offset-background`
 
 function isActive(item: (typeof navItems)[number]) {
-  if (item.external) return false
+  if (isExternalNav(item.to)) return false
   if (item.to === '/#contact') {
     return route.path === '/' && currentHash.value === '#contact'
   }
@@ -82,7 +91,7 @@ const linkBase
 function linkClass(item: (typeof navItems)[number]) {
   return [
     linkBase,
-    linkFocus,
+    sidebarLinkFocus,
     isActive(item)
       ? 'bg-muted text-foreground'
       : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground',
@@ -96,7 +105,7 @@ function linkClass(item: (typeof navItems)[number]) {
     <button
       type="button"
       class="fixed bottom-6 left-1/2 z-50 inline-flex h-11 w-11 -translate-x-1/2 items-center justify-center rounded-full border border-border/60 bg-black/40 text-foreground shadow-lg backdrop-blur-sm"
-      :class="linkFocus"
+      :class="sidebarLinkFocus"
       :aria-expanded="menuOpen"
       :aria-controls="menuId"
       :aria-label="menuOpen ? 'Close site navigation' : 'Open site navigation'"
@@ -140,10 +149,9 @@ function linkClass(item: (typeof navItems)[number]) {
           :key="item.to"
         >
           <a
-            v-if="item.external"
+            v-if="isExternalNav(item.to)"
             :href="item.to"
-            target="_blank"
-            rel="noopener noreferrer"
+            v-bind="outboundAttrs(item.to)"
             :class="['w-full max-w-xs text-center text-lg', ...linkClass(item)]"
             @click="closeMenu"
           >
@@ -177,10 +185,9 @@ function linkClass(item: (typeof navItems)[number]) {
         :key="item.to"
       >
         <a
-          v-if="item.external"
+          v-if="isExternalNav(item.to)"
           :href="item.to"
-          target="_blank"
-          rel="noopener noreferrer"
+          v-bind="outboundAttrs(item.to)"
           :class="linkClass(item)"
         >
           {{ item.label }}

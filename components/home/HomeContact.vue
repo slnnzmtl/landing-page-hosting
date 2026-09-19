@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import type { HomepageContent } from '~/data/homepage'
-import { conversionEventName } from '~/data/homepage'
 import { useHomepageUi } from '~/composables/useHomepageUi'
-import { trackConversion } from '~/utils/track-conversion'
+import { trackHomepageHref } from '~/composables/useHomepageConversion'
 
 const props = defineProps<{
   contact: HomepageContent['contact']
@@ -19,8 +18,7 @@ const contactTelegramDisplay = computed(() =>
 )
 
 function onContactClick(href: string) {
-  const name = conversionEventName(href)
-  if (name) trackConversion(name)
+  trackHomepageHref(href)
 }
 </script>
 

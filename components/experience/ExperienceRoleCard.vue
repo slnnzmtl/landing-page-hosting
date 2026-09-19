@@ -6,14 +6,13 @@ import {
   outcomeQualifierLabel,
   workModeLabel,
 } from '~/data/experience'
-import { opensInNewTab, externalLinkRel } from '~/data/homepage'
 import { useHomepageUi } from '~/composables/useHomepageUi'
 
 const props = defineProps<{
   role: ExperienceRole
 }>()
 
-const { linkFocus } = useHomepageUi()
+const { linkFocus, outboundAttrs } = useHomepageUi()
 
 const startDateTime = computed(() => `${props.role.start}-01`)
 const endDateTime = computed(() =>
@@ -29,13 +28,6 @@ const metaLine = computed(() => {
   parts.push(props.role.location)
   return parts.join(' · ')
 })
-
-function linkAttrs(href: string) {
-  return {
-    target: opensInNewTab(href) ? ('_blank' as const) : undefined,
-    rel: externalLinkRel(href),
-  }
-}
 </script>
 
 <template>
@@ -137,7 +129,7 @@ function linkAttrs(href: string) {
       >
         <a
           :href="link.href"
-          v-bind="linkAttrs(link.href)"
+          v-bind="outboundAttrs(link.href)"
           :class="[
             'inline-flex items-center gap-1.5 text-sm font-medium text-primary underline-offset-4 hover:underline',
             linkFocus,

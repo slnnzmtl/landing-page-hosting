@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { FeaturedCase } from '~/data/homepage'
-import { conversionEventName, homepageHrefKind, opensInNewTab } from '~/data/homepage'
+import { homepageHrefKind, opensInNewTab } from '~/data/homepage'
 import { useHomepageUi } from '~/composables/useHomepageUi'
-import { trackConversion } from '~/utils/track-conversion'
+import { trackHomepageHref } from '~/composables/useHomepageConversion'
 
 const props = defineProps<{
   item: FeaturedCase
@@ -14,9 +14,10 @@ const isExternal = computed(() => opensInNewTab(props.item.href))
 const isFlagship = computed(() => Boolean(props.item.featured))
 
 function onCaseCtaClick() {
-  const name = conversionEventName(props.item.href, { featured: isFlagship.value })
-  if (!name) return
-  trackConversion(name, { slug: props.item.slug })
+  trackHomepageHref(props.item.href, {
+    featured: isFlagship.value,
+    slug: props.item.slug,
+  })
 }
 
 const linkClass = [

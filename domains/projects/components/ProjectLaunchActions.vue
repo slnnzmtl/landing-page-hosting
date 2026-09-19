@@ -2,7 +2,7 @@
 import type { ProjectLaunch } from '../data/types'
 import { useMacosReleaseDownload } from '../composables/useMacosReleaseDownload'
 import { useDownloadWarningDialog } from '../composables/useDownloadWarningDialog'
-import { trackUmami } from '~/utils/track-umami'
+import { trackConversion } from '~/utils/track-conversion'
 import MacosDownloadWarningDialog from './MacosDownloadWarningDialog.vue'
 
 const props = defineProps<{
@@ -21,7 +21,10 @@ const warnOnPrimaryDownload = computed(() =>
 
 function trackRekordboxDownload() {
   if (primaryCta.value?.macosDownload) {
-    trackUmami('product-open', { slug: 'rekordbox-playlist-converter', action: 'download' })
+    trackConversion('product-open', {
+      slug: 'rekordbox-playlist-converter',
+      action: 'download',
+    })
   }
 }
 

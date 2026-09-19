@@ -145,7 +145,7 @@ export interface HomepageSeoInput {
   }
   valueProposition: string
   profileLinks: Array<{ href: string }>
-  featuredCases: Array<{ title: string, href?: string }>
+  featuredCases: Array<{ title: string, href: string }>
   products: { items: Array<{ title: string, cta: { href: string } }> }
 }
 
@@ -161,7 +161,7 @@ function homepageCreativeWorks(
   const seen = new Set<string>()
 
   for (const item of home.featuredCases) {
-    if (!item.href || !isPublicCreativeWorkHref(item.href)) continue
+    if (!isPublicCreativeWorkHref(item.href)) continue
     const url = absoluteUrl(siteUrl, item.href)
     if (seen.has(url)) continue
     seen.add(url)

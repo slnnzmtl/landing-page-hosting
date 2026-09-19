@@ -12,9 +12,5 @@ export function trackUmami(
   data?: Record<string, string | number | boolean>,
 ): void {
   if (typeof window === 'undefined') return
-  if (data) {
-    window.umami?.track(name, data)
-    return
-  }
-  window.umami?.track(name)
+  window.umami?.track(name, data)
 }

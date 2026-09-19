@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import type { HomepageContent, HomepageLink, HeroFocus } from '~/data/homepage'
-import { conversionEventName } from '~/data/homepage'
 import { useHomepageUi } from '~/composables/useHomepageUi'
-import { trackConversion } from '~/utils/track-conversion'
+import { trackHomepageHref } from '~/composables/useHomepageConversion'
 
 defineProps<{
   person: HomepageContent['person']
@@ -15,8 +14,7 @@ defineProps<{
 const { linkFocus } = useHomepageUi()
 
 function onPrimaryCtaClick(href: string) {
-  const name = conversionEventName(href)
-  if (name) trackConversion(name)
+  trackHomepageHref(href)
 }
 
 function ctaClass(index: number) {

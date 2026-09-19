@@ -3,6 +3,9 @@ import { publishedExperienceRoles, professionalTenure } from '~/data/experience'
 import { homepageContent } from '~/data/homepage'
 import { experiencePageSeo, resolveSiteUrl } from '~/domains/projects/utils/seo'
 import { usePageSeo } from '~/domains/projects/composables/usePageSeo'
+import { useHomepageUi } from '~/composables/useHomepageUi'
+
+const { linkFocus } = useHomepageUi()
 
 const roles = publishedExperienceRoles()
 const siteUrl = resolveSiteUrl(useRuntimeConfig().public.siteUrl as string)
@@ -21,7 +24,7 @@ usePageSeo(
       <header>
         <NuxtLink
           to="/#featured-work"
-          class="text-sm font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          :class="['text-sm font-medium text-primary underline-offset-4 hover:underline', linkFocus]"
         >
           Back to featured work
         </NuxtLink>

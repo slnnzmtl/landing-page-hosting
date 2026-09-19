@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { conversionEventName, homepageHrefKind, type ProductSpotlight } from '~/data/homepage'
+import { homepageHrefKind, type ProductSpotlight } from '~/data/homepage'
 import { useHomepageUi } from '~/composables/useHomepageUi'
-import { trackConversion } from '~/utils/track-conversion'
+import { trackHomepageHref } from '~/composables/useHomepageConversion'
 
 const props = defineProps<{
   product: ProductSpotlight
@@ -18,8 +18,7 @@ const ctaClass = [
 ].join(' ')
 
 function onProductCtaClick() {
-  const name = conversionEventName(ctaHref.value, { product: true })
-  if (name) trackConversion(name, { slug: props.product.slug })
+  trackHomepageHref(ctaHref.value, { product: true, slug: props.product.slug })
 }
 </script>
 

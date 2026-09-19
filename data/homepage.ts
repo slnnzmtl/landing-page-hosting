@@ -1,4 +1,4 @@
-import { experienceRolePath, homepageExperiencePreview } from './experience'
+import { experienceRolePath, homepageExperiencePreview, professionalTenure } from './experience'
 
 export interface HomepageLink {
   label: string
@@ -100,7 +100,7 @@ export const homepageContent: HomepageContent = {
     role: 'AI-Native Full-Stack Engineer',
   },
   valueProposition:
-    'I build reliable AI-enabled products connecting models to APIs, CRMs, databases, and real operations—backed by 8+ years across digital products and software delivery.',
+    `I build reliable AI-enabled products connecting models to APIs, CRMs, databases, and real operations—backed by ${professionalTenure.heroSubtitle}.`,
   primaryCtas: [
     {
       label: 'View flagship case',
@@ -140,8 +140,8 @@ export const homepageContent: HomepageContent = {
   },
   proof: [
     {
-      value: '8+',
-      label: 'years across digital products',
+      value: professionalTenure.short.replace(/ years$/, ''),
+      label: professionalTenure.label,
     },
     {
       value: 'Millions',
