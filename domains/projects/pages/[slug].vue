@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import AppBackLink from '~/components/AppBackLink.vue'
+import AppPageHeader from '~/components/AppPageHeader.vue'
 import { useProjects } from '../composables/useProjects'
 import ProjectGallery from '../components/ProjectGallery.vue'
 import GithubReleases from '../components/GithubReleases.vue'
@@ -37,45 +37,40 @@ const benefitsHeading = computed(() => (
 <template>
   <article class="relative min-h-screen text-foreground">
     <div class="relative z-10 mx-auto flex max-w-6xl flex-col gap-16 px-6 py-20 lg:px-12">
-      <AppBackLink to="/projects">
-        Back to products
-      </AppBackLink>
-
-      <header class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(12rem,16rem)] lg:gap-10">
-        <div class="min-w-0 space-y-1 sm:space-y-2 lg:space-y-5">
-          <p class="text-sm uppercase tracking-[0.35em] text-primary">
-            Product
-          </p>
-          <h1 class="text-3xl font-semibold leading-tight sm:text-4xl lg:text-5xl">
-            {{ project.name }}
-          </h1>
-        </div>
-        <div
-          id="project-hero-media"
-          class="flex size-16 shrink-0 items-center justify-center rounded-xl border border-border bg-[hsl(64,0%,1.43%)] p-1.5 ring-1 ring-[hsl(64,0%,98%)]/15 sm:size-20 sm:rounded-2xl sm:p-2 lg:row-span-2 lg:size-auto lg:w-full lg:rounded-3xl lg:p-8"
-        >
-          <img
-            v-if="project.logo"
-            :src="project.logo.srcThumb || project.logo.src"
-            :srcset="project.logo.srcset"
-            :sizes="project.logo.sizes"
-            :alt="project.logo.alt"
-            :width="project.logo.width"
-            :height="project.logo.height"
-            fetchpriority="high"
-            decoding="async"
-            class="h-auto w-full max-w-[14rem]"
-          />
-          <p
-            v-else
-            class="text-center text-sm font-medium text-[hsl(64,0%,98%)]"
+      <AppPageHeader
+        kicker="Product"
+        :title="project.name"
+        back-to="/projects"
+        back-label="Back to products"
+      >
+        <template #media>
+          <div
+            id="project-hero-media"
+            class="flex size-16 shrink-0 items-center justify-center rounded-xl border border-border bg-[hsl(64,0%,1.43%)] p-1.5 ring-1 ring-[hsl(64,0%,98%)]/15 sm:size-20 sm:rounded-2xl sm:p-2 lg:size-auto lg:w-full lg:rounded-3xl lg:p-8"
           >
-            {{ project.name }}
-          </p>
-        </div>
-        <div class="max-lg:col-span-2 space-y-5">
+            <img
+              v-if="project.logo"
+              :src="project.logo.srcThumb || project.logo.src"
+              :srcset="project.logo.srcset"
+              :sizes="project.logo.sizes"
+              :alt="project.logo.alt"
+              :width="project.logo.width"
+              :height="project.logo.height"
+              fetchpriority="high"
+              decoding="async"
+              class="h-auto w-full max-w-[14rem]"
+            />
+            <p
+              v-else
+              class="text-center text-sm font-medium text-[hsl(64,0%,98%)]"
+            >
+              {{ project.name }}
+            </p>
+          </div>
+        </template>
+        <template #description>
           <template v-if="project.launch">
-            <div class="max-w-2xl space-y-3">
+            <div class="space-y-3">
               <p class="text-lg text-foreground">
                 {{ project.launch.lead }}
               </p>
@@ -83,37 +78,41 @@ const benefitsHeading = computed(() => (
                 {{ project.launch.supportingLine }}
               </p>
             </div>
-            <ProjectLaunchActions
-              v-if="project.github"
-              :launch="project.launch"
-              :github-owner="project.github.owner"
-              :github-repo="project.github.repo"
-            />
           </template>
-          <template v-else>
-            <div class="max-w-2xl space-y-4 text-lg text-muted-foreground">
-              <p
-                v-for="(paragraph, index) in descriptionParagraphs"
-                :key="index"
-              >
-                {{ paragraph }}
-              </p>
-            </div>
-            <div v-if="project.links?.length" class="flex flex-wrap gap-3">
-              <a
-                v-for="link in project.links"
-                :key="link.href"
-                :href="link.href"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="rounded-full border border-border px-5 py-2.5 text-sm font-medium transition hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              >
-                {{ link.label }}
-              </a>
-            </div>
-          </template>
+          <div
+            v-else
+            class="space-y-4 text-lg text-muted-foreground"
+          >
+            <p
+              v-for="(paragraph, index) in descriptionParagraphs"
+              :key="index"
+            >
+              {{ paragraph }}
+            </p>
+          </div>
+        </template>
+        <ProjectLaunchActions
+          v-if="project.launch && project.github"
+          :launch="project.launch"
+          :github-owner="project.github.owner"
+          :github-repo="project.github.repo"
+        />
+        <div
+          v-else-if="project.links?.length"
+          class="flex flex-wrap gap-3"
+        >
+          <a
+            v-for="link in project.links"
+            :key="link.href"
+            :href="link.href"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="rounded-full border border-border px-5 py-2.5 text-sm font-medium transition hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
+            {{ link.label }}
+          </a>
         </div>
-      </header>
+      </AppPageHeader>
 
       <ProjectHowItWorks
         v-if="project.guide"
