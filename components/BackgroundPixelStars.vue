@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import { starBackdropClass } from '~/utils/star-backdrop'
+import {
+  MAX_CONCURRENT_SHOOTING_STARS,
+  shouldSpawnShootingStar,
+} from '~/utils/shooting-star-schedule'
 
 const STAR_COLORS = [
   '#FFFFFF',
@@ -210,6 +214,11 @@ function twinkleBackgroundStars() {
 function animateCanvas(timestamp: number) {
   if (unmounted) return
 
+  if (document.hidden) {
+    animationFrameId = requestAnimationFrame(animateCanvas)
+    return
+  }
+
   updateParallax()
 
   const parallaxMoving = isParallaxMoving()
@@ -336,12 +345,47 @@ function resizeCanvas() {
   }
 }
 
-function scheduleShootingStar() {
-  if (unmounted || reducedMotion) return
+function clearShootingStarTimeout() {
+  if (shootingStarTimeoutId !== null) {
+    clearTimeout(shootingStarTimeoutId)
+    shootingStarTimeoutId = null
+  }
+}
 
-  shootingStars.push(createNewShootingStar())
-  const randomDelay = Math.random() * 4000 + 2000
-  shootingStarTimeoutId = setTimeout(scheduleShootingStar, randomDelay)
+function queueNextShootingStar(delay = Math.random() * 4000 + 2000) {
+  clearShootingStarTimeout()
+  if (unmounted || reducedMotion || document.hidden) return
+  shootingStarTimeoutId = setTimeout(scheduleShootingStar, delay)
+}
+
+function scheduleShootingStar() {
+  shootingStarTimeoutId = null
+  if (shouldSpawnShootingStar({
+    hidden: document.hidden,
+    reducedMotion,
+    unmounted,
+    activeCount: shootingStars.length,
+    max: MAX_CONCURRENT_SHOOTING_STARS,
+  })) {
+    shootingStars.push(createNewShootingStar())
+  }
+
+  queueNextShootingStar()
+}
+
+function pauseShootingStars() {
+  clearShootingStarTimeout()
+  shootingStars.length = 0
+}
+
+function onVisibilityChange() {
+  if (document.hidden) {
+    pauseShootingStars()
+    return
+  }
+
+  lastTwinkleTime = performance.now()
+  queueNextShootingStar()
 }
 
 function cleanup() {
@@ -355,10 +399,9 @@ function cleanup() {
     clearInterval(regenerationIntervalId)
     regenerationIntervalId = null
   }
-  if (shootingStarTimeoutId !== null) {
-    clearTimeout(shootingStarTimeoutId)
-    shootingStarTimeoutId = null
-  }
+  clearShootingStarTimeout()
+  shootingStars.length = 0
+  document.removeEventListener('visibilitychange', onVisibilityChange)
   if (resizeObserver) {
     resizeObserver.disconnect()
     resizeObserver = null
@@ -397,6 +440,7 @@ function start() {
   scrollTarget = window.scrollY
   scrollSmoothed = scrollTarget
   lastTwinkleTime = performance.now()
+  document.addEventListener('visibilitychange', onVisibilityChange)
   animationFrameId = requestAnimationFrame(animateCanvas)
   scheduleShootingStar()
   regenerationIntervalId = setInterval(regenerateBackgroundStars, starRegenerationInterval)
