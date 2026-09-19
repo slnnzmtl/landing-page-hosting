@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { track } from '@vercel/analytics'
+import { track } from '@vercel/analytics/nuxt/runtime'
 import type { ProjectLaunch } from '../data/types'
 import { useMacosReleaseDownload } from '../composables/useMacosReleaseDownload'
 import { useDownloadWarningDialog } from '../composables/useDownloadWarningDialog'
