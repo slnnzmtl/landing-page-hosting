@@ -43,7 +43,7 @@ export default {
           foreground: 'hsl(var(--popover-foreground))',
         },
         card: {
-          DEFAULT: 'hsl(var(--card))',
+          DEFAULT: 'hsl(var(--card) / 0.55)',
           foreground: 'hsl(var(--card-foreground))',
         },
       },
