@@ -3,6 +3,7 @@ import {
   conversionEventName,
   homepageContent,
   homepageHrefKind,
+  inAppLocation,
   opensInNewTab,
 } from '~/data/homepage'
 import { homepageExperiencePreview, professionalTenure } from '~/data/experience'
@@ -204,8 +205,19 @@ describe('homepage content model', () => {
     expect(homepageHrefKind('https://github.com/slnnzmtl')).toBe('native')
     expect(homepageHrefKind('mailto:kazanskydaniel@gmail.com')).toBe('native')
     expect(homepageHrefKind('https://t.me/slnnzmtl')).toBe('native')
-    expect(homepageHrefKind('#contact')).toBe('native')
+    expect(homepageHrefKind('#contact')).toBe('route')
+    expect(homepageHrefKind('#flagship-case')).toBe('route')
     expect(homepageHrefKind('/projects/rekordbox-playlist-converter')).toBe('route')
+    expect(inAppLocation('#flagship-case')).toEqual({ path: '/', hash: '#flagship-case' })
+    expect(inAppLocation('#flagship-case', '/experience')).toEqual({
+      path: '/experience',
+      hash: '#flagship-case',
+    })
+    expect(inAppLocation('/experience#upwork-reputation-team')).toEqual({
+      path: '/experience',
+      hash: '#upwork-reputation-team',
+    })
+    expect(inAppLocation('/#contact')).toEqual({ path: '/', hash: '#contact' })
     expect(opensInNewTab('https://github.com/slnnzmtl')).toBe(true)
     expect(opensInNewTab('https://t.me/slnnzmtl')).toBe(true)
     expect(opensInNewTab('mailto:kazanskydaniel@gmail.com')).toBe(false)

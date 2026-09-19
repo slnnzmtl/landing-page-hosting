@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { publishedExperienceRoles, professionalTenure } from '~/data/experience'
-import { homepageContent } from '~/data/homepage'
+import { homepageContent, inAppLocation } from '~/data/homepage'
 import { experiencePageSeo, resolveSiteUrl } from '~/domains/projects/utils/seo'
 import { usePageSeo } from '~/domains/projects/composables/usePageSeo'
 import { useHomepageUi } from '~/composables/useHomepageUi'
@@ -25,7 +25,7 @@ usePageSeo(
     <div class="relative z-10 mx-auto flex max-w-6xl flex-col gap-12 px-6 py-20 lg:px-12">
       <header>
         <NuxtLink
-          to="/#featured-work"
+          :to="inAppLocation('/#featured-work')"
           :class="['text-sm font-medium text-primary underline-offset-4 hover:underline', linkFocus]"
         >
           Back to featured work

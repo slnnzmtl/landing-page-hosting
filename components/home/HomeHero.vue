@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { HomepageContent, HomepageLink, HeroFocus } from '~/data/homepage'
+import { inAppLocation } from '~/data/homepage'
 import { useHomepageUi } from '~/composables/useHomepageUi'
 import { trackHomepageHref } from '~/composables/useHomepageConversion'
 
@@ -11,10 +12,15 @@ defineProps<{
   heroFocus: HeroFocus
 }>()
 
+const route = useRoute()
 const { linkFocus } = useHomepageUi()
 
 function onPrimaryCtaClick(href: string) {
   trackHomepageHref(href)
+}
+
+function ctaTo(href: string) {
+  return inAppLocation(href, route.path)
 }
 
 function ctaClass(index: number) {
@@ -43,15 +49,15 @@ function ctaClass(index: number) {
       </p>
       <div class="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-8">
         <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
-          <a
+          <NuxtLink
             v-for="(cta, index) in primaryCtas"
             :key="cta.href"
-            :href="cta.href"
+            :to="ctaTo(cta.href)"
             :class="ctaClass(index)"
             @click="onPrimaryCtaClick(cta.href)"
           >
             {{ cta.label }}
-          </a>
+          </NuxtLink>
         </div>
 
         <nav

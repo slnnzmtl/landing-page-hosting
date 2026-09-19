@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { FeaturedCase } from '~/data/homepage'
-import { homepageHrefKind, opensInNewTab } from '~/data/homepage'
+import { homepageHrefKind, inAppLocation, opensInNewTab } from '~/data/homepage'
 import { useHomepageUi } from '~/composables/useHomepageUi'
 import { trackHomepageHref } from '~/composables/useHomepageConversion'
 
@@ -102,7 +102,7 @@ const fields = computed(() => [
       </a>
       <NuxtLink
         v-else
-        :to="item.href"
+        :to="inAppLocation(item.href)"
         :class="linkClass"
         @click="onCaseCtaClick"
       >

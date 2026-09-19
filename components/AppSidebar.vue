@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { homepageContent } from '~/data/homepage'
+import { homepageContent, inAppLocation } from '~/data/homepage'
 import { useHomepageUi } from '~/composables/useHomepageUi'
 
 const route = useRoute()
@@ -48,7 +48,7 @@ function onNavClick(item: (typeof navItems)[number]) {
   closeMenu()
   // Same-route `/` does not run scrollBehavior; still jump to top.
   if (item.to !== '/' || route.path !== '/' || !import.meta.client) return
-  window.scrollTo({ top: 0 })
+  window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
 watch(menuOpen, (open) => {
@@ -159,7 +159,7 @@ function linkClass(item: (typeof navItems)[number]) {
           </a>
           <NuxtLink
             v-else
-            :to="item.to"
+            :to="inAppLocation(item.to)"
             :class="['w-full max-w-xs text-center text-lg', ...linkClass(item)]"
             :aria-current="isActive(item) ? 'page' : undefined"
             @click="onNavClick(item)"
@@ -194,7 +194,7 @@ function linkClass(item: (typeof navItems)[number]) {
         </a>
         <NuxtLink
           v-else
-          :to="item.to"
+          :to="inAppLocation(item.to)"
           :class="linkClass(item)"
           :aria-current="isActive(item) ? 'page' : undefined"
           @click="onNavClick(item)"

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { homepageHrefKind, type ProductSpotlight } from '~/data/homepage'
+import { homepageHrefKind, inAppLocation, type ProductSpotlight } from '~/data/homepage'
 import { useHomepageUi } from '~/composables/useHomepageUi'
 import { trackHomepageHref } from '~/composables/useHomepageConversion'
 
@@ -52,7 +52,7 @@ function onProductCtaClick() {
         <div class="mt-6">
           <NuxtLink
             v-if="isRouteCta"
-            :to="ctaHref"
+            :to="inAppLocation(ctaHref)"
             :class="ctaClass"
             @click="onProductCtaClick"
           >

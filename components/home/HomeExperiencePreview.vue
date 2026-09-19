@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ExperiencePreview } from '~/data/homepage'
+import { inAppLocation } from '~/data/homepage'
 import { experienceRoleRoute } from '~/data/experience'
 import { useHomepageUi } from '~/composables/useHomepageUi'
 
@@ -24,7 +25,7 @@ const { linkFocus } = useHomepageUi()
         {{ preview.heading }}
       </h2>
       <NuxtLink
-        :to="preview.cta.href"
+        :to="inAppLocation(preview.cta.href)"
         :class="[
           'text-sm font-medium text-primary underline-offset-4 hover:underline',
           linkFocus,

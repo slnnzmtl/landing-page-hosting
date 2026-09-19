@@ -263,9 +263,22 @@ export type ConversionEventName
     | 'product-open'
     | 'contact'
 
-/** `native` = plain `<a>` (https, mailto, hash). `route` = in-app `NuxtLink`. */
+/** `native` = plain `<a>` (https, mailto). `route` = in-app `NuxtLink` (paths and hashes). */
 export function homepageHrefKind(href: string): HomepageHrefKind {
-  return /^(?:https?:|mailto:|#)/i.test(href) ? 'native' : 'route'
+  return /^(?:https?:|mailto:)/i.test(href) ? 'native' : 'route'
+}
+
+export function inAppLocation(
+  href: string,
+  currentPath = '/',
+): string | { path: string, hash: string } {
+  if (href.startsWith('#')) return { path: currentPath, hash: href }
+  const hashIndex = href.indexOf('#')
+  if (hashIndex === -1) return href
+  return {
+    path: href.slice(0, hashIndex) || '/',
+    hash: href.slice(hashIndex),
+  }
 }
 
 export function opensInNewTab(href: string): boolean {
