@@ -142,7 +142,6 @@ export interface HomepageSeoInput {
   person: {
     name: string
     role: string
-    heroSubtitle: string
   }
   valueProposition: string
   profileLinks: Array<{ href: string }>

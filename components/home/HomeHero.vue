@@ -60,10 +60,7 @@ function ctaClass(index: number) {
           aria-label="Profiles"
           class="flex w-full justify-center sm:w-auto"
         >
-          <HomeProfileLinkList
-            :links="profileLinks"
-            list-class="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm"
-          />
+          <HomeProfileLinkList :links="profileLinks" />
         </nav>
       </div>
     </div>

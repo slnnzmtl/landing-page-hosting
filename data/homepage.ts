@@ -1,4 +1,4 @@
-import { experienceRolePath, homepageExperiencePreview, professionalTenure } from './experience'
+import { experienceRolePath, homepageExperiencePreview } from './experience'
 
 export interface HomepageLink {
   label: string
@@ -76,8 +76,6 @@ export interface HomepageContent {
   person: {
     name: string
     role: string
-    experience: string
-    heroSubtitle: string
   }
   valueProposition: string
   primaryCtas: HomepageLink[]
@@ -100,8 +98,6 @@ export const homepageContent: HomepageContent = {
   person: {
     name: 'Daniel Kazansky',
     role: 'AI-Native Full-Stack Engineer',
-    experience: professionalTenure.short,
-    heroSubtitle: professionalTenure.heroSubtitle,
   },
   valueProposition:
     'I build reliable AI-enabled products connecting models to APIs, CRMs, databases, and real operations—backed by 8+ years across digital products and software delivery.',
@@ -286,7 +282,7 @@ export function isContactHref(href: string): boolean {
     || href === '#contact'
 }
 
-/** Map homepage CTAs to the four Umami events. Hash/nav-only links return null. */
+/** Map homepage CTAs to the four Umami events. Hash-only nav anchors return null. */
 export function conversionEventName(
   href: string,
   options?: { featured?: boolean, product?: boolean },
@@ -294,8 +290,8 @@ export function conversionEventName(
   if (isContactHref(href)) return 'contact'
   if (options?.product) return 'product-open'
   if (options?.featured) return 'flagship-case-open'
+  if (href === '#flagship-case') return null
   if (/^https?:/i.test(href) || homepageHrefKind(href) === 'route') {
-    if (href === '#flagship-case') return null
     return 'case-open'
   }
   return null

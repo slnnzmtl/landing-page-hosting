@@ -4,37 +4,8 @@ import { homepageContent } from '~/data/homepage'
 import { experiencePageSeo, resolveSiteUrl } from '~/domains/projects/utils/seo'
 import { usePageSeo } from '~/domains/projects/composables/usePageSeo'
 
-const route = useRoute()
 const roles = publishedExperienceRoles()
 const siteUrl = resolveSiteUrl(useRuntimeConfig().public.siteUrl as string)
-
-function scrollToRoleFromHash() {
-  if (!import.meta.client) return
-  const roleId = route.hash.replace(/^#/, '')
-  if (!roleId) return
-
-  const scroll = () => {
-    const target = document.getElementById(roleId)
-    if (target) {
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      return true
-    }
-    return false
-  }
-
-  if (scroll()) return
-
-  let attempts = 0
-  const retry = () => {
-    attempts += 1
-    if (scroll() || attempts >= 12) return
-    window.setTimeout(retry, 50)
-  }
-  window.setTimeout(retry, 50)
-}
-
-onMounted(scrollToRoleFromHash)
-watch(() => route.hash, scrollToRoleFromHash)
 usePageSeo(
   experiencePageSeo(siteUrl, {
     name: homepageContent.person.name,

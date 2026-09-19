@@ -1,17 +1,10 @@
 <script setup lang="ts">
 import type { FeaturedCase } from '~/data/homepage'
 
-const props = defineProps<{
+defineProps<{
   intro: string
   cases: FeaturedCase[]
 }>()
-
-const flagship = computed(() => props.cases.find(item => item.featured) ?? props.cases[0])
-const secondary = computed(() =>
-  props.cases.filter(item => item.slug !== flagship.value?.slug),
-)
-const companion = computed(() => secondary.value[0])
-const rest = computed(() => secondary.value.slice(1))
 </script>
 
 <template>
@@ -33,24 +26,20 @@ const rest = computed(() => secondary.value.slice(1))
     </div>
 
     <div class="mt-10 grid grid-cols-1 gap-5 lg:grid-cols-12">
-      <div
-        v-if="flagship"
-        class="lg:col-span-7"
-      >
-        <HomeFeaturedCaseCard :item="flagship" />
+      <div class="lg:col-span-7">
+        <HomeFeaturedCaseCard :item="cases[0]" />
       </div>
       <div
-        v-if="companion"
+        v-if="cases[1]"
         class="lg:col-span-5"
       >
-        <HomeFeaturedCaseCard :item="companion" />
+        <HomeFeaturedCaseCard :item="cases[1]" />
       </div>
       <div
-        v-for="item in rest"
-        :key="item.slug"
+        v-if="cases[2]"
         class="lg:col-span-12"
       >
-        <HomeFeaturedCaseCard :item="item" />
+        <HomeFeaturedCaseCard :item="cases[2]" />
       </div>
     </div>
   </section>

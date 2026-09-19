@@ -5,7 +5,7 @@ import {
   homepageHrefKind,
   opensInNewTab,
 } from '~/data/homepage'
-import { homepageExperiencePreview } from '~/data/experience'
+import { homepageExperiencePreview, professionalTenure } from '~/data/experience'
 import { CONVERSION_EVENT, trackConversion } from '~/utils/track-conversion'
 
 describe('homepage content model', () => {
@@ -14,11 +14,11 @@ describe('homepage content model', () => {
   it('identifies the person, role, and experience for a first-time visitor', () => {
     expect(published.person.name).toBe('Daniel Kazansky')
     expect(published.person.role).toBe('AI-Native Full-Stack Engineer')
-    expect(published.person.experience).toBe('8+ years')
-    expect(published.person.heroSubtitle).toBe(
+    expect(professionalTenure.short).toBe('8+ years')
+    expect(professionalTenure.heroSubtitle).toBe(
       '8+ years across digital products and software delivery',
     )
-    expect(published.person.heroSubtitle.toLowerCase()).not.toMatch(
+    expect(professionalTenure.heroSubtitle.toLowerCase()).not.toMatch(
       /8\+ years as a software engineer/,
     )
     expect(published.valueProposition).toMatch(/AI-enabled products/)
@@ -139,8 +139,8 @@ describe('homepage content model', () => {
     const userFacingCopy = [
       published.person.name,
       published.person.role,
-      published.person.experience,
-      published.person.heroSubtitle,
+      professionalTenure.short,
+      professionalTenure.heroSubtitle,
       published.valueProposition,
       ...published.primaryCtas.map(item => `${item.label} ${item.href}`),
       ...published.profileLinks.map(item => `${item.label} ${item.href}`),
