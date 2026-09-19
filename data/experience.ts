@@ -1,4 +1,4 @@
-import type { WorkCard } from './homepage'
+import type { ExperiencePreviewItem } from './homepage'
 
 export type ClaimStatus = 'approved' | 'pending-validation' | 'internal-only'
 
@@ -74,9 +74,9 @@ const cvAndPublicRepos: ClaimSource = {
 
 /** Shared tenure copy used across homepage and experience SEO. */
 export const professionalTenure = {
-  short: '7+ years',
-  label: 'Years across digital products and software delivery',
-  heroSubtitle: '7+ years across digital products and software delivery',
+  short: '8+ years',
+  label: 'years across digital products',
+  heroSubtitle: '8+ years across digital products and software delivery',
   softwareEngineeringSince: 'Building software since 2019',
 } as const
 
@@ -424,29 +424,27 @@ export function publishedExperienceRoles(
   return roles.filter(role => role.source.status === 'approved')
 }
 
-const HOMEPAGE_PROFESSIONAL_IDS = [
+const HOMEPAGE_EXPERIENCE_PREVIEW_IDS = [
   'upwork-reputation-team',
   'subbly-senior-software-developer',
-  'capgemini-software-developer',
+  'woki-lead-software-developer',
 ] as const
 
-/** Condensed WorkCards for the homepage professional section, derived from canonical roles. */
-export function homepageProfessionalCards(
+/** Compact recent-role chips for the homepage, derived from canonical roles. */
+export function homepageExperiencePreview(
   roles: ExperienceRole[] = experienceRoles,
-): WorkCard[] {
+): ExperiencePreviewItem[] {
   const byId = new Map(publishedExperienceRoles(roles).map(role => [role.id, role]))
-  return HOMEPAGE_PROFESSIONAL_IDS.map((id) => {
+  return HOMEPAGE_EXPERIENCE_PREVIEW_IDS.map((id) => {
     const role = byId.get(id)
     if (!role) {
-      throw new Error(`Missing approved experience role for homepage card: ${id}`)
+      throw new Error(`Missing approved experience role for homepage preview: ${id}`)
     }
     return {
-      slug: role.id,
-      title: role.title,
-      subtitle: experienceSubtitle(role),
+      id: role.id,
+      organization: role.organization,
       icon: role.icon,
       iconAlt: role.iconAlt,
-      summary: role.homepageSummary ?? role.scope,
     }
   })
 }

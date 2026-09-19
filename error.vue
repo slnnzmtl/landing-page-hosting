@@ -7,7 +7,7 @@ const is404 = computed(() => props.error.statusCode === 404)
 const title = computed(() => is404.value ? 'Page not found' : 'Something went wrong')
 
 useHead({
-  title: () => `${title.value} | Kazansky Development`,
+  title: () => `${title.value} | Kazansky.dev`,
   meta: [{ name: 'robots', content: 'noindex, nofollow' }],
 })
 

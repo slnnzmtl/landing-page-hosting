@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import type { HomepageContent, HomepageLink } from '~/data/homepage'
+import type { HomepageContent } from '~/data/homepage'
 import { conversionEventName } from '~/data/homepage'
 import { useHomepageUi } from '~/composables/useHomepageUi'
 import { trackConversion } from '~/utils/track-conversion'
 
 const props = defineProps<{
   contact: HomepageContent['contact']
-  profileLinks: HomepageLink[]
 }>()
 
 const { linkFocus } = useHomepageUi()
@@ -70,11 +69,6 @@ function onContactClick(href: string) {
           {{ contactTelegramDisplay }}
         </a>
       </p>
-      <HomeProfileLinkList
-        :links="profileLinks"
-        list-class="mt-6 flex flex-col gap-2 text-sm"
-        key-prefix="contact-"
-      />
     </div>
   </section>
 </template>

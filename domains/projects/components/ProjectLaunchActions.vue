@@ -21,7 +21,7 @@ const warnOnPrimaryDownload = computed(() =>
 
 function trackRekordboxDownload() {
   if (primaryCta.value?.macosDownload) {
-    trackUmami('Rekordbox Converter Download')
+    trackUmami('product-open', { slug: 'rekordbox-playlist-converter', action: 'download' })
   }
 }
 

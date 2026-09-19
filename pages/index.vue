@@ -10,23 +10,24 @@ usePageSeo(homepageSeo(siteUrl, home))
 
 <template>
   <div class="relative min-h-screen text-foreground">
-    <div class="relative z-10 mx-auto flex max-w-5xl flex-col gap-12 md:gap-24 px-6 py-20 lg:px-12">
+    <div class="relative z-10 mx-auto flex max-w-6xl flex-col gap-16 px-6 py-20 md:gap-24 lg:px-12">
       <HomeHero
         :person="home.person"
         :value-proposition="home.valueProposition"
         :primary-ctas="home.primaryCtas"
         :profile-links="home.profileLinks"
+        :hero-focus="home.heroFocus"
       />
 
       <section
         aria-labelledby="proof-heading"
-        class="rounded-2xl border border-border bg-muted/50 p-4 sm:rounded-3xl sm:p-8"
+        class="rounded-2xl border border-border bg-card p-4 shadow-sm sm:rounded-3xl sm:p-8"
       >
         <h2
           id="proof-heading"
           class="text-xs font-semibold uppercase tracking-wide text-primary sm:text-sm"
         >
-          Approved facts
+          Selected outcomes
         </h2>
         <ul class="mt-4 flex flex-row flex-wrap gap-x-3 gap-y-4 sm:mt-4 sm:grid sm:grid-cols-2 sm:gap-8 lg:grid-cols-4">
           <li
@@ -45,33 +46,15 @@ usePageSeo(homepageSeo(siteUrl, home))
       </section>
 
       <HomeSelectedWork
-        :intro="home.selectedWorkIntro"
-        :sections="home.workSections"
+        :intro="home.featuredWorkIntro"
+        :cases="home.featuredCases"
       />
 
       <HomeProducts :products="home.products" />
 
-      <section aria-labelledby="capabilities-heading">
-        <h2
-          id="capabilities-heading"
-          class="text-2xl font-semibold"
-        >
-          Capabilities
-        </h2>
-        <ul class="mt-8 grid gap-5 md:grid-cols-3">
-          <HomeColumnCard
-            v-for="capability in home.capabilities"
-            :key="capability.title"
-            :title="capability.title"
-            :summary="capability.summary"
-          />
-        </ul>
-      </section>
+      <HomeExperiencePreview :preview="home.experiencePreview" />
 
-      <HomeContact
-        :contact="home.contact"
-        :profile-links="home.profileLinks"
-      />
+      <HomeContact :contact="home.contact" />
     </div>
   </div>
 </template>

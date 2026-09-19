@@ -35,7 +35,7 @@ const benefitsHeading = computed(() => (
 
 <template>
   <article class="relative min-h-screen text-foreground">
-    <div class="relative z-10 mx-auto flex max-w-5xl flex-col gap-16 px-6 py-20 lg:px-12">
+    <div class="relative z-10 mx-auto flex max-w-6xl flex-col gap-16 px-6 py-20 lg:px-12">
       <nav aria-label="Breadcrumb">
         <ol class="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
           <li>
@@ -54,7 +54,7 @@ const benefitsHeading = computed(() => (
               to="/projects"
               class="transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
-              Selected projects
+              Products
             </NuxtLink>
           </li>
           <li aria-hidden="true">

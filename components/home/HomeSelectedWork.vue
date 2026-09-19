@@ -1,15 +1,22 @@
 <script setup lang="ts">
-import type { WorkSection } from '~/data/homepage'
+import type { FeaturedCase } from '~/data/homepage'
 
-defineProps<{
+const props = defineProps<{
   intro: string
-  sections: WorkSection[]
+  cases: FeaturedCase[]
 }>()
+
+const flagship = computed(() => props.cases.find(item => item.featured) ?? props.cases[0])
+const secondary = computed(() =>
+  props.cases.filter(item => item.slug !== flagship.value?.slug),
+)
+const companion = computed(() => secondary.value[0])
+const rest = computed(() => secondary.value.slice(1))
 </script>
 
 <template>
   <section
-    id="selected-work"
+    id="featured-work"
     aria-labelledby="work-heading"
     class="scroll-mt-24"
   >
@@ -18,49 +25,32 @@ defineProps<{
         id="work-heading"
         class="text-2xl font-semibold"
       >
-        Selected work
+        Featured work
       </h2>
       <p class="mt-3 max-w-2xl text-muted-foreground">
         {{ intro }}
       </p>
     </div>
-    <div class="mt-10 space-y-14">
+
+    <div class="mt-10 grid grid-cols-1 gap-5 lg:grid-cols-12">
       <div
-        v-for="section in sections"
-        :key="section.id"
+        v-if="flagship"
+        class="lg:col-span-7"
       >
-        <div class="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h3 class="text-xl font-semibold">
-              {{ section.title }}
-            </h3>
-            <p class="mt-2 max-w-2xl text-sm text-muted-foreground">
-              {{ section.description }}
-            </p>
-          </div>
-          <NuxtLink
-            v-if="section.id === 'professional'"
-            to="/experience"
-            class="text-sm font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-          >
-            Full role details
-          </NuxtLink>
-        </div>
-        <ul
-          :class="[
-            'mt-6 divide-y divide-border',
-            section.id === 'open-source'
-              ? ''
-              : 'grid grid-cols-1 gap-0',
-          ]"
-        >
-          <li
-            v-for="project in section.items"
-            :key="project.slug"
-          >
-            <HomeFeaturedCaseCard :item="project" />
-          </li>
-        </ul>
+        <HomeFeaturedCaseCard :item="flagship" />
+      </div>
+      <div
+        v-if="companion"
+        class="lg:col-span-5"
+      >
+        <HomeFeaturedCaseCard :item="companion" />
+      </div>
+      <div
+        v-for="item in rest"
+        :key="item.slug"
+        class="lg:col-span-12"
+      >
+        <HomeFeaturedCaseCard :item="item" />
       </div>
     </div>
   </section>

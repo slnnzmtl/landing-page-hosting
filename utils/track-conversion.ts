@@ -1,4 +1,5 @@
 import type { ConversionEventName } from '~/data/homepage'
+import { trackUmami } from '~/utils/track-umami'
 
 export const CONVERSION_EVENT = 'kazansky:conversion'
 
@@ -22,4 +23,5 @@ export function trackConversion(
       detail: { name, props },
     }),
   )
+  trackUmami(name, props)
 }

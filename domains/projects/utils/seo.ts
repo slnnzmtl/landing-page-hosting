@@ -2,7 +2,7 @@ import { projectPath, type Project } from '../data/types'
 import { getProjectRoutes } from '../project-routes'
 
 export const DEFAULT_SITE_URL = 'https://kazansky.dev'
-export const SITE_NAME = 'Kazansky Development'
+export const SITE_NAME = 'Kazansky.dev'
 
 export interface PageSeo {
   title: string
@@ -44,9 +44,9 @@ export function projectsIndexSeo(siteUrl: string, projects: Project[]): PageSeo 
   const url = absoluteUrl(siteUrl, path)
   const image = socialImage(projects[0])
   return {
-    title: `Selected projects | ${SITE_NAME}`,
+    title: `Products | ${SITE_NAME}`,
     description:
-      'Selected public projects and products from Kazansky Development, including Simple Rekordbox Converter for Rekordbox 6 and 7.',
+      'Public products from Daniel Kazansky, including Simple Rekordbox Converter for Rekordbox 6 and 7.',
     path,
     robots: 'index, follow',
     ogType: 'website',
@@ -54,9 +54,9 @@ export function projectsIndexSeo(siteUrl: string, projects: Project[]): PageSeo 
     jsonLd: {
       '@context': 'https://schema.org',
       '@type': 'CollectionPage',
-      'name': 'Selected projects',
+      'name': 'Products',
       'description':
-        'Public projects and products from Kazansky Development.',
+        'Public products from Daniel Kazansky.',
       url,
       'isPartOf': {
         '@type': 'WebSite',
@@ -91,13 +91,13 @@ export function projectDetailSeo(siteUrl: string, project: Project): PageSeo {
         {
           '@type': 'ListItem',
           'position': 1,
-          'name': 'Studio homepage',
+          'name': 'Daniel Kazansky',
           'item': absoluteUrl(siteUrl, '/'),
         },
         {
           '@type': 'ListItem',
           'position': 2,
-          'name': 'Selected projects',
+          'name': 'Products',
           'item': absoluteUrl(siteUrl, '/projects'),
         },
         {
@@ -146,7 +146,7 @@ export interface HomepageSeoInput {
   }
   valueProposition: string
   profileLinks: Array<{ href: string }>
-  workSections: Array<{ items: Array<{ title: string, href?: string }> }>
+  featuredCases: Array<{ title: string, href?: string }>
   products: { items: Array<{ title: string, cta: { href: string } }> }
 }
 
@@ -161,14 +161,12 @@ function homepageCreativeWorks(
   const works: Array<{ '@type': 'CreativeWork', 'name': string, 'url': string }> = []
   const seen = new Set<string>()
 
-  for (const section of home.workSections) {
-    for (const item of section.items) {
-      if (!item.href || !isPublicCreativeWorkHref(item.href)) continue
-      const url = absoluteUrl(siteUrl, item.href)
-      if (seen.has(url)) continue
-      seen.add(url)
-      works.push({ '@type': 'CreativeWork', 'name': item.title, 'url': url })
-    }
+  for (const item of home.featuredCases) {
+    if (!item.href || !isPublicCreativeWorkHref(item.href)) continue
+    const url = absoluteUrl(siteUrl, item.href)
+    if (seen.has(url)) continue
+    seen.add(url)
+    works.push({ '@type': 'CreativeWork', 'name': item.title, 'url': url })
   }
 
   for (const product of home.products.items) {
@@ -186,8 +184,7 @@ export function homepageSeo(siteUrl: string, home: HomepageSeoInput): PageSeo {
   const path = '/'
   const url = absoluteUrl(siteUrl, path)
   const title = `${home.person.name} | ${home.person.role}`
-  const description
-    = `${home.person.name} is an ${home.person.role} with ${home.person.heroSubtitle}. ${home.valueProposition}`
+  const description = home.valueProposition
   const creativeWorks = homepageCreativeWorks(siteUrl, home)
   const person = personId(siteUrl)
   const website = websiteId(siteUrl)

@@ -3,7 +3,7 @@ import {
   experienceRoles,
   experienceUserFacingCopy,
   formatExperienceRange,
-  homepageProfessionalCards,
+  homepageExperiencePreview,
   professionalTenure,
   publishedExperienceRoles,
 } from '~/data/experience'
@@ -133,9 +133,9 @@ describe('experience content model', () => {
     }
   })
 
-  it('qualifies tenure without claiming 7+ years specifically as a software engineer', () => {
-    expect(professionalTenure.short).toBe('7+ years')
-    expect(professionalTenure.label).toMatch(/digital products and software delivery/i)
+  it('qualifies tenure without claiming 8+ years specifically as a software engineer', () => {
+    expect(professionalTenure.short).toBe('8+ years')
+    expect(professionalTenure.label).toMatch(/digital products/i)
     expect(professionalTenure.heroSubtitle).toMatch(/digital products and software delivery/i)
     expect(professionalTenure.softwareEngineeringSince).toBe('Building software since 2019')
     expect(professionalTenure.heroSubtitle.toLowerCase()).not.toMatch(
@@ -143,16 +143,18 @@ describe('experience content model', () => {
     )
   })
 
-  it('derives homepage professional cards from the same role ids', () => {
-    const cards = homepageProfessionalCards()
-    expect(cards.map(card => card.slug)).toEqual([
+  it('derives homepage experience preview chips from recent role ids', () => {
+    const chips = homepageExperiencePreview()
+    expect(chips.map(chip => chip.id)).toEqual([
       'upwork-reputation-team',
       'subbly-senior-software-developer',
-      'capgemini-software-developer',
+      'woki-lead-software-developer',
     ])
-    expect(cards[0].summary.split(/\n{2,}/)).toHaveLength(1)
-    expect(cards[0].summary).not.toContain('Core Feature Ownership')
-    expect(cards[1].summary).toMatch(/20%/)
-    expect(cards.every(card => card.icon)).toBe(true)
+    expect(chips.map(chip => chip.organization)).toEqual([
+      'Upwork',
+      'Subbly®',
+      'Woki.one',
+    ])
+    expect(chips.every(chip => chip.icon)).toBe(true)
   })
 })

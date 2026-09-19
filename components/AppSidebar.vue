@@ -16,10 +16,11 @@ watch(() => route.fullPath, () => {
 const currentHash = computed(() => route.hash || liveHash.value)
 
 const navItems = [
-  { label: 'Homepage', to: '/' },
-  { label: 'Experience', to: '/experience' },
-  { label: 'Projects', to: '/projects' },
-  { label: 'Contacts', to: '/#contact' },
+  { label: 'Work', to: '/', external: false },
+  { label: 'Experience', to: '/experience', external: false },
+  { label: 'Products', to: '/projects', external: false },
+  { label: 'Contact', to: '/#contact', external: false },
+  { label: 'GitHub', to: 'https://github.com/slnnzmtl', external: true },
 ]
 
 const menuOpen = ref(false)
@@ -65,6 +66,7 @@ const linkFocus
   = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
 
 function isActive(item: (typeof navItems)[number]) {
+  if (item.external) return false
   if (item.to === '/#contact') {
     return route.path === '/' && currentHash.value === '#contact'
   }
@@ -89,8 +91,8 @@ function linkClass(item: (typeof navItems)[number]) {
 </script>
 
 <template>
-  <!-- Mobile: burger + overlay panel -->
-  <div class="md:hidden">
+  <!-- Mobile and tablet: burger + overlay panel -->
+  <div class="xl:hidden">
     <button
       type="button"
       class="fixed right-4 top-4 z-50 inline-flex h-10 w-10 items-center justify-center rounded-md bg-black/30 text-foreground backdrop-blur-sm"
@@ -130,42 +132,69 @@ function linkClass(item: (typeof navItems)[number]) {
       <nav
         v-if="menuOpen"
         :id="menuId"
-        class="fixed inset-0 z-40 flex flex-col items-center justify-center gap-2 bg-black/50 px-6 backdrop-blur-xl md:hidden"
+        class="fixed inset-0 z-40 flex flex-col items-center justify-center gap-2 bg-black/50 px-6 backdrop-blur-xl xl:hidden"
         aria-label="Site"
       >
-        <NuxtLink
+        <template
           v-for="item in navItems"
           :key="item.to"
-          :to="item.to"
-          :class="['w-full max-w-xs text-center text-lg', ...linkClass(item)]"
-          :aria-current="isActive(item) ? 'page' : undefined"
-          @click="onNavClick(item)"
         >
-          {{ item.label }}
-        </NuxtLink>
+          <a
+            v-if="item.external"
+            :href="item.to"
+            target="_blank"
+            rel="noopener noreferrer"
+            :class="['w-full max-w-xs text-center text-lg', ...linkClass(item)]"
+            @click="closeMenu"
+          >
+            {{ item.label }}
+          </a>
+          <NuxtLink
+            v-else
+            :to="item.to"
+            :class="['w-full max-w-xs text-center text-lg', ...linkClass(item)]"
+            :aria-current="isActive(item) ? 'page' : undefined"
+            @click="onNavClick(item)"
+          >
+            {{ item.label }}
+          </NuxtLink>
+        </template>
       </nav>
     </Teleport>
   </div>
 
-  <!-- Desktop: left rail -->
+  <!-- Desktop: reserved left column at xl -->
   <aside
-    class="hidden bg-transparent md:sticky md:top-0 md:z-40 md:col-start-1 md:row-start-1 md:block md:h-screen md:w-52 md:self-start"
+    class="hidden bg-transparent xl:sticky xl:top-0 xl:z-40 xl:col-start-1 xl:row-start-1 xl:block xl:h-screen xl:self-start"
     aria-label="Site navigation"
   >
     <nav
       class="flex h-full flex-col gap-1 px-4 py-8"
       aria-label="Site"
     >
-      <NuxtLink
+      <template
         v-for="item in navItems"
         :key="item.to"
-        :to="item.to"
-        :class="linkClass(item)"
-        :aria-current="isActive(item) ? 'page' : undefined"
-        @click="onNavClick(item)"
       >
-        {{ item.label }}
-      </NuxtLink>
+        <a
+          v-if="item.external"
+          :href="item.to"
+          target="_blank"
+          rel="noopener noreferrer"
+          :class="linkClass(item)"
+        >
+          {{ item.label }}
+        </a>
+        <NuxtLink
+          v-else
+          :to="item.to"
+          :class="linkClass(item)"
+          :aria-current="isActive(item) ? 'page' : undefined"
+          @click="onNavClick(item)"
+        >
+          {{ item.label }}
+        </NuxtLink>
+      </template>
     </nav>
   </aside>
 </template>
