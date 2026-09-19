@@ -65,7 +65,7 @@ tests/
 
 **SEO** — production site origin, canonical/OG tags, homepage Person/WebSite/CreativeWork JSON-LD, CollectionPage/SoftwareApplication for projects, sitemap and robots output.
 
-**Homepage content** — approved copy, href classification, and conversion events for contact/case CTAs (`conversionEventName` + `trackConversion` window CustomEvent).
+**Homepage content** — approved copy, href classification, and the four Umami events for flagship case, other case, product, and contact CTAs (`conversionEventName` + `trackConversion`).
 
 Finance unit tests moved to the sibling `personal-finance` app.
 

@@ -8,6 +8,30 @@
       }
     }
   ],
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.kazansky.dev"
+        }
+      ],
+      "destination": "https://kazansky.dev/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "daniel.kazansky.dev"
+        }
+      ],
+      "destination": "https://kazansky.dev/:path*",
+      "permanent": true
+    }
+  ],
   "headers": [
     {
       "source": "/_nuxt/(.*)",

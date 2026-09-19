@@ -5,7 +5,7 @@ import {
   homepageHrefKind,
   opensInNewTab,
 } from '~/data/homepage'
-import { homepageProfessionalCards } from '~/data/experience'
+import { homepageExperiencePreview, professionalTenure } from '~/data/experience'
 import { CONVERSION_EVENT, trackConversion } from '~/utils/track-conversion'
 
 describe('homepage content model', () => {
@@ -14,120 +14,77 @@ describe('homepage content model', () => {
   it('identifies the person, role, and experience for a first-time visitor', () => {
     expect(published.person.name).toBe('Daniel Kazansky')
     expect(published.person.role).toBe('AI-Native Full-Stack Engineer')
-    expect(published.person.experience).toBe('7+ years')
-    expect(published.person.heroSubtitle).toBe(
-      '7+ years across digital products and software delivery',
+    expect(professionalTenure.short).toBe('8+ years')
+    expect(professionalTenure.heroSubtitle).toBe(
+      '8+ years across digital products and software delivery',
     )
-    expect(published.person.heroSubtitle.toLowerCase()).not.toMatch(
-      /7\+ years as a software engineer/,
+    expect(professionalTenure.heroSubtitle.toLowerCase()).not.toMatch(
+      /8\+ years as a software engineer/,
     )
-    expect(published.valueProposition).toMatch(/AI agents/)
-    expect(published.valueProposition).toMatch(/full-stack/)
+    expect(published.valueProposition).toMatch(/AI-enabled products/)
+    expect(published.valueProposition).toMatch(/APIs, CRMs, databases/)
+    expect(published.valueProposition).toMatch(/8\+ years/)
   })
 
-  it('includes selected-work and contact CTAs plus GitHub, LinkedIn', () => {
-    expect(published.primaryCtas.map(item => item.href)).toEqual(['#selected-work', '#contact'])
+  it('includes flagship and contact CTAs plus GitHub, LinkedIn', () => {
+    expect(published.primaryCtas.map(item => item.href)).toEqual(['#flagship-case', '#contact'])
+    expect(published.primaryCtas[0].label).toBe('View flagship case')
+    expect(published.primaryCtas[1].label).toBe('Discuss a project')
     const labels = published.profileLinks.map(item => item.label)
     expect(labels).toEqual(['GitHub', 'LinkedIn'])
     expect(published.profileLinks.find(item => item.label === 'GitHub')?.href).toBe('https://github.com/slnnzmtl')
     expect(published.profileLinks.find(item => item.label === 'LinkedIn')?.href).toContain('linkedin.com/in/daniel-kazansky')
   })
 
-  it('uses only the approved proof facts', () => {
-    expect(published.proof.map(item => item.value)).toEqual([
-      '7+',
-      '20M+',
-      '10M+',
-      '25%',
+  it('publishes a current-focus panel instead of standalone capability cards', () => {
+    expect(published).not.toHaveProperty('capabilities')
+    expect(published.heroFocus.heading).toBe('Current focus')
+    expect(published.heroFocus.items.map(item => item.title)).toEqual([
+      'Agent workflows',
+      'APIs / CRM / data',
+      'Production delivery',
     ])
-    expect(published.proof[3].label).toContain('500+ users')
+  })
+
+  it('uses selected-outcomes copy without internal approved-facts wording', () => {
+    expect(published.proof.map(item => `${item.value} ${item.label}`)).toEqual([
+      '8+ years across digital products',
+      'Millions Marketplace products serving millions',
+      '10M+ analytics data points',
+      '25% higher onboarding completion',
+    ])
+    expect(published.proof[3].label).not.toMatch(/500\+/)
+    expect(published.proof[1].label.toLowerCase()).not.toMatch(/20m/)
   })
 
   it('does not publish a separate three-track intro', () => {
     expect(published).not.toHaveProperty('tracks')
     expect(published).not.toHaveProperty('tracksIntro')
+    expect(published).not.toHaveProperty('workSections')
   })
 
-  it('groups selected work into professional, independent, and open-source', () => {
-    expect(published.selectedWorkIntro).toBe(
-      'Commercial product engineering, independent delivery, and publicly inspectable open-source systems.',
-    )
-    expect(published.workSections.map(section => section.id)).toEqual([
-      'professional',
-      'independent',
-      'open-source',
-    ])
-    expect(published.workSections.map(section => section.title)).toEqual([
-      'Professional Experience',
-      'Independent Work',
-      'Open-Source Engineering',
-    ])
-    expect(published.workSections[0].description).toContain('marketplace, analytics, and SaaS')
-    expect(published.workSections[1].description).toContain('AI-native workflows')
-    expect(published.workSections[2].description).toContain('Publicly inspectable systems')
-  })
-
-  it('lists condensed selected-work cards with Woki under independent and Rekordbox under products', () => {
-    const slugs = published.workSections.flatMap(section => section.items.map(item => item.slug))
-    expect(slugs).toEqual([
+  it('features three cases without professional / independent / open-source taxonomy', () => {
+    expect(published.featuredCases.map(item => item.slug)).toEqual([
+      'ai-appointment-crm-automation',
       'upwork-reputation-team',
-      'subbly-senior-software-developer',
-      'capgemini-software-developer',
-      'ai-appointment-crm-automation',
-      'woki-crm',
-      'kml-map-viewer',
-      'langgraph-personal-assistant',
       'directus-website-builder',
     ])
-
-    const professional = published.workSections.find(section => section.id === 'professional')
-    expect(professional?.items.map(item => item.subtitle)).toEqual([
-      'Upwork · Long-term contractor · Jan 2025 – May 2026 · Remote',
-      'Subbly® · Full-time · Nov 2023 – Dec 2024 · Remote',
-      'Capgemini Engineering · Full-time · Jun 2022 – May 2023 · Remote',
-    ])
-    expect(professional?.items.map(item => item.title)).toEqual([
-      'Senior Software Engineer (Reputation Team)',
-      'Senior Software Developer',
-      'Software Developer',
-    ])
-    expect(professional?.items.map(item => item.icon)).toEqual([
-      '/images/experience/upwork.png',
-      '/images/experience/subbly.png',
-      '/images/experience/capgemini.png',
-    ])
-    expect(professional?.items.every(item => !item.hrefLabel)).toBe(true)
-    expect(professional?.items.every(item => !item.href)).toBe(true)
-    expect(professional?.items[0].summary.split(/\n{2,}/)).toHaveLength(1)
-    expect(professional?.items[0].summary).toContain('tens of millions of users')
-    expect(professional?.items[0].summary).not.toContain('Core Feature Ownership')
-    expect(professional?.items[0].summary).not.toMatch(/massive scale/i)
-    expect(professional?.items[0].summary).not.toMatch(/state-of-the-art/i)
-    expect(professional?.items[0].summary).not.toMatch(/cutting-edge productivity/i)
-    expect(professional?.items[0].summary).not.toMatch(/evaluation scoring paradigm/i)
-
-    const independent = published.workSections.find(section => section.id === 'independent')
-    expect(independent?.items.map(item => item.slug)).toEqual([
-      'ai-appointment-crm-automation',
-      'woki-crm',
-      'kml-map-viewer',
-    ])
-    expect(independent?.items[0].featured).toBe(true)
-    expect(independent?.items[0].hrefLabel).toBe('View project')
-    const woki = independent?.items.find(item => item.slug === 'woki-crm')
-    expect(woki?.title).toBe('Woki CRM')
-    expect(woki?.subtitle).toContain('Woki.one')
-
-    const openSource = published.workSections.find(section => section.id === 'open-source')
-    expect(openSource?.items.map(item => item.slug)).toEqual([
-      'langgraph-personal-assistant',
-      'directus-website-builder',
-    ])
-    expect(
-      published.workSections.some(section =>
-        section.items.some(item => item.slug.includes('rekordbox')),
-      ),
-    ).toBe(false)
+    expect(published.featuredCases.find(item => item.slug === 'upwork-reputation-team')?.href).toBe(
+      '/experience#upwork-reputation-team',
+    )
+    expect(published.featuredCases[0].featured).toBe(true)
+    expect(published.featuredCases.filter(item => item.featured)).toHaveLength(1)
+    for (const item of published.featuredCases) {
+      expect(item.problem.length).toBeGreaterThan(0)
+      expect(item.role.length).toBeGreaterThan(0)
+      expect(item.contribution.length).toBeGreaterThan(0)
+      expect(item.outcome.length).toBeGreaterThan(0)
+      expect(item.stack.length).toBeGreaterThan(0)
+      expect(item.href.length).toBeGreaterThan(0)
+      expect(item.hrefLabel.length).toBeGreaterThan(0)
+    }
+    expect(published.featuredCases.some(item => item.slug.includes('rekordbox'))).toBe(false)
+    expect(published.featuredCases.some(item => item.slug === 'subbly-senior-software-developer')).toBe(false)
   })
 
   it('publishes a Products section with a Rekordbox spotlight', () => {
@@ -153,53 +110,56 @@ describe('homepage content model', () => {
     expect(rekordbox.image.src).toContain('macos-app-main-window')
   })
 
-  it('includes approved Subbly metrics from LinkedIn professional experience', () => {
-    const subbly = published.workSections
-      .flatMap(section => section.items)
-      .find(item => item.slug === 'subbly-senior-software-developer')
-    expect(subbly?.subtitle).toContain('Subbly®')
-    expect(subbly?.title).toBe('Senior Software Developer')
-    expect(subbly?.summary).toMatch(/20%/)
-    expect(subbly?.summary).toMatch(/25%/)
-    expect(subbly?.summary).toMatch(/15%/)
-    expect(subbly?.summary).toMatch(/500\+/)
-  })
-
-  it('derives professional selected-work cards from canonical experience roles', () => {
-    expect(published.workSections[0].items).toEqual(homepageProfessionalCards())
-  })
-
-  it('covers agentic, full-stack, and production capabilities', () => {
-    expect(published.capabilities.map(item => item.title)).toEqual([
-      'Agentic AI systems',
-      'Full-stack product engineering',
-      'Production product engineering',
+  it('keeps Subbly metrics off the homepage and in the experience preview only as a role chip', () => {
+    expect(published.experiencePreview.items).toEqual(homepageExperiencePreview())
+    expect(published.experiencePreview.items.map(item => item.id)).toEqual([
+      'upwork-reputation-team',
+      'subbly-senior-software-developer',
+      'woki-lead-software-developer',
     ])
+    expect(published.experiencePreview.cta).toEqual({
+      label: 'View full timeline',
+      href: '/experience',
+    })
+    const homepageCopy = [
+      ...published.featuredCases.flatMap(item => [
+        item.problem,
+        item.role,
+        item.contribution,
+        item.outcome,
+      ]),
+      ...published.proof.map(item => `${item.value} ${item.label}`),
+    ].join(' ')
+    expect(homepageCopy).not.toMatch(/20%/)
+    expect(homepageCopy).not.toMatch(/15%/)
+    expect(homepageCopy).not.toMatch(/500\+/)
   })
 
   it('keeps confidential client details and unapproved metrics out of published copy', () => {
     const userFacingCopy = [
       published.person.name,
       published.person.role,
-      published.person.experience,
-      published.person.heroSubtitle,
+      professionalTenure.short,
+      professionalTenure.heroSubtitle,
       published.valueProposition,
       ...published.primaryCtas.map(item => `${item.label} ${item.href}`),
       ...published.profileLinks.map(item => `${item.label} ${item.href}`),
+      ...published.heroFocus.items.map(item => `${item.title} ${item.summary}`),
       ...published.proof.map(item => `${item.value} ${item.label}`),
-      published.selectedWorkIntro,
-      ...published.workSections.flatMap(section => [
-        section.title,
-        section.description,
-        ...section.items.flatMap(item => [
-          item.title,
-          item.subtitle ?? '',
-          item.summary,
-          item.href ?? '',
-          item.hrefLabel ?? '',
-          ...(item.tags ?? []),
-        ]),
+      published.featuredWorkIntro,
+      ...published.featuredCases.flatMap(item => [
+        item.title,
+        item.problem,
+        item.role,
+        item.contribution,
+        item.outcome,
+        item.href,
+        item.hrefLabel,
+        ...item.stack,
       ]),
+      published.experiencePreview.heading,
+      ...published.experiencePreview.items.map(item => item.organization),
+      published.experiencePreview.cta.label,
       published.products.heading,
       published.products.description,
       ...published.products.items.flatMap(item => [
@@ -210,7 +170,6 @@ describe('homepage content model', () => {
         item.cta.href,
         ...item.tags,
       ]),
-      ...published.capabilities.map(item => `${item.title} ${item.summary}`),
       published.contact.heading,
       published.contact.summary,
       published.contact.email.label,
@@ -221,19 +180,13 @@ describe('homepage content model', () => {
 
     expect(userFacingCopy).not.toMatch(/password|secret|api[_-]?key|webhook token/)
     expect(userFacingCopy).not.toMatch(/40% conversion|3x roi|70% time saved|85% better decisions/)
+    expect(userFacingCopy).not.toMatch(/approved facts/)
     expect(published.proof.some(item => item.value === 'Outcomes')).toBe(false)
     expect(userFacingCopy).not.toMatch(/home address/)
     expect(userFacingCopy).not.toMatch(/whoppah/)
-
-    const userFacingWithSubtitles = [
-      ...published.workSections.flatMap(section =>
-        section.items.map(item => `${item.subtitle ?? ''} ${item.summary}`),
-      ),
-    ].join(' ')
-    expect(userFacingWithSubtitles).toContain('Upwork')
-    expect(userFacingWithSubtitles).toContain('Subbly®')
-    expect(userFacingWithSubtitles).toContain('Capgemini Engineering')
-    expect(userFacingWithSubtitles).toContain('Woki.one')
+    expect(userFacingCopy).toContain('upwork')
+    expect(userFacingCopy).toContain('subbly')
+    expect(userFacingCopy).toContain('woki')
 
     const rekordbox = published.products.items[0]
     const rekordboxCopy = [
@@ -258,15 +211,23 @@ describe('homepage content model', () => {
     expect(opensInNewTab('mailto:kazanskydaniel@gmail.com')).toBe(false)
   })
 
-  it('maps contact and case hrefs to conversion event names', () => {
-    expect(conversionEventName('mailto:kazanskydaniel@gmail.com')).toBe('contact_email')
-    expect(conversionEventName('https://t.me/slnnzmtl')).toBe('contact_telegram')
+  it('maps contact, case, and product hrefs to the four Umami events', () => {
+    expect(conversionEventName('mailto:kazanskydaniel@gmail.com')).toBe('contact')
+    expect(conversionEventName('https://t.me/slnnzmtl')).toBe('contact')
     expect(conversionEventName('#contact')).toBe('contact')
-    expect(conversionEventName('https://github.com/slnnzmtl/langgraph-appointment-bot')).toBe(
-      'case_outbound',
+    expect(conversionEventName(
+      'https://github.com/slnnzmtl/langgraph-appointment-bot',
+      { featured: true },
+    )).toBe('flagship-case-open')
+    expect(conversionEventName('https://github.com/slnnzmtl/directus-website-builder')).toBe(
+      'case-open',
     )
-    expect(conversionEventName('/projects/rekordbox-playlist-converter')).toBeNull()
-    expect(conversionEventName('#selected-work')).toBeNull()
+    expect(conversionEventName('/experience')).toBe('case-open')
+    expect(conversionEventName('/experience#upwork-reputation-team')).toBe('case-open')
+    expect(conversionEventName('/projects/rekordbox-playlist-converter', { product: true })).toBe(
+      'product-open',
+    )
+    expect(conversionEventName('#flagship-case')).toBeNull()
   })
 
   it('trackConversion dispatches a window event without PII', () => {
@@ -276,12 +237,12 @@ describe('homepage content model', () => {
       seen.push(detail)
     }
     window.addEventListener(CONVERSION_EVENT, onConversion)
-    trackConversion('contact_email')
-    trackConversion('case_outbound', { slug: 'woki-crm' })
+    trackConversion('contact')
+    trackConversion('case-open', { slug: 'directus-website-builder' })
     window.removeEventListener(CONVERSION_EVENT, onConversion)
     expect(seen).toEqual([
-      { name: 'contact_email', props: undefined },
-      { name: 'case_outbound', props: { slug: 'woki-crm' } },
+      { name: 'contact', props: undefined },
+      { name: 'case-open', props: { slug: 'directus-website-builder' } },
     ])
     expect(JSON.stringify(seen)).not.toMatch(/mailto:|@gmail|kazanskydaniel/i)
   })

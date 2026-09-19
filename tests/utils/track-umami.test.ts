@@ -9,11 +9,11 @@ describe('trackUmami', () => {
   it('calls window.umami.track when available', () => {
     const track = vi.fn()
     window.umami = { track }
-    trackUmami('Rekordbox Converter Download')
-    expect(track).toHaveBeenCalledWith('Rekordbox Converter Download')
+    trackUmami('product-open', { action: 'download' })
+    expect(track).toHaveBeenCalledWith('product-open', { action: 'download' })
   })
 
   it('no-ops when umami is not loaded', () => {
-    expect(() => trackUmami('Rekordbox Converter Download')).not.toThrow()
+    expect(() => trackUmami('product-open')).not.toThrow()
   })
 })

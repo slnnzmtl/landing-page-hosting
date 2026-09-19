@@ -1,4 +1,5 @@
 import type { ConversionEventName } from '~/data/homepage'
+import { trackUmami } from '~/utils/track-umami'
 
 export const CONVERSION_EVENT = 'kazansky:conversion'
 
@@ -8,9 +9,8 @@ export interface ConversionDetail {
 }
 
 /**
- * Privacy-conscious conversion hook for contact and case-study CTAs.
- * Dispatches a window CustomEvent with event name and optional slug only — no PII.
- * A cookieless analytics provider can listen for CONVERSION_EVENT later.
+ * Privacy-conscious conversion hook for homepage CTAs.
+ * Dispatches CONVERSION_EVENT for tests and forwards to Umami when loaded (slug only, no PII).
  */
 export function trackConversion(
   name: ConversionEventName,
@@ -22,4 +22,5 @@ export function trackConversion(
       detail: { name, props },
     }),
   )
+  trackUmami(name, props)
 }

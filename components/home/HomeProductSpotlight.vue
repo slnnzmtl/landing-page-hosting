@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { homepageHrefKind, type ProductSpotlight } from '~/data/homepage'
 import { useHomepageUi } from '~/composables/useHomepageUi'
+import { trackHomepageHref } from '~/composables/useHomepageConversion'
 
 const props = defineProps<{
   product: ProductSpotlight
@@ -15,6 +16,10 @@ const ctaClass = [
   'inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90',
   linkFocus,
 ].join(' ')
+
+function onProductCtaClick() {
+  trackHomepageHref(ctaHref.value, { product: true, slug: props.product.slug })
+}
 </script>
 
 <template>
@@ -49,6 +54,7 @@ const ctaClass = [
             v-if="isRouteCta"
             :to="ctaHref"
             :class="ctaClass"
+            @click="onProductCtaClick"
           >
             {{ product.cta.label }}
           </NuxtLink>
@@ -57,6 +63,7 @@ const ctaClass = [
             :href="ctaHref"
             v-bind="outboundAttrs(ctaHref)"
             :class="ctaClass"
+            @click="onProductCtaClick"
           >
             {{ product.cta.label }}
           </a>

@@ -128,6 +128,7 @@ describe('homepage SEO', () => {
     expect(list.itemListElement.map(entry => entry.item.url)).toEqual(
       expect.arrayContaining([
         'https://github.com/slnnzmtl/langgraph-appointment-bot',
+        'https://github.com/slnnzmtl/directus-website-builder',
         'https://kazansky.dev/projects/rekordbox-playlist-converter',
       ]),
     )
@@ -139,6 +140,7 @@ describe('homepage SEO', () => {
     expect(head.link).toEqual([{ rel: 'canonical', href: 'https://kazansky.dev/' }])
     expect(head.meta).toEqual(expect.arrayContaining([
       { name: 'robots', content: 'index, follow' },
+      { property: 'og:site_name', content: 'Kazansky.dev' },
       { property: 'og:url', content: 'https://kazansky.dev/' },
       { property: 'og:type', content: 'website' },
     ]))

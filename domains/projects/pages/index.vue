@@ -11,13 +11,13 @@ usePageSeo(projectsIndexSeo(siteUrl, projects))
 
 <template>
   <div class="relative min-h-screen text-foreground">
-    <div class="relative z-10 mx-auto flex max-w-5xl flex-col gap-12 px-6 py-20 lg:px-12">
+    <div class="relative z-10 mx-auto flex max-w-6xl flex-col gap-12 px-6 py-20 lg:px-12">
       <header class="space-y-4">
         <p class="text-sm uppercase tracking-[0.35em] text-primary">
           Daniel Kazansky
         </p>
         <h1 class="text-4xl font-semibold leading-tight sm:text-5xl">
-          Selected products
+          Products
         </h1>
         <p class="max-w-2xl text-lg text-muted-foreground">
           Public products and tools. Each card opens a dedicated landing page with usage notes and downloads.

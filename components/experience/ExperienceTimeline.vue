@@ -14,8 +14,9 @@ defineProps<{
     />
     <li
       v-for="role in roles"
+      :id="role.id"
       :key="role.id"
-      class="relative"
+      class="relative scroll-mt-24"
     >
       <ExperienceRoleCard :role="role" />
     </li>

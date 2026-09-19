@@ -8,7 +8,10 @@ const showSiteChrome = computed(() => {
 </script>
 
 <template>
-  <div class="relative grid min-h-screen bg-black">
+  <div
+    class="relative grid min-h-screen bg-black"
+    :class="showSiteChrome ? 'xl:grid-cols-[13rem_minmax(0,1fr)]' : ''"
+  >
     <a
       href="#main-content"
       class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-foreground"
@@ -19,7 +22,8 @@ const showSiteChrome = computed(() => {
     <AppSidebar v-if="showSiteChrome" />
     <main
       id="main-content"
-      class="app col-start-1 row-start-1 bg-transparent"
+      class="app row-start-1 bg-transparent"
+      :class="showSiteChrome ? 'col-start-1 xl:col-start-2' : 'col-start-1'"
       tabindex="-1"
     >
       <NuxtPage />

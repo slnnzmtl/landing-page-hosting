@@ -1,4 +1,4 @@
-import { homepageProfessionalCards, professionalTenure } from './experience'
+import { experienceRolePath, homepageExperiencePreview, professionalTenure } from './experience'
 
 export interface HomepageLink {
   label: string
@@ -10,34 +10,40 @@ export interface ProofItem {
   label: string
 }
 
-export type WorkSectionId = 'professional' | 'independent' | 'open-source'
+export interface HeroFocusItem {
+  title: string
+  summary: string
+}
 
-export interface WorkCard {
+export interface HeroFocus {
+  heading: string
+  items: HeroFocusItem[]
+}
+
+export interface FeaturedCase {
   slug: string
   title: string
-  summary: string
-  href?: string
-  hrefLabel?: string
-  /** LinkedIn-style meta line, e.g. company · dates · location */
-  subtitle?: string
-  /** Public path to a company/product icon shown beside the title */
-  icon?: string
-  /** Accessible label for the icon; defaults to title */
-  iconAlt?: string
-  tags?: string[]
   featured?: boolean
+  problem: string
+  role: string
+  contribution: string
+  outcome: string
+  stack: string[]
+  href: string
+  hrefLabel: string
 }
 
-export interface WorkSection {
-  id: WorkSectionId
-  title: string
-  description: string
-  items: WorkCard[]
+export interface ExperiencePreviewItem {
+  id: string
+  organization: string
+  icon?: string
+  iconAlt?: string
 }
 
-export interface Capability {
-  title: string
-  summary: string
+export interface ExperiencePreview {
+  heading: string
+  items: ExperiencePreviewItem[]
+  cta: HomepageLink
 }
 
 export interface ProductSpotlightImage {
@@ -70,17 +76,16 @@ export interface HomepageContent {
   person: {
     name: string
     role: string
-    experience: string
-    heroSubtitle: string
   }
   valueProposition: string
   primaryCtas: HomepageLink[]
   profileLinks: HomepageLink[]
+  heroFocus: HeroFocus
   proof: ProofItem[]
-  workSections: WorkSection[]
+  featuredWorkIntro: string
+  featuredCases: FeaturedCase[]
+  experiencePreview: ExperiencePreview
   products: ProductsSection
-  capabilities: Capability[]
-  selectedWorkIntro: string
   contact: {
     heading: string
     summary: string
@@ -93,15 +98,13 @@ export const homepageContent: HomepageContent = {
   person: {
     name: 'Daniel Kazansky',
     role: 'AI-Native Full-Stack Engineer',
-    experience: professionalTenure.short,
-    heroSubtitle: professionalTenure.heroSubtitle,
   },
   valueProposition:
-    'I build production software—from AI agents and workflow automation to full-stack applications, CRM integrations, and data-heavy interfaces.',
+    `I build reliable AI-enabled products connecting models to APIs, CRMs, databases, and real operations—backed by ${professionalTenure.heroSubtitle}.`,
   primaryCtas: [
     {
-      label: 'Selected work',
-      href: '#selected-work',
+      label: 'View flagship case',
+      href: '#flagship-case',
     },
     {
       label: 'Discuss a project',
@@ -118,89 +121,96 @@ export const homepageContent: HomepageContent = {
       href: 'https://www.linkedin.com/in/daniel-kazansky/',
     },
   ],
+  heroFocus: {
+    heading: 'Current focus',
+    items: [
+      {
+        title: 'Agent workflows',
+        summary: 'Tool-using agents with persistence, authorization, and human approval for consequential actions.',
+      },
+      {
+        title: 'APIs / CRM / data',
+        summary: 'Connecting models to live APIs, CRMs, databases, and operational systems.',
+      },
+      {
+        title: 'Production delivery',
+        summary: 'Reliable full-stack delivery: testing, observability, and ownership in production.',
+      },
+    ],
+  },
   proof: [
     {
-      value: '7+',
+      value: professionalTenure.short.replace(/ years$/, ''),
       label: professionalTenure.label,
     },
     {
-      value: '20M+',
-      label: 'Active users on marketplace products I contributed to',
+      value: 'Millions',
+      label: 'Marketplace products serving millions',
     },
     {
       value: '10M+',
-      label: 'Data points processed in enterprise analytics systems',
+      label: 'analytics data points',
     },
     {
       value: '25%',
-      label: 'Higher AI-assisted onboarding completion for 500+ users',
+      label: 'higher onboarding completion',
     },
   ],
-  workSections: [
+  featuredWorkIntro:
+    'Three representative cases: an AI-native booking system, marketplace reputation work, and a Directus website platform.',
+  featuredCases: [
     {
-      id: 'professional',
-      title: 'Professional Experience',
-      description:
-        'Product engineering within commercial teams, working on marketplace, analytics, and SaaS platforms.',
-      items: homepageProfessionalCards(),
+      slug: 'ai-appointment-crm-automation',
+      title: 'AI Appointment & CRM Automation',
+      featured: true,
+      problem:
+        'Appointment booking and CRM updates needed live availability, identity checks, and human control over writes—not an unsupervised chatbot.',
+      role: 'Independent full-stack AI engineer',
+      contribution:
+        'Built a multilingual LangGraph assistant for booking, rescheduling, and cancellation through Telegram, with live CRM availability and approval-controlled writes.',
+      outcome:
+        'A public, inspectable workflow that demonstrates controlled tool use and confirmation gates without implying automation at scale.',
+      stack: ['LangGraph', 'Telegram', 'EspoCRM', 'Docker', 'Python', 'TypeScript'],
+      href: 'https://github.com/slnnzmtl/langgraph-appointment-bot',
+      hrefLabel: 'View flagship case',
     },
     {
-      id: 'independent',
-      title: 'Independent Work',
-      description:
-        'End-to-end delivery of client systems, automations, and AI-native workflows.',
-      items: [
-        {
-          slug: 'ai-appointment-crm-automation',
-          title: 'AI Appointment & CRM Automation',
-          summary:
-            'Multilingual LangGraph assistant for booking, rescheduling, and cancellation through Telegram, with live CRM availability, identity checks, and approval-controlled writes.',
-          href: 'https://github.com/slnnzmtl/langgraph-appointment-bot',
-          hrefLabel: 'View project',
-          featured: true,
-        },
-        {
-          slug: 'woki-crm',
-          title: 'Woki CRM',
-          subtitle: 'Woki.one · Part-time · Jun 2023 – Dec 2023 · Remote',
-          summary:
-            'Led a 4-person team in a fast-paced startup to build a modular CRM system using Vue 3 under tight deadlines.\nAchieving a 95+ Google PageSpeed score.\nEngineered user-friendly, configurable features for seamless customization.',
-        },
-        {
-          slug: 'kml-map-viewer',
-          title: 'KML Map Viewer',
-          summary:
-            'Full-stack mapping and spatial-data platform with Google Maps integration, Laravel, Vue, and location-based workflows.',
-          href: '#contact',
-          hrefLabel: 'View project',
-        },
-      ],
+      slug: 'upwork-reputation-team',
+      title: 'Marketplace reputation',
+      problem:
+        'Reputation, credentialing, and enforcement UI on a large freelance marketplace needed end-to-end frontend ownership and modernization.',
+      role: 'Senior Software Engineer, Reputation Team',
+      contribution:
+        'Owned frontend delivery for Partner Certified Talent and related reputation surfaces, and led Vue 2 to Vue 3 modernization of legacy modules.',
+      outcome:
+        'Production ownership on marketplace products serving millions of users, including PagerDuty on-call for reputation surfaces.',
+      stack: ['Vue 3', 'Nuxt', 'TypeScript', 'Cursor', 'MCP'],
+      href: experienceRolePath('upwork-reputation-team'),
+      hrefLabel: 'View role details',
     },
     {
-      id: 'open-source',
-      title: 'Open-Source Engineering',
-      description:
-        'Publicly inspectable systems, reusable architectures, and developer tools demonstrating how I design and build software.',
-      items: [
-        {
-          slug: 'langgraph-personal-assistant',
-          title: 'LangGraph Personal Assistant',
-          summary:
-            'Persistent multi-agent assistant that routes tasks across specialist agents, tools, schedules, and external services.',
-          href: 'https://github.com/slnnzmtl/langgraph-personal-assistant',
-          hrefLabel: 'View repository',
-        },
-        {
-          slug: 'directus-website-builder',
-          title: 'Directus Website Builder',
-          summary:
-            'Full-stack Directus and Nuxt platform for multilingual block-based websites, visual editing, static generation, and optional AI-assisted page creation.',
-          href: 'https://github.com/slnnzmtl/directus-website-builder',
-          hrefLabel: 'View repository',
-        },
-      ],
+      slug: 'directus-website-builder',
+      title: 'Directus Website Builder',
+      problem:
+        'Multilingual marketing sites needed block-based authoring, visual editing, and static generation without a custom CMS for every client.',
+      role: 'Independent full-stack engineer',
+      contribution:
+        'Designed a Directus and Nuxt platform for multilingual block-based websites, visual editing, static generation, and optional AI-assisted page creation.',
+      outcome:
+        'A reusable, publicly inspectable architecture for subscription-ready content sites.',
+      stack: ['Directus', 'Nuxt', 'TypeScript', 'Vue 3'],
+      href: 'https://github.com/slnnzmtl/directus-website-builder',
+      hrefLabel: 'View repository',
     },
   ],
+  experiencePreview: {
+    heading: 'Recent roles',
+    items: homepageExperiencePreview(),
+    cta: {
+      label: 'View full timeline',
+      href: '/experience',
+    },
+  },
   products: {
     heading: 'Products',
     description: 'Software I design, build, package, and maintain for real users.',
@@ -230,25 +240,6 @@ export const homepageContent: HomepageContent = {
       },
     ],
   },
-  capabilities: [
-    {
-      title: 'Agentic AI systems',
-      summary:
-        'Tool-using LangGraph agents with persistence, authorization, failure handling, and human approval for consequential actions.',
-    },
-    {
-      title: 'Full-stack product engineering',
-      summary:
-        'TypeScript and Python applications spanning interfaces, APIs, databases, integrations, and deployment.',
-    },
-    {
-      title: 'Production product engineering',
-      summary:
-        'Reliable delivery for commercial products: modernization, observability, testing, maintainable architecture, and production ownership.',
-    },
-  ],
-  selectedWorkIntro:
-    'Commercial product engineering, independent delivery, and publicly inspectable open-source systems.',
   contact: {
     heading: 'Have a system that needs to ship?',
     summary:
@@ -267,10 +258,10 @@ export const homepageContent: HomepageContent = {
 export type HomepageHrefKind = 'native' | 'route'
 
 export type ConversionEventName
-  = 'contact_email'
-    | 'contact_telegram'
+  = 'flagship-case-open'
+    | 'case-open'
+    | 'product-open'
     | 'contact'
-    | 'case_outbound'
 
 /** `native` = plain `<a>` (https, mailto, hash). `route` = in-app `NuxtLink`. */
 export function homepageHrefKind(href: string): HomepageHrefKind {
@@ -285,11 +276,23 @@ export function externalLinkRel(href: string): string | undefined {
   return opensInNewTab(href) ? 'noopener noreferrer' : undefined
 }
 
-/** Map contact and case-study hrefs to conversion event names. Routes return null. */
-export function conversionEventName(href: string): ConversionEventName | null {
-  if (/^mailto:/i.test(href)) return 'contact_email'
-  if (/^https?:\/\/(?:www\.)?t\.me\//i.test(href)) return 'contact_telegram'
-  if (href === '#contact') return 'contact'
-  if (/^https?:/i.test(href)) return 'case_outbound'
+export function isContactHref(href: string): boolean {
+  return /^mailto:/i.test(href)
+    || /^https?:\/\/(?:www\.)?t\.me\//i.test(href)
+    || href === '#contact'
+}
+
+/** Map homepage CTAs to the four Umami events. Hash-only nav anchors return null. */
+export function conversionEventName(
+  href: string,
+  options?: { featured?: boolean, product?: boolean },
+): ConversionEventName | null {
+  if (isContactHref(href)) return 'contact'
+  if (options?.product) return 'product-open'
+  if (options?.featured) return 'flagship-case-open'
+  if (href === '#flagship-case') return null
+  if (/^https?:/i.test(href) || homepageHrefKind(href) === 'route') {
+    return 'case-open'
+  }
   return null
 }
