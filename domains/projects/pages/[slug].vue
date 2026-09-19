@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppBackLink from '~/components/AppBackLink.vue'
 import { useProjects } from '../composables/useProjects'
 import ProjectGallery from '../components/ProjectGallery.vue'
 import GithubReleases from '../components/GithubReleases.vue'
@@ -36,35 +37,9 @@ const benefitsHeading = computed(() => (
 <template>
   <article class="relative min-h-screen text-foreground">
     <div class="relative z-10 mx-auto flex max-w-6xl flex-col gap-16 px-6 py-20 lg:px-12">
-      <nav aria-label="Breadcrumb">
-        <ol class="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-          <li>
-            <NuxtLink
-              to="/"
-              class="transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            >
-              Homepage
-            </NuxtLink>
-          </li>
-          <li aria-hidden="true">
-            /
-          </li>
-          <li>
-            <NuxtLink
-              to="/projects"
-              class="transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            >
-              Products
-            </NuxtLink>
-          </li>
-          <li aria-hidden="true">
-            /
-          </li>
-          <li class="text-foreground">
-            {{ project.name }}
-          </li>
-        </ol>
-      </nav>
+      <AppBackLink to="/projects">
+        Back to products
+      </AppBackLink>
 
       <header class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(12rem,16rem)] lg:gap-10">
         <div class="min-w-0 space-y-1 sm:space-y-2 lg:space-y-5">
