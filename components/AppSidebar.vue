@@ -48,7 +48,7 @@ function onNavClick(item: (typeof navItems)[number]) {
   closeMenu()
   // Same-route `/` does not run scrollBehavior; still jump to top.
   if (item.to !== '/' || route.path !== '/' || !import.meta.client) return
-  window.scrollTo({ top: 0, behavior: 'smooth' })
+  window.scrollTo({ top: 0 })
 }
 
 watch(menuOpen, (open) => {

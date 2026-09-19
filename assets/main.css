@@ -26,13 +26,12 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
 }
 
 body {
   @apply bg-black text-foreground;
   overflow-x: hidden;
-  scroll-behavior: smooth;
 }
 
 * {
