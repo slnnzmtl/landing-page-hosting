@@ -65,38 +65,6 @@ export const rekordboxPlaylistConverter: Project = {
     width: 1200,
     height: 630,
   },
-  gallery: [
-    {
-      src: '/projects/rekordbox-playlist-converter/macos-app-main-window.webp',
-      srcThumb: '/projects/rekordbox-playlist-converter/macos-app-main-window-600w.webp',
-      srcset: '/projects/rekordbox-playlist-converter/macos-app-main-window-600w.webp 600w, /projects/rekordbox-playlist-converter/macos-app-main-window.webp 2240w',
-      sizes: '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw',
-      alt: 'Simple Rekordbox Converter main window with a Rekordbox XML loaded, Dark forest playlist selected, and WAV output settings',
-      caption: 'Main window: pick a collection XML, choose playlists, and convert to WAV or AIFF.',
-      width: 2240,
-      height: 1440,
-    },
-    {
-      src: '/projects/rekordbox-playlist-converter/macos-app-conversion-preview.webp',
-      srcThumb: '/projects/rekordbox-playlist-converter/macos-app-conversion-preview-600w.webp',
-      srcset: '/projects/rekordbox-playlist-converter/macos-app-conversion-preview-600w.webp 600w, /projects/rekordbox-playlist-converter/macos-app-conversion-preview.webp 1920w',
-      sizes: '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw',
-      alt: 'Conversion preview listing three tracks as transcode, copy, or reuse with bit depth, sample rate, and size',
-      caption: 'Convert opens a preview first. Back writes nothing; Convert starts the batch.',
-      width: 1920,
-      height: 1080,
-    },
-    {
-      src: '/projects/rekordbox-playlist-converter/macos-app-import-xml-edit.webp',
-      srcThumb: '/projects/rekordbox-playlist-converter/macos-app-import-xml-edit-600w.webp',
-      srcset: '/projects/rekordbox-playlist-converter/macos-app-import-xml-edit-600w.webp 600w, /projects/rekordbox-playlist-converter/macos-app-import-xml-edit.webp 1120w',
-      sizes: '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw',
-      alt: 'Import XML edit mode with multi-select and a context menu for Reveal in Finder, Remove from playlist, and Move to Trash',
-      caption: 'Edit Import XML trims the generated library—remove tracks or playlists, then Save or Cancel.',
-      width: 1120,
-      height: 748,
-    },
-  ],
   benefits: [
     {
       title: 'Rekordbox 6 and 7 XML export/import workflow',
@@ -156,24 +124,61 @@ export const rekordboxPlaylistConverter: Project = {
     'unittest',
   ],
   guide: {
-    title: 'How it works',
+    title: 'How to use',
     warning:
-      'Do not use File → Import. Load the generated XML from the rekordbox xml pane via Imported Library.',
+      'Do not use File → Import. Point Imported Library at the generated rekordbox-import.xml, then bring in the [WAV] or [AIFF] playlist from the rekordbox xml pane.',
     steps: [
       {
-        title: 'Export XML',
+        title: 'Export from Rekordbox',
         body:
-          'Wait for analysis, then File → Export Collection in xml format. Rekordbox 7: enable Export BeatGrid information.',
+          'Wait until analysis has finished on the tracks you care about. Rekordbox 7: Preferences → Advanced → rekordbox xml → enable Export BeatGrid information. Then File → Export Collection in xml format and save locally (for example Documents/rekordbox). Avoid iCloud or Dropbox for a large export if you can.',
       },
       {
-        title: 'Convert to CDJ-safe files',
+        title: 'Convert in the app',
         body:
-          'Open the XML, pick playlists, convert. Writes stereo PCM WAV or AIFF plus rekordbox-import.xml. Originals stay put.',
+          'Browse to the collection XML, pick playlists and tracks, confirm the output folder, choose WAV or AIFF and the quality ceilings, then Convert. Originals stay put. Import XML is always written as rekordbox-import.xml in that output folder.',
+        image: {
+          src: '/projects/rekordbox-playlist-converter/macos-app-main-window.webp',
+          srcThumb: '/projects/rekordbox-playlist-converter/macos-app-main-window-600w.webp',
+          srcset: '/projects/rekordbox-playlist-converter/macos-app-main-window-600w.webp 600w, /projects/rekordbox-playlist-converter/macos-app-main-window.webp 2240w',
+          sizes: '(max-width: 1024px) 100vw, 56rem',
+          alt: 'Simple Rekordbox Converter main window with a Rekordbox XML loaded, a playlist selected, and WAV output settings',
+          width: 2240,
+          height: 1440,
+        },
       },
       {
-        title: 'Import playlist',
+        title: 'Confirm the preview',
         body:
-          'Point Imported Library at rekordbox-import.xml — not the original export. Then import the [WAV] or [AIFF] playlist from rekordbox xml → Playlists.',
+          'Convert opens a preview first (action, reason, quality, size). Back writes nothing. Convert starts the batch. Conflicts — destination files changed outside this app — block Convert until you resolve them.',
+        image: {
+          src: '/projects/rekordbox-playlist-converter/macos-app-conversion-preview.webp',
+          srcThumb: '/projects/rekordbox-playlist-converter/macos-app-conversion-preview-600w.webp',
+          srcset: '/projects/rekordbox-playlist-converter/macos-app-conversion-preview-600w.webp 600w, /projects/rekordbox-playlist-converter/macos-app-conversion-preview.webp 1920w',
+          sizes: '(max-width: 1024px) 100vw, 56rem',
+          alt: 'Conversion preview listing tracks as transcode, copy, or reuse with bit depth, sample rate, and size',
+          width: 1920,
+          height: 1080,
+        },
+      },
+      {
+        title: 'Import into Rekordbox',
+        body:
+          'Show the rekordbox xml pane (Preferences → View → Layout → Media Browser). Set Imported Library to rekordbox-import.xml — not the original collection export. Refresh if needed, then import the [WAV] or [AIFF] playlist from rekordbox xml → Playlists. Choose Yes if asked to load information from the library being imported.',
+      },
+      {
+        title: 'Edit Import XML',
+        body:
+          'When a generated library already exists, Edit appears beside the Import XML path. Right-click tracks or playlists to Reveal in Finder, remove from playlist, or Move to Trash. Save commits the draft; Cancel discards it. Convert is locked while you are editing.',
+        image: {
+          src: '/projects/rekordbox-playlist-converter/macos-app-import-xml-edit.webp',
+          srcThumb: '/projects/rekordbox-playlist-converter/macos-app-import-xml-edit-600w.webp',
+          srcset: '/projects/rekordbox-playlist-converter/macos-app-import-xml-edit-600w.webp 600w, /projects/rekordbox-playlist-converter/macos-app-import-xml-edit.webp 1120w',
+          sizes: '(max-width: 1024px) 100vw, 56rem',
+          alt: 'Import XML edit mode with multi-select and a context menu for Reveal in Finder, Remove from playlist, and Move to Trash',
+          width: 1120,
+          height: 748,
+        },
       },
     ],
   },

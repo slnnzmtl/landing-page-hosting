@@ -16,16 +16,21 @@ describe('Simple Rekordbox Converter product data', () => {
     expect(rekordboxPlaylistConverter.stackTags).toContain('FFmpeg')
   })
 
-  it('documents the three-step import path and File → Import warning', () => {
+  it('documents the How to use walkthrough and File → Import warning', () => {
     const guide = rekordboxPlaylistConverter.guide
-    expect(guide?.steps).toHaveLength(3)
+    expect(guide?.title).toBe('How to use')
+    expect(guide?.steps).toHaveLength(5)
     expect(guide?.warning).toMatch(/File → Import/)
-    expect(guide?.steps[0].title).toBe('Export XML')
+    expect(guide?.warning).toMatch(/Imported Library/)
+    expect(guide?.steps[0].title).toBe('Export from Rekordbox')
     expect(guide?.steps[0].body).toMatch(/Export Collection/)
-    expect(guide?.steps[1].title).toMatch(/CDJ-safe/)
-    expect(guide?.steps[2].title).toBe('Import playlist')
-    expect(guide?.steps[2].body).toMatch(/Imported Library/)
-    expect(guide?.steps[2].body).toMatch(/rekordbox xml/)
+    expect(guide?.steps[1].title).toBe('Convert in the app')
+    expect(guide?.steps[1].body).toMatch(/rekordbox-import\.xml/)
+    expect(guide?.steps[2].title).toBe('Confirm the preview')
+    expect(guide?.steps[3].title).toBe('Import into Rekordbox')
+    expect(guide?.steps[3].body).toMatch(/Imported Library/)
+    expect(guide?.steps[3].body).toMatch(/rekordbox xml/)
+    expect(guide?.steps[4].title).toBe('Edit Import XML')
   })
 
   it('warns about ad hoc signing before macOS download', () => {
@@ -61,22 +66,25 @@ describe('Simple Rekordbox Converter product data', () => {
     expect(blob).not.toMatch(/1\.2\.0/)
   })
 
-  it('hosts a local logo and at least three captioned screenshots', () => {
+  it('hosts a local logo and three walkthrough screenshots', () => {
     expect(rekordboxPlaylistConverter.logo?.src).toMatch(/^\/projects\//)
     expect(rekordboxPlaylistConverter.logo?.src).not.toMatch(/raw\.githubusercontent/)
     expect(rekordboxPlaylistConverter.logo?.srcThumb).toMatch(/-256w\.webp$/)
     expect(rekordboxPlaylistConverter.logo?.srcset).toContain('256w')
-    expect(rekordboxPlaylistConverter.gallery?.length).toBeGreaterThanOrEqual(3)
-    rekordboxPlaylistConverter.gallery?.forEach((image) => {
-      expect(image.src).toMatch(/^\/projects\//)
-      expect(image.src).not.toMatch(/raw\.githubusercontent/)
-      expect(image.srcThumb).toMatch(/-600w\.webp$/)
-      expect(image.srcset).toContain('600w')
-      expect(image.sizes).toBeTruthy()
-      expect(image.alt.length).toBeGreaterThan(8)
-      expect(image.caption?.length).toBeGreaterThan(8)
-      expect(image.width).toBeGreaterThan(0)
-      expect(image.height).toBeGreaterThan(0)
+    expect(rekordboxPlaylistConverter.gallery).toBeUndefined()
+    const images = rekordboxPlaylistConverter.guide?.steps
+      .map(step => step.image)
+      .filter(Boolean) || []
+    expect(images).toHaveLength(3)
+    images.forEach((image) => {
+      expect(image?.src).toMatch(/^\/projects\//)
+      expect(image?.src).not.toMatch(/raw\.githubusercontent/)
+      expect(image?.srcThumb).toMatch(/-600w\.webp$/)
+      expect(image?.srcset).toContain('600w')
+      expect(image?.sizes).toBeTruthy()
+      expect(image?.alt.length).toBeGreaterThan(8)
+      expect(image?.width).toBeGreaterThan(0)
+      expect(image?.height).toBeGreaterThan(0)
     })
   })
 })

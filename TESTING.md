@@ -59,7 +59,7 @@ tests/
 
 **Registry** — lookup by slug, unknown-slug 404 data, prerender discovery for `/projects` and registered slugs.
 
-**Rekordbox product data** — evergreen copy, three-step guide, required links, local gallery media (no GitHub hotlinks).
+**Rekordbox product data** — evergreen copy, five-step How to use walkthrough with local screenshots (no GitHub hotlinks), required links.
 
 **GitHub releases** — mocked `fetch` for success, empty, 403/429, network error, prerelease, and stale localStorage cache. Notes are plain text.
 
