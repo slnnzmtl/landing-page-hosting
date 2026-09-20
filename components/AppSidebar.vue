@@ -15,6 +15,8 @@ function syncHash() {
 watch(() => route.fullPath, () => {
   syncHash()
   closeMenu()
+  burgerHiddenByScroll.value = false
+  if (import.meta.client) lastScrollY = window.scrollY
 })
 
 const currentHash = computed(() => route.hash || liveHash.value)
@@ -30,7 +32,38 @@ const navItems = [
 ]
 
 const menuOpen = ref(false)
+const burgerHiddenByScroll = ref(false)
+const burgerRevealed = computed(() => menuOpen.value || !burgerHiddenByScroll.value)
 const menuId = 'site-nav-panel'
+const hideOnScrollDelta = 8
+const revealNearTopPx = 24
+
+let lastScrollY = 0
+let scrollTicking = false
+
+function syncBurgerVisibility() {
+  if (!import.meta.client) return
+  const y = window.scrollY
+  const delta = y - lastScrollY
+  lastScrollY = y
+
+  if (y <= revealNearTopPx) {
+    burgerHiddenByScroll.value = false
+    return
+  }
+
+  if (delta > hideOnScrollDelta) burgerHiddenByScroll.value = true
+  else if (delta < -hideOnScrollDelta) burgerHiddenByScroll.value = false
+}
+
+function onScroll() {
+  if (scrollTicking) return
+  scrollTicking = true
+  requestAnimationFrame(() => {
+    syncBurgerVisibility()
+    scrollTicking = false
+  })
+}
 
 function toggleMenu() {
   menuOpen.value = !menuOpen.value
@@ -49,8 +82,13 @@ function onNavClick(item: (typeof navItems)[number]) {
 
 watch(menuOpen, (open) => {
   if (!import.meta.client) return
-  document.body.style.overflow = open ? 'hidden' : ''
+  if (open) document.body.style.overflow = 'hidden'
 })
+
+function onMenuAfterLeave() {
+  if (!import.meta.client) return
+  document.body.style.overflow = ''
+}
 
 function onKeydown(event: KeyboardEvent) {
   if (event.key === 'Escape') closeMenu()
@@ -58,13 +96,16 @@ function onKeydown(event: KeyboardEvent) {
 
 onMounted(() => {
   syncHash()
+  lastScrollY = window.scrollY
   window.addEventListener('hashchange', syncHash)
   window.addEventListener('keydown', onKeydown)
+  window.addEventListener('scroll', onScroll, { passive: true })
 })
 onUnmounted(() => {
   if (!import.meta.client) return
   window.removeEventListener('hashchange', syncHash)
   window.removeEventListener('keydown', onKeydown)
+  window.removeEventListener('scroll', onScroll)
   document.body.style.overflow = ''
 })
 
@@ -82,15 +123,15 @@ function isActive(item: (typeof navItems)[number]) {
 }
 
 const linkBase
-  = 'rounded-md px-3 py-2 text-sm font-medium transition-colors'
+  = 'rounded-xl px-3 py-2 text-sm font-medium transition-colors'
 
 function linkClass(item: (typeof navItems)[number]) {
   return [
     linkBase,
     sidebarLinkFocus,
     isActive(item)
-      ? 'bg-muted text-foreground'
-      : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground',
+      ? 'text-xl md:text-sm md:bg-card md:border border-border text-foreground'
+      : 'text-muted-foreground md:hover:bg-card hover:text-foreground',
   ]
 }
 </script>
@@ -100,70 +141,75 @@ function linkClass(item: (typeof navItems)[number]) {
   <div class="xl:hidden">
     <button
       type="button"
-      class="fixed bottom-6 left-1/2 z-50 inline-flex h-11 w-11 -translate-x-1/2 items-center justify-center rounded-full border border-border/60 bg-black/40 text-foreground shadow-lg backdrop-blur-sm"
-      :class="sidebarLinkFocus"
+      class="fixed bottom-8 left-1/2 z-50 inline-flex h-11 w-11 -translate-x-1/2 items-center justify-center rounded-full border border-border/60 bg-black/40 text-foreground shadow-lg backdrop-blur-sm transition-[transform,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
+      :class="[
+        sidebarLinkFocus,
+        burgerRevealed ? '' : 'translate-y-24 opacity-0 pointer-events-none',
+      ]"
       :aria-expanded="menuOpen"
       :aria-controls="menuId"
+      :aria-hidden="burgerRevealed ? undefined : 'true'"
+      :tabindex="burgerRevealed ? undefined : -1"
       :aria-label="menuOpen ? 'Close site navigation' : 'Open site navigation'"
       @click="toggleMenu"
     >
-      <svg
-        v-if="!menuOpen"
-        class="h-5 w-5"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
+      <span
+        class="relative block h-5 w-5"
         aria-hidden="true"
       >
-        <path d="M4 7h16M4 12h16M4 17h16" />
-      </svg>
-      <svg
-        v-else
-        class="h-5 w-5"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        aria-hidden="true"
-      >
-        <path d="M6 6l12 12M18 6L6 18" />
-      </svg>
+        <span
+          class="absolute left-0.5 top-[5px] h-0.5 w-4 rounded-full bg-current transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
+          :class="menuOpen ? 'translate-y-[5px] rotate-45' : ''"
+        />
+        <span
+          class="absolute left-0.5 top-[9.5px] h-0.5 w-4 rounded-full bg-current transition-opacity duration-200"
+          :class="menuOpen ? 'opacity-0' : ''"
+        />
+        <span
+          class="absolute left-0.5 top-[14px] h-0.5 w-4 rounded-full bg-current transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
+          :class="menuOpen ? '-translate-y-[5px] -rotate-45' : ''"
+        />
+      </span>
     </button>
 
     <Teleport to="body">
-      <nav
-        v-if="menuOpen"
-        :id="menuId"
-        class="fixed inset-0 z-40 flex flex-col items-center justify-center gap-2 bg-black/50 px-6 backdrop-blur-xl xl:hidden"
-        aria-label="Site"
+      <Transition
+        name="nav-menu"
+        @after-leave="onMenuAfterLeave"
       >
-        <template
-          v-for="item in navItems"
-          :key="item.to"
+        <nav
+          v-if="menuOpen"
+          :id="menuId"
+          class="fixed inset-0 z-40 flex flex-col items-center justify-center gap-2 bg-black/50 px-6 backdrop-blur-xl xl:hidden"
+          aria-label="Site"
         >
-          <a
-            v-if="opensInNewTab(item.to)"
-            :href="item.to"
-            v-bind="outboundAttrs(item.to)"
-            :class="['w-full max-w-xs text-center text-lg', ...linkClass(item)]"
-            @click="closeMenu"
+          <template
+            v-for="item in navItems"
+            :key="item.to"
           >
-            {{ item.label }}
-          </a>
-          <NuxtLink
-            v-else
-            :to="item.to"
-            :class="['w-full max-w-xs text-center text-lg', ...linkClass(item)]"
-            :aria-current="isActive(item) ? 'page' : undefined"
-            @click="onNavClick(item)"
-          >
-            {{ item.label }}
-          </NuxtLink>
-        </template>
-      </nav>
+            <a
+              v-if="opensInNewTab(item.to)"
+              :href="item.to"
+              v-bind="outboundAttrs(item.to)"
+              class="w-full max-w-xs text-right text-lg"
+              :class="linkClass(item)"
+              @click="closeMenu"
+            >
+              {{ item.label }}
+            </a>
+            <NuxtLink
+              v-else
+              :to="item.to"
+              class="w-full max-w-xs text-right text-lg"
+              :class="linkClass(item)"
+              :aria-current="isActive(item) ? 'page' : undefined"
+              @click="onNavClick(item)"
+            >
+              {{ item.label }}
+            </NuxtLink>
+          </template>
+        </nav>
+      </Transition>
     </Teleport>
   </div>
 
@@ -201,3 +247,18 @@ function linkClass(item: (typeof navItems)[number]) {
     </nav>
   </aside>
 </template>
+
+<style scoped>
+.nav-menu-enter-active {
+  transition: opacity 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.nav-menu-leave-active {
+  transition: opacity 220ms ease-in;
+}
+
+.nav-menu-enter-from,
+.nav-menu-leave-to {
+  opacity: 0;
+}
+</style>
