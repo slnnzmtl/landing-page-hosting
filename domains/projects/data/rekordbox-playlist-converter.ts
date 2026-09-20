@@ -118,9 +118,6 @@ export const rekordboxPlaylistConverter: Project = {
     'FFprobe',
     'PyInstaller',
     'macOS',
-    'CLI',
-    'Rekordbox XML',
-    'GitHub Actions',
     'unittest',
   ],
   guide: {

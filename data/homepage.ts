@@ -236,7 +236,7 @@ export const homepageContent: HomepageContent = {
           label: 'View product',
           href: '/projects/rekordbox-playlist-converter',
         },
-        tags: ['Python', 'Tkinter', 'FFmpeg', 'PyInstaller', 'Rekordbox XML'],
+        tags: ['Python', 'Tkinter', 'FFmpeg', 'FFprobe', 'PyInstaller'],
       },
     ],
   },

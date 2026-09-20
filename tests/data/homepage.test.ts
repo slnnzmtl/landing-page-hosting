@@ -100,8 +100,8 @@ describe('homepage content model', () => {
       'Python',
       'Tkinter',
       'FFmpeg',
+      'FFprobe',
       'PyInstaller',
-      'Rekordbox XML',
     ])
     expect(rekordbox.cta).toEqual({
       label: 'View product',
