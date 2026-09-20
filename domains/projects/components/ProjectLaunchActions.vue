@@ -38,13 +38,13 @@ const primaryClass = [
 ].join(' ')
 
 const linkClass = [
-  'text-sm font-medium text-primary underline-offset-4 hover:underline',
+  'w-full text-center text-sm font-medium text-primary underline-offset-4 hover:underline sm:w-auto sm:text-left',
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
 ].join(' ')
 </script>
 
 <template>
-  <div class="flex w-full flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-5 sm:gap-y-3">
+  <div class="flex w-full flex-col items-center gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-start sm:gap-x-5 sm:gap-y-3">
     <a
       v-if="primaryCta"
       :href="ctaHref(primaryCta)"
