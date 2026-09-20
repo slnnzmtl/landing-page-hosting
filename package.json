@@ -12,6 +12,7 @@
     "test:run": "vitest run",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+    "cms:verify": "CMS_VERIFY=1 vitest run tests/cms/verify-live.test.ts",
     "prepare": "husky"
   },
   "devDependencies": {

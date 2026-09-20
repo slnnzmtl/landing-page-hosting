@@ -1,12 +1,25 @@
 <script setup lang="ts">
 import AppPageHeader from '~/components/AppPageHeader.vue'
-import { homepageContent } from '~/data/homepage'
-import { useProjects } from '../composables/useProjects'
 import { projectPath } from '../data/types'
 import { usePageSeo } from '../composables/usePageSeo'
 import { projectsIndexSeo, resolveSiteUrl } from '../utils/seo'
 
-const { projects } = useProjects()
+const { data: portfolio, error } = await usePortfolio()
+if (error.value) {
+  throw createError({
+    statusCode: 500,
+    statusMessage: error.value.message || 'Failed to load portfolio content',
+  })
+}
+if (!portfolio.value) {
+  throw createError({
+    statusCode: 500,
+    statusMessage: 'Portfolio content missing',
+  })
+}
+
+const projects = portfolio.value.products
+const personName = portfolio.value.homepage.person.name
 const siteUrl = resolveSiteUrl(useRuntimeConfig().public.siteUrl as string)
 usePageSeo(projectsIndexSeo(siteUrl, projects))
 </script>
@@ -15,7 +28,7 @@ usePageSeo(projectsIndexSeo(siteUrl, projects))
   <div class="relative min-h-screen text-foreground">
     <div class="relative z-10 mx-auto flex max-w-6xl flex-col gap-12 px-6 py-20 lg:px-12">
       <AppPageHeader
-        :kicker="homepageContent.person.name"
+        :kicker="personName"
         title="Products"
         description="Public products and tools. Each card opens a dedicated landing page with usage notes and downloads."
         :back="{ to: '/', label: 'Back to homepage' }"

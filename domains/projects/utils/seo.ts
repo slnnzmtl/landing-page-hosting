@@ -1,5 +1,4 @@
 import { projectPath, type Project } from '../data/types'
-import { getProjectRoutes } from '../project-routes'
 
 export const DEFAULT_SITE_URL = 'https://kazansky.dev'
 export const SITE_NAME = 'Kazansky.dev'
@@ -320,14 +319,24 @@ export function seoHead(siteUrl: string, page: PageSeo) {
   }
 }
 
-export function sitemapPaths(): string[] {
-  const paths = ['/', '/experience', ...getProjectRoutes()]
+export function sitemapPaths(productSlugs: string[] = []): string[] {
+  const paths = [
+    '/',
+    '/experience',
+    '/projects',
+    ...productSlugs.map(slug => projectPath(slug)),
+  ]
   return [...new Set(paths)]
 }
 
-export function buildSitemapXml(siteUrl: string, paths = sitemapPaths()): string {
+export function buildSitemapXml(
+  siteUrl: string,
+  paths?: string[],
+  productSlugs: string[] = [],
+): string {
+  const resolvedPaths = paths ?? sitemapPaths(productSlugs)
   const origin = resolveSiteUrl(siteUrl)
-  const urls = paths.map((path) => {
+  const urls = resolvedPaths.map((path) => {
     const loc = absoluteUrl(origin, path)
     return `  <url>\n    <loc>${loc}</loc>\n  </url>`
   }).join('\n')

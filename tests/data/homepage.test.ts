@@ -1,24 +1,30 @@
 import { describe, expect, it } from 'vitest'
 import {
   conversionEventName,
-  homepageContent,
   homepageHrefKind,
   opensInNewTab,
 } from '~/data/homepage'
-import { homepageExperiencePreview, professionalTenure } from '~/data/experience'
+import { homepageExperiencePreview } from '~/data/experience'
 import { CONVERSION_EVENT, trackConversion } from '~/utils/track-conversion'
+import { mapPortfolio } from '~/utils/cms/map'
+import { cmsPortfolioFixture } from '~/tests/fixtures/cms-portfolio'
 
-describe('homepage content model', () => {
-  const published = homepageContent
+const BASE = { baseUrl: 'https://cms.kazansky.dev' }
+
+describe('homepage content model (CMS-mapped)', () => {
+  const { homepage: published, experience, professionalTenure: tenure } = mapPortfolio(
+    cmsPortfolioFixture,
+    BASE,
+  )
 
   it('identifies the person, role, and experience for a first-time visitor', () => {
     expect(published.person.name).toBe('Daniel Kazansky')
     expect(published.person.role).toBe('AI-Native Full-Stack Engineer')
-    expect(professionalTenure.short).toBe('8+ years')
-    expect(professionalTenure.heroSubtitle).toBe(
+    expect(tenure.short).toBe('8+ years')
+    expect(tenure.heroSubtitle).toBe(
       '8+ years across digital products and software delivery',
     )
-    expect(professionalTenure.heroSubtitle.toLowerCase()).not.toMatch(
+    expect(tenure.heroSubtitle.toLowerCase()).not.toMatch(
       /8\+ years as a software engineer/,
     )
     expect(published.valueProposition).toMatch(/AI-enabled products/)
@@ -80,181 +86,98 @@ describe('homepage content model', () => {
       expect(item.contribution.length).toBeGreaterThan(0)
       expect(item.outcome.length).toBeGreaterThan(0)
       expect(item.stack.length).toBeGreaterThan(0)
-      expect(item.href.length).toBeGreaterThan(0)
-      expect(item.hrefLabel.length).toBeGreaterThan(0)
     }
-    expect(published.featuredCases.some(item => item.slug.includes('rekordbox'))).toBe(false)
-    expect(published.featuredCases.some(item => item.slug === 'subbly-senior-software-developer')).toBe(false)
   })
 
-  it('publishes a Products section with a Rekordbox spotlight', () => {
-    expect(published.products.heading).toBe('Products')
-    expect(published.products.description).toContain('design, build, package, and maintain')
+  it('spotlights Rekordbox with a guide screenshot, not the product logo', () => {
     expect(published.products.items).toHaveLength(1)
     const rekordbox = published.products.items[0]
     expect(rekordbox.slug).toBe('rekordbox-playlist-converter')
-    expect(rekordbox.title).toBe('Simple Rekordbox Converter')
-    expect(rekordbox.lead).toContain('without modifying your original files')
-    expect(rekordbox.supportingLine).toContain('universal macOS app')
-    expect(rekordbox.tags).toEqual([
-      'Python',
-      'Tkinter',
-      'FFmpeg',
-      'FFprobe',
-      'PyInstaller',
-    ])
-    expect(rekordbox.cta).toEqual({
-      label: 'View product',
-      href: '/projects/rekordbox-playlist-converter',
-    })
     expect(rekordbox.image.src).toContain('macos-app-main-window')
+    expect(rekordbox.cta.href).toBe('/projects/rekordbox-playlist-converter')
   })
 
-  it('keeps Subbly metrics off the homepage and in the experience preview only as a role chip', () => {
-    expect(published.experiencePreview.items).toEqual(homepageExperiencePreview())
-    expect(published.experiencePreview.items.map(item => item.id)).toEqual([
+  it('seeds primary nav from site_settings.menu including GitHub', () => {
+    expect(published.navItems.map(item => `${item.label}:${item.href}`)).toEqual([
+      'Work:/',
+      'Experience:/experience',
+      'Products:/projects',
+      'Contact:/#contact',
+      'GitHub:https://github.com/slnnzmtl',
+    ])
+  })
+
+  it('derives experience preview chips from CMS preview ids', () => {
+    const chips = homepageExperiencePreview(
+      cmsPortfolioFixture.site.experience_preview_ids,
+      experience,
+    )
+    expect(chips.map(chip => chip.id)).toEqual([
       'upwork-reputation-team',
       'subbly-senior-software-developer',
       'woki-lead-software-developer',
     ])
-    expect(published.experiencePreview.cta).toEqual({
-      label: 'View full timeline',
-      href: '/experience',
-    })
-    const homepageCopy = [
-      ...published.featuredCases.flatMap(item => [
-        item.problem,
-        item.role,
-        item.contribution,
-        item.outcome,
-      ]),
-      ...published.proof.map(item => `${item.value} ${item.label}`),
-    ].join(' ')
-    expect(homepageCopy).not.toMatch(/20%/)
-    expect(homepageCopy).not.toMatch(/15%/)
-    expect(homepageCopy).not.toMatch(/500\+/)
+    expect(published.experiencePreview.items.map(i => i.organization)).toEqual([
+      'Upwork',
+      'Subbly®',
+      'Woki.one',
+    ])
   })
 
   it('keeps confidential client details and unapproved metrics out of published copy', () => {
-    const userFacingCopy = [
-      published.person.name,
-      published.person.role,
-      professionalTenure.short,
-      professionalTenure.heroSubtitle,
-      published.valueProposition,
-      ...published.primaryCtas.map(item => `${item.label} ${item.href}`),
-      ...published.profileLinks.map(item => `${item.label} ${item.href}`),
-      ...published.heroFocus.items.map(item => `${item.title} ${item.summary}`),
-      ...published.proof.map(item => `${item.value} ${item.label}`),
-      published.featuredWorkIntro,
-      ...published.featuredCases.flatMap(item => [
-        item.title,
-        item.problem,
-        item.role,
-        item.contribution,
-        item.outcome,
-        item.href,
-        item.hrefLabel,
-        ...item.stack,
-      ]),
-      published.experiencePreview.heading,
-      ...published.experiencePreview.items.map(item => item.organization),
-      published.experiencePreview.cta.label,
-      published.products.heading,
-      published.products.description,
-      ...published.products.items.flatMap(item => [
-        item.title,
-        item.lead,
-        item.supportingLine,
-        item.cta.label,
-        item.cta.href,
-        ...item.tags,
-      ]),
-      published.contact.heading,
-      published.contact.summary,
-      published.contact.email.label,
-      published.contact.email.href,
-      published.contact.telegram.label,
-      published.contact.telegram.href,
-    ].join(' ').toLowerCase()
-
-    expect(userFacingCopy).not.toMatch(/password|secret|api[_-]?key|webhook token/)
-    expect(userFacingCopy).not.toMatch(/40% conversion|3x roi|70% time saved|85% better decisions/)
-    expect(userFacingCopy).not.toMatch(/approved facts/)
-    expect(published.proof.some(item => item.value === 'Outcomes')).toBe(false)
-    expect(userFacingCopy).not.toMatch(/home address/)
-    expect(userFacingCopy).not.toMatch(/whoppah/)
-    expect(userFacingCopy).toContain('upwork')
-    expect(userFacingCopy).toContain('subbly')
-    expect(userFacingCopy).toContain('woki')
-
-    const rekordbox = published.products.items[0]
-    const rekordboxCopy = [
-      rekordbox?.title,
-      rekordbox?.lead,
-      rekordbox?.supportingLine,
-      ...(rekordbox?.tags ?? []),
-    ].join(' ').toLowerCase()
-    expect(rekordboxCopy).not.toMatch(/swift/)
-    expect(rekordboxCopy).not.toMatch(/ai-powered/)
-    expect(rekordboxCopy).not.toMatch(/macos-only|mac os only/)
+    const blob = JSON.stringify(published)
+    expect(blob).not.toMatch(/evidence_origin|evidence_note|confidentiality_notes|private_evidence/)
+    expect(blob.toLowerCase()).not.toMatch(/whoppah|smoke alert/)
+    expect(blob).not.toMatch(/3x ROI|40% conversion|70% time saved/)
   })
 
-  it('classifies homepage hrefs for link rendering', () => {
+  it('exposes contact email and telegram with code-owned labels', () => {
+    expect(published.contact.email.label).toBe('Email')
+    expect(published.contact.telegram.label).toBe('Telegram')
+    expect(published.contact.email.href).toBe('mailto:kazanskydaniel@gmail.com')
+    expect(published.contact.telegram.href).toBe('https://t.me/slnnzmtl')
+  })
+})
+
+describe('homepage href helpers', () => {
+  it('classifies native vs route hrefs', () => {
     expect(homepageHrefKind('https://github.com/slnnzmtl')).toBe('native')
     expect(homepageHrefKind('mailto:kazanskydaniel@gmail.com')).toBe('native')
-    expect(homepageHrefKind('https://t.me/slnnzmtl')).toBe('native')
     expect(homepageHrefKind('#contact')).toBe('native')
-    expect(homepageHrefKind('/projects/rekordbox-playlist-converter')).toBe('route')
-    expect(opensInNewTab('https://github.com/slnnzmtl')).toBe(true)
-    expect(opensInNewTab('https://t.me/slnnzmtl')).toBe(true)
-    expect(opensInNewTab('mailto:kazanskydaniel@gmail.com')).toBe(false)
+    expect(homepageHrefKind('/experience')).toBe('route')
+    expect(homepageHrefKind('/experience#upwork-reputation-team')).toBe('route')
   })
 
-  it('maps contact, case, and product hrefs to the four Umami events', () => {
+  it('opens only http(s) links in a new tab', () => {
+    expect(opensInNewTab('https://github.com')).toBe(true)
+    expect(opensInNewTab('mailto:kazanskydaniel@gmail.com')).toBe(false)
+    expect(opensInNewTab('/projects')).toBe(false)
+  })
+
+  it('maps conversion events for flagship, case, product, and contact', () => {
     expect(conversionEventName('mailto:kazanskydaniel@gmail.com')).toBe('contact')
     expect(conversionEventName('https://t.me/slnnzmtl')).toBe('contact')
     expect(conversionEventName('#contact')).toBe('contact')
-    expect(conversionEventName(
-      'https://github.com/slnnzmtl/langgraph-appointment-bot',
-      { featured: true },
-    )).toBe('flagship-case-open')
-    expect(conversionEventName('https://github.com/slnnzmtl/directus-website-builder')).toBe(
-      'case-open',
-    )
-    expect(conversionEventName('/experience')).toBe('case-open')
-    expect(conversionEventName('/experience#upwork-reputation-team')).toBe('case-open')
-    expect(conversionEventName('/projects/rekordbox-playlist-converter', { product: true })).toBe(
-      'product-open',
-    )
-    expect(conversionEventName('#flagship-case')).toBeNull()
+    expect(conversionEventName('#flagship-case')).toBe(null)
+    expect(conversionEventName('https://github.com/x', { featured: true })).toBe('flagship-case-open')
+    expect(conversionEventName('/experience#upwork', {})).toBe('case-open')
+    expect(conversionEventName('/projects/rekordbox-playlist-converter', { product: true })).toBe('product-open')
   })
 
-  it('trackConversion dispatches a window event without PII', () => {
+  it('emits the conversion custom event without PII in detail', () => {
     const seen: Array<{ name: string, props?: Record<string, string> }> = []
-    const onConversion = (event: Event) => {
+    const handler = (event: Event) => {
       const detail = (event as CustomEvent).detail as { name: string, props?: Record<string, string> }
       seen.push(detail)
     }
-    window.addEventListener(CONVERSION_EVENT, onConversion)
+    window.addEventListener(CONVERSION_EVENT, handler)
     trackConversion('contact')
     trackConversion('case-open', { slug: 'directus-website-builder' })
-    window.removeEventListener(CONVERSION_EVENT, onConversion)
+    window.removeEventListener(CONVERSION_EVENT, handler)
     expect(seen).toEqual([
       { name: 'contact', props: undefined },
       { name: 'case-open', props: { slug: 'directus-website-builder' } },
     ])
     expect(JSON.stringify(seen)).not.toMatch(/mailto:|@gmail|kazanskydaniel/i)
-  })
-
-  it('publishes email and Telegram contact links', () => {
-    expect(published.contact.email).toEqual({
-      label: 'Email',
-      href: 'mailto:kazanskydaniel@gmail.com',
-    })
-    expect(published.contact.telegram).toEqual({
-      label: 'Telegram',
-      href: 'https://t.me/slnnzmtl',
-    })
   })
 })

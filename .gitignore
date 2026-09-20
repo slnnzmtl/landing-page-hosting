@@ -60,6 +60,9 @@ typings/
 .env
 .env.build
 
+# Directus files materialized at generate/dev (titles = public paths)
+.cms-assets
+
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 
