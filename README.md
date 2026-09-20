@@ -42,14 +42,14 @@ Each domain lives under `domains/<name>/` as a Nuxt layer. Page routes are prefi
 ```text
 .
 ├─ components/ui/                 # Shared UI primitives
-├─ composables/                   # Root composables (e.g. useForm)
+├─ composables/                   # Root composables (usePortfolio, useForm, …)
+├─ data/                          # Homepage/experience view types + helpers
 ├─ domains/
 │  ├─ projects/
 │  │  ├─ pages/                   # index, [slug] → /projects/*
-│  │  ├─ data/                    # Typed project registry
+│  │  ├─ data/                    # Project types + findProject helpers
 │  │  ├─ components/              # Gallery + GitHub releases
-│  │  ├─ public/                  # Local product media
-│  │  └─ project-routes.ts
+│  │  └─ public/                  # Local product media (optional)
 │  ├─ survey/
 │  │  ├─ pages/                   # index, [slug] → /survey/*
 │  │  ├─ data/*.json              # Survey definitions
@@ -58,6 +58,7 @@ Each domain lives under `domains/<name>/` as a Nuxt layer. Page routes are prefi
 │  └─ service/
 │     ├─ pages/                   # Landing pages → /service/*
 │     └─ service-routes.ts
+├─ utils/cms/                     # Directus build reader (client, fields, map, load)
 ├─ pages/index.vue                # Homepage
 ├─ utils/prefix-domain-pages.ts   # Domain path prefixing
 ├─ tests/                         # Vitest suites
@@ -79,11 +80,21 @@ Copy or create `.env` in the project root (gitignored):
 ```bash
 SURVEY_WEBHOOK_URL=https://example.com/webhook/survey/submit
 NUXT_PUBLIC_SITE_URL=https://kazansky.dev
+DIRECTUS_URL=https://cms.kazansky.dev
+DIRECTUS_TOKEN=
 ```
 
 `SURVEY_WEBHOOK_URL` maps to `runtimeConfig.public.surveyWebhookUrl` and is the live survey POST target; JSON `action` fields in survey files are inert placeholders only.
 
 `NUXT_PUBLIC_SITE_URL` (or `SITE_URL`) is the production origin used for canonical URLs, Open Graph tags, `sitemap.xml`, and `robots.txt`. Do not set this to a Vercel preview hostname. If unset, it defaults to `https://kazansky.dev`. Set this on Vercel production to `https://kazansky.dev` (apex). `www.kazansky.dev` and `daniel.kazansky.dev` should redirect to the apex; do not use `www` as the canonical host.
+
+`DIRECTUS_URL` and `DIRECTUS_TOKEN` are **server-only** (never `NUXT_PUBLIC_*`). The static build (`nuxt generate`) loads published portfolio content from Directus at build time. A missing token or failed published-content fetch **fails the new build**; the currently deployed site stays up. Directus is the canonical source for homepage, experience, and product copy after cutover — do not dual-author in TypeScript.
+
+Verify CMS inventory and public copy against the golden seed:
+
+```bash
+pnpm cms:verify
+```
 
 Personal finance env vars (`SUPABASE_*`, `ALLOWED_EMAILS`) belong in the sibling `personal-finance` app, not here.
 
@@ -99,8 +110,9 @@ App runs at `http://localhost:3000` by default.
 ## Available Scripts
 
 - `pnpm dev` — Start dev server
-- `pnpm build` / `pnpm generate` — Static generate (`nuxt generate`)
+- `pnpm build` / `pnpm generate` — Static generate (`nuxt generate`); requires `DIRECTUS_TOKEN`
 - `pnpm preview` — Preview production build
+- `pnpm cms:verify` — Diff published Directus content against the golden seed fixture
 - `pnpm test` — Vitest watch mode
 - `pnpm test:run` — Run tests once
 - `pnpm test:ui` — Vitest UI
@@ -110,14 +122,14 @@ App runs at `http://localhost:3000` by default.
 
 Nuxt can drop a layer page when another layer already owns the same route name (`index` vs root, `[slug]` vs survey). The projects layer re-registers `/projects` and `/projects/:slug` in `pages:extend`.
 
-### Add another selected project
+### Add another selected product
 
-1. Create `domains/projects/data/<slug>.ts` exporting a `Project` (name, copy, links, optional gallery/media, optional `github` repo for the releases feed).
-2. Append it to the `projects` array in `domains/projects/data/registry.ts`.
-3. Put local media under `domains/projects/public/projects/<slug>/` (do not hotlink GitHub raw images).
-4. `getProjectRoutes()` picks up the slug for prerender, sitemap, and JSON-LD automatically. No new page file is required.
+1. Create a published `products` row in Directus (slug, copy, links, optional gallery/media, optional `github` repo for the releases feed).
+2. Add the slug to `site_settings.product_spotlight_slugs` if it should appear on the homepage.
+3. Put local walkthrough media under `domains/projects/public/projects/<slug>/` when guide JSON still uses relative `/projects/...` paths (or upload files to Directus and point assets there).
+4. `nuxt generate` discovers published product slugs from Directus for prerender, sitemap, and JSON-LD. No new page file is required.
 
-First product: **Simple Rekordbox Converter** at `/projects/rekordbox-playlist-converter`. Evergreen copy lives in the registry. GitHub release versions and download URLs are fetched in the browser from `https://api.github.com/repos/slnnzmtl/rekordbox-playlist-converter/releases` (no token, 1-hour localStorage cache, stale cache if GitHub is down).
+First product: **Simple Rekordbox Converter** at `/projects/rekordbox-playlist-converter`. Evergreen copy lives in Directus. GitHub release versions and download URLs are fetched in the browser from `https://api.github.com/repos/slnnzmtl/rekordbox-playlist-converter/releases` (no token, 1-hour localStorage cache, stale cache if GitHub is down).
 
 ## Survey Module
 
@@ -168,7 +180,7 @@ Surveys are JSON files in `domains/survey/data/`. Each file is eagerly loaded by
 
 Configured for Nuxt static generation. Prerender uses an explicit route list (`crawlLinks: false`) from:
 
-- `/`, `/survey`, `/sitemap.xml`, `/robots.txt`, plus `getSurveyRoutes()`, `getServiceRoutes()`, `getProjectRoutes()`
+- `/`, `/experience`, `/survey`, `/projects`, `/sitemap.xml`, `/robots.txt`, plus `getSurveyRoutes()`, `getServiceRoutes()`, and CMS product slugs from Directus (`fetchProductSlugs` at generate time)
 
 ```bash
 pnpm build
@@ -177,7 +189,7 @@ pnpm preview
 
 `vercel.json` builds with `@vercel/static-build` (`distDir: .output/public`). Known files (including prerendered `/projects/*`) are served from the filesystem. Unknown `/projects/*` paths return `404.html`. Legacy `/finance` and `/login` also return `404.html`. `/service/**` falls back to `/200.html` for the client-only service layer. All other unmatched paths return `404.html`.
 
-Set `SURVEY_WEBHOOK_URL` in the Vercel project environment for survey submissions. Set `NUXT_PUBLIC_SITE_URL` to the production origin for canonical/social URLs. Deploy finance separately via `personal-finance`.
+Set `SURVEY_WEBHOOK_URL` in the Vercel project environment for survey submissions. Set `NUXT_PUBLIC_SITE_URL` to the production origin for canonical/social URLs. Set **`DIRECTUS_TOKEN`** (and optionally `DIRECTUS_URL`) as server-only build env vars so `nuxt generate` can read published portfolio content. Deploy finance separately via `personal-finance`.
 
 The portfolio homepage, `/experience`, and `/projects` are indexable (`index, follow`) with canonical URLs, Open Graph tags, and JSON-LD (Person, WebSite, CreativeWork / SoftwareApplication). Survey and service routes remain `noindex`.
 

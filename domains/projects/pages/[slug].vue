@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppPageHeader from '~/components/AppPageHeader.vue'
 import { useHomepageUi } from '~/composables/useHomepageUi'
-import { useProjects } from '../composables/useProjects'
+import { findProject } from '../data/registry'
 import ProjectGallery from '../components/ProjectGallery.vue'
 import GithubReleases from '../components/GithubReleases.vue'
 import ProjectLaunchActions from '../components/ProjectLaunchActions.vue'
@@ -14,8 +14,16 @@ const { outboundAttrs } = useHomepageUi()
 
 const route = useRoute()
 const slug = String(route.params.slug || '')
-const { findProject } = useProjects()
-const project = findProject(slug)
+
+const { data: portfolio, error } = await usePortfolio()
+if (error.value) {
+  throw createError({
+    statusCode: 500,
+    statusMessage: error.value.message || 'Failed to load portfolio content',
+  })
+}
+
+const project = findProject(slug, portfolio.value?.products || [])
 
 if (!project) {
   throw createError({

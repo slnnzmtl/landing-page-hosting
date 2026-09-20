@@ -1,7 +1,9 @@
+import { mkdirSync } from 'node:fs'
 import { defineNuxtConfig } from 'nuxt/config'
 import { getSurveyRoutes } from './domains/survey/survey-routes'
 import { getServiceRoutes } from './domains/service/service-routes'
-import { getProjectRoutes } from './domains/projects/project-routes'
+
+mkdirSync('.cms-assets', { recursive: true })
 
 /** Build-time only; baked into the Umami script tag (safe to expose in HTML). */
 const umamiWebsiteId = process.env.UMAMI_WEBSITE_ID || process.env.NUXT_UMAMI_WEBSITE_ID || ''
@@ -45,6 +47,9 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     umamiWebsiteId,
+    /** Server-only Directus build reader — never NUXT_PUBLIC_*. */
+    directusUrl: process.env.DIRECTUS_URL || '',
+    directusToken: process.env.DIRECTUS_TOKEN || '',
     public: {
       surveyWebhookUrl: process.env.SURVEY_WEBHOOK_URL || '',
       siteUrl: process.env.NUXT_PUBLIC_SITE_URL || process.env.SITE_URL || '',
@@ -61,8 +66,16 @@ export default defineNuxtConfig({
     },
   },
   nitro: {
+    publicAssets: [
+      {
+        baseURL: '/',
+        dir: '.cms-assets',
+        maxAge: 60 * 60 * 24 * 7,
+      },
+    ],
     prerender: {
       // Explicit routes required: crawlLinks is false; service is client-only (ssr: false)
+      // Product slugs are appended in nitro:config during generate (CMS-driven).
       crawlLinks: false,
       routes: [
         '/',
@@ -70,10 +83,31 @@ export default defineNuxtConfig({
         '/survey',
         ...getSurveyRoutes(),
         ...getServiceRoutes(),
-        ...getProjectRoutes(),
+        '/projects',
         '/sitemap.xml',
         '/robots.txt',
       ],
+    },
+  },
+  hooks: {
+    async 'nitro:config'(nitroConfig) {
+      // Only fetch CMS product slugs when a token is present (generate/dev with CMS).
+      // `nuxt prepare` / Vitest must not require Directus.
+      const token = process.env.DIRECTUS_TOKEN
+      if (!token) return
+
+      try {
+        const { fetchProductSlugs } = await import('./utils/cms/load')
+        const slugs = await fetchProductSlugs()
+        const routes = slugs.map(slug => `/projects/${slug}`)
+        nitroConfig.prerender = nitroConfig.prerender || {}
+        const existing = nitroConfig.prerender.routes || []
+        nitroConfig.prerender.routes = [...new Set([...existing, ...routes])]
+      }
+      catch (error) {
+        console.error('[nitro:config] Failed to load CMS product slugs:', error)
+        throw error
+      }
     },
   },
   tailwindcss: {

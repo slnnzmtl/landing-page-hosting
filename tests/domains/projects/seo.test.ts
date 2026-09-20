@@ -1,6 +1,4 @@
 import { describe, it, expect } from 'vitest'
-import { rekordboxPlaylistConverter } from '~/domains/projects/data/rekordbox-playlist-converter'
-import { projects } from '~/domains/projects/data/registry'
 import {
   DEFAULT_SITE_URL,
   absoluteUrl,
@@ -14,7 +12,12 @@ import {
   seoHead,
   sitemapPaths,
 } from '~/domains/projects/utils/seo'
-import { homepageContent } from '~/data/homepage'
+import { mapPortfolio } from '~/utils/cms/map'
+import { cmsPortfolioFixture } from '~/tests/fixtures/cms-portfolio'
+
+const BASE = { baseUrl: 'https://cms.kazansky.dev' }
+const { homepage, products } = mapPortfolio(cmsPortfolioFixture, BASE)
+const rekordboxPlaylistConverter = products[0]
 
 describe('site origin', () => {
   it('defaults to the production origin, not a Vercel preview host', () => {
@@ -39,12 +42,12 @@ describe('projects SEO documents', () => {
   const siteUrl = DEFAULT_SITE_URL
 
   it('builds indexable CollectionPage + ItemList JSON-LD for /projects', () => {
-    const page = projectsIndexSeo(siteUrl, projects)
+    const page = projectsIndexSeo(siteUrl, products)
     expect(page.robots).toBe('index, follow')
     expect(page.jsonLd['@type']).toBe('CollectionPage')
     const main = page.jsonLd.mainEntity as { '@type': string, 'itemListElement': unknown[] }
     expect(main['@type']).toBe('ItemList')
-    expect(main.itemListElement.length).toBe(projects.length)
+    expect(main.itemListElement.length).toBe(products.length)
     const blob = JSON.stringify(page.jsonLd)
     expect(blob).not.toMatch(/aggregateRating/)
     expect(blob).not.toMatch(/"offers"/)
@@ -74,7 +77,7 @@ describe('projects SEO documents', () => {
     ])
     expect(head.meta).toEqual(expect.arrayContaining([
       { name: 'robots', content: 'index, follow' },
-      { property: 'og:image', content: `${siteUrl}${rekordboxPlaylistConverter.socialImage?.src}` },
+      { property: 'og:image', content: absoluteUrl(siteUrl, rekordboxPlaylistConverter.socialImage!.src) },
       { name: 'twitter:card', content: 'summary_large_image' },
     ]))
   })
@@ -97,7 +100,7 @@ describe('projects SEO documents', () => {
 
 describe('homepage SEO', () => {
   it('builds an indexable homepage with Person, WebSite, and CreativeWork JSON-LD', () => {
-    const page = homepageSeo(DEFAULT_SITE_URL, homepageContent)
+    const page = homepageSeo(DEFAULT_SITE_URL, homepage)
     expect(page.robots).toBe('index, follow')
     expect(page.path).toBe('/')
     expect(page.ogType).toBe('website')
@@ -177,11 +180,12 @@ describe('experience page SEO', () => {
 
 describe('sitemap and robots', () => {
   it('lists the homepage, experience page, projects index, and every registered project', () => {
-    const xml = buildSitemapXml(DEFAULT_SITE_URL)
-    expect(sitemapPaths()).toContain('/')
-    expect(sitemapPaths()).toContain('/experience')
-    expect(sitemapPaths()).toContain('/projects')
-    expect(sitemapPaths()).toContain('/projects/rekordbox-playlist-converter')
+    const slugs = products.map(p => p.slug)
+    const xml = buildSitemapXml(DEFAULT_SITE_URL, undefined, slugs)
+    expect(sitemapPaths(slugs)).toContain('/')
+    expect(sitemapPaths(slugs)).toContain('/experience')
+    expect(sitemapPaths(slugs)).toContain('/projects')
+    expect(sitemapPaths(slugs)).toContain('/projects/rekordbox-playlist-converter')
     expect(xml).toContain('<loc>https://kazansky.dev/</loc>')
     expect(xml).toContain('<loc>https://kazansky.dev/experience</loc>')
     expect(xml).toContain('<loc>https://kazansky.dev/projects</loc>')

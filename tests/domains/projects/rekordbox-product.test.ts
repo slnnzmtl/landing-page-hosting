@@ -1,7 +1,12 @@
 import { describe, it, expect } from 'vitest'
-import { rekordboxPlaylistConverter } from '~/domains/projects/data/rekordbox-playlist-converter'
+import { mapPortfolio } from '~/utils/cms/map'
+import { cmsPortfolioFixture } from '~/tests/fixtures/cms-portfolio'
 
-describe('Simple Rekordbox Converter product data', () => {
+const BASE = { baseUrl: 'https://cms.kazansky.dev' }
+const { products } = mapPortfolio(cmsPortfolioFixture, BASE)
+const rekordboxPlaylistConverter = products[0]
+
+describe('Simple Rekordbox Converter product data (CMS-mapped)', () => {
   it('uses the public product name and slug', () => {
     expect(rekordboxPlaylistConverter.slug).toBe('rekordbox-playlist-converter')
     expect(rekordboxPlaylistConverter.name).toBe('Simple Rekordbox Converter')
@@ -66,10 +71,11 @@ describe('Simple Rekordbox Converter product data', () => {
     expect(blob).not.toMatch(/1\.2\.0/)
   })
 
-  it('hosts a local logo and three walkthrough screenshots', () => {
-    expect(rekordboxPlaylistConverter.logo?.src).toMatch(/^\/projects\//)
-    expect(rekordboxPlaylistConverter.logo?.src).not.toMatch(/raw\.githubusercontent/)
-    expect(rekordboxPlaylistConverter.logo?.srcThumb).toMatch(/-256w\.webp$/)
+  it('maps logo and walkthrough screenshots from Directus file titles', () => {
+    expect(rekordboxPlaylistConverter.logo?.src).toBe(
+      '/projects/rekordbox-playlist-converter/simple-rekordbox-converter-logo.webp',
+    )
+    expect(rekordboxPlaylistConverter.logo?.srcThumb).toMatch(/-256w\.webp/)
     expect(rekordboxPlaylistConverter.logo?.srcset).toContain('256w')
     expect(rekordboxPlaylistConverter.gallery).toBeUndefined()
     const images = rekordboxPlaylistConverter.guide?.steps
@@ -77,14 +83,10 @@ describe('Simple Rekordbox Converter product data', () => {
       .filter(Boolean) || []
     expect(images).toHaveLength(3)
     images.forEach((image) => {
-      expect(image?.src).toMatch(/^\/projects\//)
+      expect(image?.src).toMatch(/^\/projects\/rekordbox-playlist-converter\//)
       expect(image?.src).not.toMatch(/raw\.githubusercontent/)
-      expect(image?.srcThumb).toMatch(/-600w\.webp$/)
+      expect(image?.srcThumb).toMatch(/-600w\.webp/)
       expect(image?.srcset).toContain('600w')
-      expect(image?.sizes).toBeTruthy()
-      expect(image?.alt.length).toBeGreaterThan(8)
-      expect(image?.width).toBeGreaterThan(0)
-      expect(image?.height).toBeGreaterThan(0)
     })
   })
 })

@@ -1,11 +1,24 @@
 <script setup lang="ts">
-import { homepageContent } from '~/data/homepage'
 import { homepageSeo, resolveSiteUrl } from '~/domains/projects/utils/seo'
 import { usePageSeo } from '~/domains/projects/composables/usePageSeo'
 
 useHashScroll()
 
-const home = homepageContent
+const { data: portfolio, error } = await usePortfolio()
+if (error.value) {
+  throw createError({
+    statusCode: 500,
+    statusMessage: error.value.message || 'Failed to load portfolio content',
+  })
+}
+if (!portfolio.value) {
+  throw createError({
+    statusCode: 500,
+    statusMessage: 'Portfolio content missing',
+  })
+}
+
+const home = portfolio.value.homepage
 const siteUrl = resolveSiteUrl(useRuntimeConfig().public.siteUrl as string)
 usePageSeo(homepageSeo(siteUrl, home))
 </script>

@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { homepageContent, opensInNewTab } from '~/data/homepage'
+import { opensInNewTab } from '~/data/homepage'
 import { useHomepageUi } from '~/composables/useHomepageUi'
 
 const route = useRoute()
 const { linkFocus, outboundAttrs } = useHomepageUi()
+const { data: portfolio } = await usePortfolio()
 
 /** Route hash can lag behind location.hash on hash-only navigations. */
 const liveHash = ref('')
@@ -21,15 +22,14 @@ watch(() => route.fullPath, () => {
 
 const currentHash = computed(() => route.hash || liveHash.value)
 
-const githubLink = homepageContent.profileLinks.find(link => link.label === 'GitHub')
+const navItems = computed(() =>
+  (portfolio.value?.homepage.navItems || []).map(item => ({
+    label: item.label,
+    to: item.href,
+  })),
+)
 
-const navItems = [
-  { label: 'Work', to: '/' },
-  { label: 'Experience', to: '/experience' },
-  { label: 'Products', to: '/projects' },
-  { label: 'Contact', to: '/#contact' },
-  ...(githubLink ? [{ label: githubLink.label, to: githubLink.href }] : []),
-]
+type NavItem = { label: string, to: string }
 
 const menuOpen = ref(false)
 const burgerHiddenByScroll = ref(false)
@@ -73,7 +73,7 @@ function closeMenu() {
   menuOpen.value = false
 }
 
-function onNavClick(item: (typeof navItems)[number]) {
+function onNavClick(item: NavItem) {
   closeMenu()
   // Same-route `/` does not run scrollBehavior; still jump to top.
   if (item.to !== '/' || route.path !== '/' || !import.meta.client) return
@@ -111,7 +111,7 @@ onUnmounted(() => {
 
 const sidebarLinkFocus = [linkFocus, 'focus-visible:ring-offset-background'].join(' ')
 
-function isActive(item: (typeof navItems)[number]) {
+function isActive(item: NavItem) {
   if (opensInNewTab(item.to)) return false
   if (item.to === '/#contact') {
     return route.path === '/' && currentHash.value === '#contact'
@@ -125,7 +125,7 @@ function isActive(item: (typeof navItems)[number]) {
 const linkBase
   = 'rounded-xl px-3 py-2 text-sm font-medium transition-colors'
 
-function linkClass(item: (typeof navItems)[number]) {
+function linkClass(item: NavItem) {
   return [
     linkBase,
     sidebarLinkFocus,

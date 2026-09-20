@@ -16,6 +16,8 @@ Config: `vitest.config.ts` (path aliases `~/` and `@/`).
 
 ```text
 tests/
+├─ cms/
+│  └─ verify-live.test.ts   # optional live Directus check (pnpm cms:verify)
 ├─ composables/
 │  ├─ useSurveys.test.ts
 │  └─ useSurveyResponses.test.ts
@@ -27,10 +29,14 @@ tests/
 │  ├─ rekordbox-product.test.ts
 │  ├─ github-releases.test.ts
 │  └─ seo.test.ts
+├─ fixtures/
+│  └─ cms-portfolio.ts
 ├─ pages/
 │  ├─ survey-index-logic.test.ts
 │  └─ survey-slug-logic.test.ts
 └─ utils/
+   ├─ cms-map.test.ts
+   ├─ cms-fetch-slugs.test.ts
    ├─ prefix-domain-pages.test.ts
    └─ survey-webhook.test.ts
 ```
@@ -57,7 +63,7 @@ tests/
 
 ### Projects domain
 
-**Registry** — lookup by slug, unknown-slug 404 data, prerender discovery for `/projects` and registered slugs.
+**Registry** — lookup by slug, unknown-slug 404 data, and slug→route helpers used by sitemap/tests. Prerender product routes come from Directus (`fetchProductSlugs`) at generate time.
 
 **Rekordbox product data** — evergreen copy, five-step How to use walkthrough with local screenshots (no GitHub hotlinks), required links.
 
@@ -65,7 +71,11 @@ tests/
 
 **SEO** — production site origin, canonical/OG tags, homepage Person/WebSite/CreativeWork JSON-LD, CollectionPage/SoftwareApplication for projects, sitemap and robots output.
 
-**Homepage content** — approved copy, href classification, and the four Umami events for flagship case, other case, product, and contact CTAs (`conversionEventName` + `trackConversion`).
+### Homepage / experience / CMS mappers
+
+**Homepage & experience** — approved public copy via CMS fixtures (`tests/fixtures/cms-portfolio.ts`), href classification, and the four Umami events for flagship case, other case, product, and contact CTAs (`conversionEventName` + `trackConversion`). Private claim evidence must never appear in the mapped payload.
+
+**CMS mappers** — Directus → UI type mapping for proof chips, featured cases, experience outcomes, and product spotlights.
 
 Finance unit tests moved to the sibling `personal-finance` app.
 

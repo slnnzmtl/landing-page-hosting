@@ -1,16 +1,20 @@
 import { describe, expect, it } from 'vitest'
 import {
-  experienceRoles,
   experienceUserFacingCopy,
   formatExperienceRange,
   experienceRolePath,
   homepageExperiencePreview,
-  professionalTenure,
-  publishedExperienceRoles,
 } from '~/data/experience'
+import { mapPortfolio } from '~/utils/cms/map'
+import { cmsPortfolioFixture } from '~/tests/fixtures/cms-portfolio'
 
-describe('experience content model', () => {
-  const roles = publishedExperienceRoles()
+const BASE = { baseUrl: 'https://cms.kazansky.dev' }
+
+describe('experience content model (CMS-mapped)', () => {
+  const { experience: roles, professionalTenure: tenure } = mapPortfolio(
+    cmsPortfolioFixture,
+    BASE,
+  )
 
   it('publishes all nine verified timeline roles in independent-first reverse-chronological order', () => {
     expect(roles).toHaveLength(9)
@@ -27,7 +31,7 @@ describe('experience content model', () => {
     ])
   })
 
-  it('requires structured fields, ISO dates, engagement, location, and approved provenance', () => {
+  it('requires structured fields, ISO dates, engagement, and location', () => {
     for (const role of roles) {
       expect(role.start).toMatch(/^\d{4}-\d{2}$/)
       if (role.end !== null) {
@@ -42,11 +46,9 @@ describe('experience content model', () => {
       expect(role.outcomes.length).toBeGreaterThanOrEqual(1)
       expect(role.outcomes.length).toBeLessThanOrEqual(2)
       expect(role.technologies.length).toBeGreaterThan(0)
-      expect(role.source.status).toBe('approved')
-      expect(role.source.origin.length).toBeGreaterThan(0)
-      expect(role.source.note.length).toBeGreaterThan(0)
       for (const outcome of role.outcomes) {
         expect(['personal', 'team', 'platform']).toContain(outcome.qualifier)
+        expect(outcome.text.length).toBeGreaterThan(0)
       }
     }
   })
@@ -61,7 +63,7 @@ describe('experience content model', () => {
     expect(woki?.engagementType).toBe('part-time')
     expect(kazansky?.engagementType).toBe('freelance')
     expect(roles.every(role => !('overlapNote' in role))).toBe(true)
-    expect(experienceUserFacingCopy().toLowerCase()).not.toMatch(/overlap/)
+    expect(experienceUserFacingCopy(roles, tenure).toLowerCase()).not.toMatch(/overlap/)
   })
 
   it('asserts corrected LinkedIn/CV facts', () => {
@@ -105,8 +107,8 @@ describe('experience content model', () => {
     )).toBe(true)
   })
 
-  it('rejects unsupported claims and recommendation leakage', () => {
-    const copy = experienceUserFacingCopy().toLowerCase()
+  it('rejects unsupported claims and never includes private evidence fields', () => {
+    const copy = experienceUserFacingCopy(roles, tenure).toLowerCase()
     expect(copy).not.toMatch(/3-person/)
     expect(copy).not.toMatch(/three-person/)
     expect(copy).not.toMatch(/2022-05/)
@@ -115,32 +117,19 @@ describe('experience content model', () => {
     expect(copy).not.toMatch(/500\+k deals/)
     expect(copy).not.toMatch(/8\+ years as a software engineer/)
     expect(copy).not.toMatch(/recommendation/)
-    expect(roles.every(role => !JSON.stringify({
-      scope: role.scope,
-      contributions: role.contributions,
-      outcomes: role.outcomes,
-      homepageSummary: role.homepageSummary,
-    }).includes(role.source.note))).toBe(true)
 
-    for (const role of experienceRoles) {
-      const rendered = [
-        role.scope,
-        ...role.contributions,
-        ...role.outcomes.map(o => o.text),
-        role.homepageSummary ?? '',
-      ].join(' ')
-      expect(rendered).not.toContain(role.source.note)
-      expect(rendered).not.toContain(role.source.origin)
-    }
+    const serialized = JSON.stringify(roles)
+    expect(serialized).not.toMatch(/evidence_origin|evidence_note/)
+    expect(roles.every(role => !('source' in role))).toBe(true)
   })
 
   it('qualifies tenure without claiming 8+ years specifically as a software engineer', () => {
-    expect(professionalTenure.short).toBe('8+ years')
-    expect(professionalTenure.label).toMatch(/digital products/i)
-    expect(professionalTenure.heroSubtitle).toMatch(/digital products and software delivery/i)
-    expect(professionalTenure.softwareEngineeringSince).toBe('Building software since 2019')
-    expect(professionalTenure.pageIntro).toMatch(/evidence-based timeline/i)
-    expect(professionalTenure.heroSubtitle.toLowerCase()).not.toMatch(
+    expect(tenure.short).toBe('8+ years')
+    expect(tenure.label).toMatch(/digital products/i)
+    expect(tenure.heroSubtitle).toMatch(/digital products and software delivery/i)
+    expect(tenure.softwareEngineeringSince).toBe('Building software since 2019')
+    expect(tenure.pageIntro).toMatch(/evidence-based timeline/i)
+    expect(tenure.heroSubtitle.toLowerCase()).not.toMatch(
       /8\+ years as a software engineer/,
     )
   })
@@ -152,7 +141,14 @@ describe('experience content model', () => {
   })
 
   it('derives homepage experience preview chips from recent role ids', () => {
-    const chips = homepageExperiencePreview()
+    const chips = homepageExperiencePreview(
+      [
+        'upwork-reputation-team',
+        'subbly-senior-software-developer',
+        'woki-lead-software-developer',
+      ],
+      roles,
+    )
     expect(chips.map(chip => chip.id)).toEqual([
       'upwork-reputation-team',
       'subbly-senior-software-developer',
