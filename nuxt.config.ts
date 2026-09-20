@@ -6,6 +6,7 @@ import { getProjectRoutes } from './domains/projects/project-routes'
 /** Build-time only; baked into the Umami script tag (safe to expose in HTML). */
 const umamiWebsiteId = process.env.UMAMI_WEBSITE_ID || process.env.NUXT_UMAMI_WEBSITE_ID || ''
 
+/** First-party copy of https://cloud.umami.is/script.js at public/u.js (re-copy when Umami updates). */
 export default defineNuxtConfig({
   extends: [
     './domains/survey',
@@ -31,9 +32,12 @@ export default defineNuxtConfig({
       script: umamiWebsiteId
         ? [
             {
-              'src': 'https://cloud.umami.is/script.js',
+              'src': '/u.js',
               'defer': true,
               'data-website-id': umamiWebsiteId,
+              'data-host-url': 'https://gateway.umami.is',
+              'data-fetch-credentials': 'omit',
+              'data-domains': 'kazansky.dev',
             },
           ]
         : [],
