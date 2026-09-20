@@ -137,8 +137,8 @@ function linkClass(item: (typeof navItems)[number]) {
 </script>
 
 <template>
-  <!-- Mobile and tablet: burger + overlay panel -->
-  <div class="xl:hidden">
+  <!-- Mobile and tablet: burger + overlay panel (contents: do not occupy a grid track) -->
+  <div class="contents xl:hidden">
     <button
       type="button"
       class="fixed bottom-8 left-1/2 z-50 inline-flex h-11 w-11 -translate-x-1/2 items-center justify-center rounded-full border border-border/60 bg-black/40 text-foreground shadow-lg backdrop-blur-sm transition-[transform,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"

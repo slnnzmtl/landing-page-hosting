@@ -58,5 +58,6 @@ describe('AppPageHeader', () => {
     expect(wrapper.get('h1').text()).toBe('Simple Rekordbox Converter')
     expect(wrapper.get('.lead').text()).toContain('Convert playlists')
     expect(wrapper.html()).toContain('grid')
+    expect(wrapper.classes()).toContain('w-full')
   })
 })

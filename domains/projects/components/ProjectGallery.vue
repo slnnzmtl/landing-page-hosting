@@ -51,7 +51,7 @@ function showNext() {
               :height="image.height"
               loading="lazy"
               decoding="async"
-              class="h-auto w-full"
+              class="h-auto w-full max-w-full"
               :style="{ aspectRatio: `${image.width} / ${image.height}` }"
             />
           </button>
