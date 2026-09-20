@@ -33,18 +33,18 @@ const { isOpen, interceptClick, close, confirm } = useDownloadWarningDialog({
 })
 
 const primaryClass = [
-  'inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90',
+  'inline-flex w-full items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 sm:w-auto',
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
 ].join(' ')
 
 const linkClass = [
-  'text-sm font-medium text-primary underline-offset-4 hover:underline',
+  'w-full text-center text-sm font-medium text-primary underline-offset-4 hover:underline sm:w-auto sm:text-left',
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
 ].join(' ')
 </script>
 
 <template>
-  <div class="flex flex-wrap items-center gap-x-5 gap-y-3">
+  <div class="flex w-full flex-col items-center gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-start sm:gap-x-5 sm:gap-y-3">
     <a
       v-if="primaryCta"
       :href="ctaHref(primaryCta)"

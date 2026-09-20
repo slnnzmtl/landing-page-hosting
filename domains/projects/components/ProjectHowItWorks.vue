@@ -54,7 +54,7 @@ function showNext() {
     </h2>
     <p
       v-if="guide.warning"
-      class="max-w-3xl border-l-2 border-amber-400 pl-3 text-sm text-muted-foreground"
+      class="w-full max-w-3xl border-l-2 border-amber-400 pl-3 text-sm text-muted-foreground"
       role="note"
     >
       {{ guide.warning }}
@@ -65,7 +65,7 @@ function showNext() {
         :key="step.title"
         class="space-y-4"
       >
-        <div class="max-w-3xl">
+        <div class="w-full max-w-3xl">
           <p class="text-xs font-semibold uppercase tracking-wide text-primary">
             Step {{ index + 1 }}
           </p>
@@ -92,7 +92,7 @@ function showNext() {
               :height="step.image.height"
               loading="lazy"
               decoding="async"
-              class="h-auto w-full"
+              class="h-auto w-full max-w-full"
               :style="{ aspectRatio: `${step.image.width} / ${step.image.height}` }"
             />
           </button>

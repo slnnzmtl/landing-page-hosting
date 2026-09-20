@@ -33,8 +33,8 @@ usePageSeo(
 </script>
 
 <template>
-  <div class="relative min-h-screen text-foreground">
-    <div class="relative z-10 mx-auto flex max-w-6xl flex-col gap-12 px-6 py-20 lg:px-12">
+  <div class="relative min-h-screen w-full min-w-0 text-foreground">
+    <div class="relative z-10 mx-auto flex w-full min-w-0 max-w-6xl flex-col gap-12 px-4 py-12 sm:px-6 sm:py-20 lg:px-12">
       <AppPageHeader
         :kicker="home.person.name"
         title="Professional experience"

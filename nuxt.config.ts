@@ -2,6 +2,7 @@ import { mkdirSync } from 'node:fs'
 import { defineNuxtConfig } from 'nuxt/config'
 import { getSurveyRoutes } from './domains/survey/survey-routes'
 import { getServiceRoutes } from './domains/service/service-routes'
+import { DEFAULT_DIRECTUS_URL } from './utils/cms/client'
 
 mkdirSync('.cms-assets', { recursive: true })
 
@@ -48,7 +49,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     umamiWebsiteId,
     /** Server-only Directus build reader — never NUXT_PUBLIC_*. */
-    directusUrl: process.env.DIRECTUS_URL || '',
+    directusUrl: process.env.DIRECTUS_URL || DEFAULT_DIRECTUS_URL,
     directusToken: process.env.DIRECTUS_TOKEN || '',
     public: {
       surveyWebhookUrl: process.env.SURVEY_WEBHOOK_URL || '',

@@ -16,7 +16,7 @@ const pageTransition = computed(() => {
 
 <template>
   <div
-    class="relative grid min-h-screen bg-black"
+    class="relative grid min-h-screen w-full grid-cols-[minmax(0,1fr)] bg-black"
     :class="showSiteChrome ? 'xl:grid-cols-[13rem_minmax(0,1fr)]' : ''"
   >
     <a
@@ -29,7 +29,7 @@ const pageTransition = computed(() => {
     <AppSidebar v-if="showSiteChrome" />
     <main
       id="main-content"
-      class="app row-start-1 bg-transparent"
+      class="app row-start-1 min-w-0 w-full bg-transparent"
       :class="showSiteChrome ? 'col-start-1 xl:col-start-2' : 'col-start-1'"
       tabindex="-1"
     >

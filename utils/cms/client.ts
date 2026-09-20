@@ -3,6 +3,9 @@ export interface DirectusClientConfig {
   token: string
 }
 
+/** Canonical Directus origin; `DIRECTUS_URL` is optional when this host is used. */
+export const DEFAULT_DIRECTUS_URL = 'https://cms.kazansky.dev'
+
 /** Env vars and/or Nuxt `runtimeConfig` fields (`directusUrl` / `directusToken`). */
 export type DirectusConfigSource = {
   DIRECTUS_URL?: string
@@ -14,12 +17,7 @@ export type DirectusConfigSource = {
 export function resolveDirectusConfig(
   source: DirectusConfigSource = process.env as DirectusConfigSource,
 ): DirectusClientConfig {
-  const rawBaseUrl = source.directusUrl || source.DIRECTUS_URL
-  if (!rawBaseUrl) {
-    throw new Error(
-      'Directus URL missing. Set DIRECTUS_URL (server-only) for build/dev.',
-    )
-  }
+  const rawBaseUrl = source.directusUrl || source.DIRECTUS_URL || DEFAULT_DIRECTUS_URL
   const baseUrl = rawBaseUrl.replace(/\/+$/, '')
   const token = source.directusToken || source.DIRECTUS_TOKEN || ''
   if (!token) {
