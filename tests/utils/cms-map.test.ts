@@ -27,6 +27,41 @@ describe('CMS portfolio mappers', () => {
     ).toThrow(/site_settings\.menu is required/)
   })
 
+  it('fails closed when site_settings.page_copy is missing', () => {
+    expect(() =>
+      mapPortfolio(
+        {
+          ...cmsPortfolioFixture,
+          site: { ...cmsPortfolioFixture.site, page_copy: null },
+        },
+        BASE,
+      ),
+    ).toThrow(/site_settings\.page_copy is required/)
+  })
+
+  it('fails closed when site_settings.site_name is missing', () => {
+    expect(() =>
+      mapPortfolio(
+        {
+          ...cmsPortfolioFixture,
+          site: { ...cmsPortfolioFixture.site, site_name: null },
+        },
+        BASE,
+      ),
+    ).toThrow(/site_settings\.site_name is required/)
+  })
+
+  it('passes through page_copy and uses contact / spotlight labels from it', () => {
+    expect(mapped.homepage.siteName).toBe('Kazansky.dev')
+    expect(mapped.homepage.pageCopy.contact.card_heading).toBe('Get in touch')
+    expect(mapped.homepage.contact.email.label).toBe('Email')
+    expect(mapped.homepage.contact.telegram.label).toBe('Telegram')
+    expect(mapped.homepage.products.items[0]?.cta.label).toBe('View product')
+    expect(mapped.homepage.seoTitle).toBe(
+      'Daniel Kazansky | AI-Native Full-Stack Engineer',
+    )
+  })
+
   it('seeds sidebar nav from site_settings.menu', () => {
     expect(mapped.homepage.navItems.map(item => item.label)).toEqual([
       'Work',

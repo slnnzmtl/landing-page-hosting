@@ -42,8 +42,13 @@ describe('projects SEO documents', () => {
   const siteUrl = DEFAULT_SITE_URL
 
   it('builds indexable CollectionPage + ItemList JSON-LD for /projects', () => {
-    const page = projectsIndexSeo(siteUrl, products)
+    const page = projectsIndexSeo(siteUrl, products, {
+      siteName: homepage.siteName,
+      title: homepage.pageCopy.products_index.title,
+      description: homepage.pageCopy.products_index.seo_description,
+    })
     expect(page.robots).toBe('index, follow')
+    expect(page.description).toBe(homepage.pageCopy.products_index.seo_description)
     expect(page.jsonLd['@type']).toBe('CollectionPage')
     const main = page.jsonLd.mainEntity as { '@type': string, 'itemListElement': unknown[] }
     expect(main['@type']).toBe('ItemList')
@@ -54,7 +59,10 @@ describe('projects SEO documents', () => {
   })
 
   it('uses a personal portfolio suffix on the converter product title', () => {
-    const page = projectDetailSeo(siteUrl, rekordboxPlaylistConverter)
+    const page = projectDetailSeo(siteUrl, rekordboxPlaylistConverter, {
+      siteName: homepage.siteName,
+      personName: homepage.person.name,
+    })
     expect(page.title).toBe('Simple Rekordbox Converter | Daniel Kazansky')
   })
 
@@ -105,12 +113,14 @@ describe('homepage SEO', () => {
     expect(page.path).toBe('/')
     expect(page.ogType).toBe('website')
     expect(page.title).toBe('Daniel Kazansky | AI-Native Full-Stack Engineer')
+    expect(page.description).toBe(homepage.seoDescription)
 
     const graph = page.jsonLd['@graph'] as Array<Record<string, unknown>>
     const types = graph.map(node => node['@type'])
     expect(types).toEqual(['WebSite', 'Person', 'ItemList'])
 
     const website = graph.find(node => node['@type'] === 'WebSite') as {
+      name: string
       publisher: { '@id': string }
     }
     const person = graph.find(node => node['@type'] === 'Person') as {
@@ -118,6 +128,7 @@ describe('homepage SEO', () => {
       'name': string
       'sameAs': string[]
     }
+    expect(website.name).toBe(homepage.siteName)
     expect(person.name).toBe('Daniel Kazansky')
     expect(person['@id']).toBe('https://kazansky.dev/#person')
     expect(website.publisher['@id']).toBe(person['@id'])
@@ -139,7 +150,7 @@ describe('homepage SEO', () => {
       'https://kazansky.dev/#contact',
     )
 
-    const head = seoHead(DEFAULT_SITE_URL, page)
+    const head = seoHead(DEFAULT_SITE_URL, page, homepage.siteName)
     expect(head.link).toEqual([{ rel: 'canonical', href: 'https://kazansky.dev/' }])
     expect(head.meta).toEqual(expect.arrayContaining([
       { name: 'robots', content: 'index, follow' },
@@ -153,17 +164,26 @@ describe('homepage SEO', () => {
 
 describe('experience page SEO', () => {
   it('builds indexable ProfilePage + Person JSON-LD for /experience', () => {
-    const page = experiencePageSeo(DEFAULT_SITE_URL, {
-      name: 'Daniel Kazansky',
-      role: 'AI-Native Full-Stack Engineer',
-      sameAs: [
-        'https://github.com/slnnzmtl',
-        'https://www.linkedin.com/in/daniel-kazansky/',
-      ],
-    })
+    const page = experiencePageSeo(
+      DEFAULT_SITE_URL,
+      {
+        name: 'Daniel Kazansky',
+        role: 'AI-Native Full-Stack Engineer',
+        sameAs: [
+          'https://github.com/slnnzmtl',
+          'https://www.linkedin.com/in/daniel-kazansky/',
+        ],
+      },
+      {
+        siteName: homepage.siteName,
+        title: `${homepage.pageCopy.experience.title} | Daniel Kazansky`,
+        description: homepage.pageCopy.experience.seo_description,
+      },
+    )
     expect(page.robots).toBe('index, follow')
     expect(page.path).toBe('/experience')
     expect(page.ogType).toBe('profile')
+    expect(page.description).toBe(homepage.pageCopy.experience.seo_description)
     const types = (page.jsonLd['@graph'] as Array<Record<string, unknown>>).map(
       node => node['@type'],
     )
@@ -171,7 +191,7 @@ describe('experience page SEO', () => {
     const personNode = (page.jsonLd['@graph'] as Array<Record<string, unknown>>)
       .find(node => node['@type'] === 'Person') as { '@id': string }
     expect(personNode['@id']).toBe('https://kazansky.dev/#person')
-    const head = seoHead(DEFAULT_SITE_URL, page)
+    const head = seoHead(DEFAULT_SITE_URL, page, homepage.siteName)
     expect(head.link).toEqual([
       { rel: 'canonical', href: `${DEFAULT_SITE_URL}/experience` },
     ])

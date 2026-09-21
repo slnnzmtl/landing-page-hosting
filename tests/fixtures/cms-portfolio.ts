@@ -82,6 +82,44 @@ export const cmsPortfolioFixture: CmsPortfolioRaw = {
       { label: 'Contact', href: '/#contact' },
       { label: 'GitHub', href: 'https://github.com/slnnzmtl' },
     ],
+    site_name: 'Kazansky.dev',
+    seo_title: 'Daniel Kazansky | AI-Native Full-Stack Engineer',
+    seo_description:
+      'I build reliable AI-enabled products connecting models to APIs, CRMs, databases, and real operations—backed by 8+ years across digital products and software delivery.',
+    page_copy: {
+      experience: {
+        title: 'Professional experience',
+        seo_description:
+          'Professional timeline for Daniel Kazansky, AI-Native Full-Stack Engineer: digital products, websites, and software delivery from 2018 through AI-native full-stack systems.',
+        back_label: 'Back to featured work',
+        back_href: '/#featured-work',
+      },
+      products_index: {
+        title: 'Products',
+        description:
+          'Public products and tools. Each card opens a dedicated landing page with usage notes and downloads.',
+        seo_description:
+          'Public products from Daniel Kazansky, including Simple Rekordbox Converter for Rekordbox 6 and 7.',
+        back_label: 'Back to homepage',
+        back_href: '/',
+        item_cta: 'View project',
+        spotlight_cta: 'View product',
+      },
+      contact: {
+        card_heading: 'Get in touch',
+        email_label: 'Email',
+        telegram_label: 'Telegram',
+      },
+      product_detail: {
+        kicker: 'Product',
+        back_label: 'Back to products',
+        back_href: '/projects',
+        benefits_heading_with_stack: 'Feature highlights',
+        benefits_heading_default: 'Why use it',
+        trust_heading: 'Product information',
+        download_warning_title: 'Before you open the app',
+      },
+    },
   },
   experience: [
     {

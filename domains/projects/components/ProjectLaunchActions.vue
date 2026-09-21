@@ -9,6 +9,7 @@ const props = defineProps<{
   launch: ProjectLaunch
   githubOwner: string
   githubRepo: string
+  downloadWarningTitle: string
 }>()
 
 const { ctaHref } = useMacosReleaseDownload(props.githubOwner, props.githubRepo)
@@ -68,6 +69,7 @@ const linkClass = [
     <MacosDownloadWarningDialog
       v-if="isOpen && launch.macosDownloadWarning"
       :message="launch.macosDownloadWarning"
+      :title="downloadWarningTitle"
       @close="close"
       @confirm="confirm"
     />

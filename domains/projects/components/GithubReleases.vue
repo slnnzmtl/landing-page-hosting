@@ -8,6 +8,7 @@ const props = defineProps<{
   owner: string
   repo: string
   macosDownloadWarning?: string
+  downloadWarningTitle: string
 }>()
 
 const { result } = useGithubReleases(props.owner, props.repo)
@@ -163,6 +164,7 @@ function releaseHeading(release: GithubRelease) {
       <MacosDownloadWarningDialog
         v-if="isOpen && macosDownloadWarning"
         :message="macosDownloadWarning"
+        :title="downloadWarningTitle"
         @close="close"
         @confirm="confirm"
       />

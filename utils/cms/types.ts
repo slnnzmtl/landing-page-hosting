@@ -13,6 +13,39 @@ export interface CmsProfessionalTenure {
   pageIntro: string
 }
 
+/** Nested UI chrome from site_settings.page_copy (snake_case matches Directus JSON). */
+export interface CmsPageCopy {
+  experience: {
+    title: string
+    seo_description: string
+    back_label: string
+    back_href: string
+  }
+  products_index: {
+    title: string
+    description: string
+    seo_description: string
+    back_label: string
+    back_href: string
+    item_cta: string
+    spotlight_cta: string
+  }
+  contact: {
+    card_heading: string
+    email_label: string
+    telegram_label: string
+  }
+  product_detail: {
+    kicker: string
+    back_label: string
+    back_href: string
+    benefits_heading_with_stack: string
+    benefits_heading_default: string
+    trust_heading: string
+    download_warning_title: string
+  }
+}
+
 export interface CmsSiteSettings {
   status: DirectusStatus
   person_name: string
@@ -40,6 +73,10 @@ export interface CmsSiteSettings {
   contact_telegram: string
   /** Sidebar nav: [{ label, href }] */
   menu?: CmsLink[] | null
+  site_name?: string | null
+  seo_title?: string | null
+  seo_description?: string | null
+  page_copy?: CmsPageCopy | null
 }
 
 export interface CmsFile {

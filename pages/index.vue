@@ -21,7 +21,7 @@ if (!portfolio.value) {
 
 const home = portfolio.value.homepage
 const siteUrl = resolveSiteUrl(useRuntimeConfig().public.siteUrl as string)
-usePageSeo(homepageSeo(siteUrl, home))
+usePageSeo(homepageSeo(siteUrl, home), home.siteName)
 </script>
 
 <template>
@@ -70,7 +70,10 @@ usePageSeo(homepageSeo(siteUrl, home))
 
       <HomeExperiencePreview :preview="home.experiencePreview" />
 
-      <HomeContact :contact="home.contact" />
+      <HomeContact
+        :contact="home.contact"
+        :card-heading="home.pageCopy.contact.card_heading"
+      />
     </div>
   </div>
 </template>

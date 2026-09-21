@@ -1,6 +1,7 @@
 import { projectPath, type Project } from '../data/types'
 
 export const DEFAULT_SITE_URL = 'https://kazansky.dev'
+/** Fallback when a caller has no CMS site_name (error page, unit tests). */
 export const SITE_NAME = 'Kazansky.dev'
 
 export interface PageSeo {
@@ -38,14 +39,28 @@ export function websiteId(siteUrl: string): string {
   return `${absoluteUrl(siteUrl, '/')}#website`
 }
 
-export function projectsIndexSeo(siteUrl: string, projects: Project[]): PageSeo {
+export interface ProjectsIndexSeoOptions {
+  siteName?: string
+  title?: string
+  description?: string
+  collectionName?: string
+}
+
+export function projectsIndexSeo(
+  siteUrl: string,
+  projects: Project[],
+  options: ProjectsIndexSeoOptions = {},
+): PageSeo {
+  const siteName = options.siteName || SITE_NAME
+  const collectionName = options.collectionName || options.title || 'Products'
   const path = '/projects'
   const url = absoluteUrl(siteUrl, path)
   const image = socialImage(projects[0])
+  const description = options.description
+    || 'Public products from Daniel Kazansky, including Simple Rekordbox Converter for Rekordbox 6 and 7.'
   return {
-    title: `Products | ${SITE_NAME}`,
-    description:
-      'Public products from Daniel Kazansky, including Simple Rekordbox Converter for Rekordbox 6 and 7.',
+    title: `${collectionName} | ${siteName}`,
+    description,
     path,
     robots: 'index, follow',
     ogType: 'website',
@@ -53,13 +68,13 @@ export function projectsIndexSeo(siteUrl: string, projects: Project[]): PageSeo 
     jsonLd: {
       '@context': 'https://schema.org',
       '@type': 'CollectionPage',
-      'name': 'Products',
+      'name': collectionName,
       'description':
         'Public products from Daniel Kazansky.',
       url,
       'isPartOf': {
         '@type': 'WebSite',
-        'name': SITE_NAME,
+        'name': siteName,
         'url': absoluteUrl(siteUrl, '/'),
       },
       'mainEntity': {
@@ -75,11 +90,24 @@ export function projectsIndexSeo(siteUrl: string, projects: Project[]): PageSeo 
   }
 }
 
-export function projectDetailSeo(siteUrl: string, project: Project): PageSeo {
+export interface ProjectDetailSeoOptions {
+  siteName?: string
+  personName?: string
+  productsLabel?: string
+}
+
+export function projectDetailSeo(
+  siteUrl: string,
+  project: Project,
+  options: ProjectDetailSeoOptions = {},
+): PageSeo {
+  const siteName = options.siteName || SITE_NAME
+  const personName = options.personName || 'Daniel Kazansky'
+  const productsLabel = options.productsLabel || 'Products'
   const path = projectPath(project.slug)
   const url = absoluteUrl(siteUrl, path)
   const description = project.seo?.description ?? project.shortDescription
-  const titleSuffix = project.seo?.titleSuffix ?? SITE_NAME
+  const titleSuffix = project.seo?.titleSuffix ?? siteName
   const title = `${project.seo?.title ?? project.name} | ${titleSuffix}`
   const image = socialImage(project)
   const software = project.softwareApplication
@@ -90,13 +118,13 @@ export function projectDetailSeo(siteUrl: string, project: Project): PageSeo {
         {
           '@type': 'ListItem',
           'position': 1,
-          'name': 'Daniel Kazansky',
+          'name': personName,
           'item': absoluteUrl(siteUrl, '/'),
         },
         {
           '@type': 'ListItem',
           'position': 2,
-          'name': 'Products',
+          'name': productsLabel,
           'item': absoluteUrl(siteUrl, '/projects'),
         },
         {
@@ -146,6 +174,9 @@ export interface HomepageSeoInput {
   profileLinks: Array<{ href: string }>
   featuredCases: Array<{ title: string, href: string }>
   products: { items: Array<{ title: string, cta: { href: string } }> }
+  siteName?: string
+  seoTitle?: string
+  seoDescription?: string
 }
 
 function isPublicCreativeWorkHref(href: string): boolean {
@@ -181,8 +212,9 @@ function homepageCreativeWorks(
 export function homepageSeo(siteUrl: string, home: HomepageSeoInput): PageSeo {
   const path = '/'
   const url = absoluteUrl(siteUrl, path)
-  const title = `${home.person.name} | ${home.person.role}`
-  const description = home.valueProposition
+  const siteName = home.siteName || SITE_NAME
+  const title = home.seoTitle || `${home.person.name} | ${home.person.role}`
+  const description = home.seoDescription || home.valueProposition
   const creativeWorks = homepageCreativeWorks(siteUrl, home)
   const person = personId(siteUrl)
   const website = websiteId(siteUrl)
@@ -190,7 +222,7 @@ export function homepageSeo(siteUrl: string, home: HomepageSeoInput): PageSeo {
     {
       '@type': 'WebSite',
       '@id': website,
-      'name': SITE_NAME,
+      'name': siteName,
       'url': url,
       'publisher': { '@id': person },
     },
@@ -234,17 +266,25 @@ export interface ExperiencePagePerson {
   sameAs: string[]
 }
 
+export interface ExperiencePageSeoOptions {
+  siteName?: string
+  title?: string
+  description?: string
+}
+
 export function experiencePageSeo(
   siteUrl: string,
   person: ExperiencePagePerson,
+  options: ExperiencePageSeoOptions = {},
 ): PageSeo {
   const path = '/experience'
   const url = absoluteUrl(siteUrl, path)
   const homeUrl = absoluteUrl(siteUrl, '/')
   const personEntityId = personId(siteUrl)
-  const title = `Professional Experience | ${person.name}`
-  const description
-    = `Professional timeline for ${person.name}, ${person.role}: digital products, websites, and software delivery from 2018 through AI-native full-stack systems.`
+  const siteName = options.siteName || SITE_NAME
+  const title = options.title || `Professional Experience | ${person.name}`
+  const description = options.description
+    || `Professional timeline for ${person.name}, ${person.role}: digital products, websites, and software delivery from 2018 through AI-native full-stack systems.`
   return {
     title,
     description,
@@ -262,7 +302,7 @@ export function experiencePageSeo(
           'isPartOf': {
             '@type': 'WebSite',
             '@id': websiteId(siteUrl),
-            'name': SITE_NAME,
+            'name': siteName,
             'url': homeUrl,
           },
           'mainEntity': {
@@ -282,13 +322,13 @@ export function experiencePageSeo(
   }
 }
 
-export function seoHead(siteUrl: string, page: PageSeo) {
+export function seoHead(siteUrl: string, page: PageSeo, siteName = SITE_NAME) {
   const url = absoluteUrl(siteUrl, page.path)
   const imageUrl = page.image ? absoluteUrl(siteUrl, page.image.src) : undefined
   const meta: Array<Record<string, string>> = [
     { name: 'description', content: page.description },
     { name: 'robots', content: page.robots },
-    { property: 'og:site_name', content: SITE_NAME },
+    { property: 'og:site_name', content: siteName },
     { property: 'og:title', content: page.title },
     { property: 'og:description', content: page.description },
     { property: 'og:url', content: url },

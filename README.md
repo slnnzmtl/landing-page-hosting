@@ -48,8 +48,7 @@ Each domain lives under `domains/<name>/` as a Nuxt layer. Page routes are prefi
 │  ├─ projects/
 │  │  ├─ pages/                   # index, [slug] → /projects/*
 │  │  ├─ data/                    # Project types + findProject helpers
-│  │  ├─ components/              # Gallery + GitHub releases
-│  │  └─ public/                  # Local product media (optional)
+│  │  └─ components/              # Gallery + GitHub releases
 │  ├─ survey/
 │  │  ├─ pages/                   # index, [slug] → /survey/*
 │  │  ├─ data/*.json              # Survey definitions
@@ -126,7 +125,7 @@ Nuxt can drop a layer page when another layer already owns the same route name (
 
 1. Create a published `products` row in Directus (slug, copy, links, optional gallery/media, optional `github` repo for the releases feed).
 2. Add the slug to `site_settings.product_spotlight_slugs` if it should appear on the homepage.
-3. Put local walkthrough media under `domains/projects/public/projects/<slug>/` when guide JSON still uses relative `/projects/...` paths (or upload files to Directus and point assets there).
+3. Upload walkthrough media to Directus Files and set each file’s `title` to the public path used in guide JSON (for example `/projects/<slug>/shot.webp`). Dev and generate write those files into `public/` (gitignored except `u.js`).
 4. `nuxt generate` discovers published product slugs from Directus for prerender, sitemap, and JSON-LD. No new page file is required.
 
 First product: **Simple Rekordbox Converter** at `/projects/rekordbox-playlist-converter`. Evergreen copy lives in Directus. GitHub release versions and download URLs are fetched in the browser from `https://api.github.com/repos/slnnzmtl/rekordbox-playlist-converter/releases` (no token, 1-hour localStorage cache, stale cache if GitHub is down).

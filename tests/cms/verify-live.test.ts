@@ -112,6 +112,21 @@ describeLive('live Directus portfolio verification', () => {
     expect(site.menu?.map(item => item.href)).toEqual(
       cmsPortfolioFixture.site.menu?.map(item => item.href),
     )
+    expect(site.site_name).toBe(cmsPortfolioFixture.site.site_name)
+    expect(site.seo_title).toBe(cmsPortfolioFixture.site.seo_title)
+    expect(site.seo_description).toBe(cmsPortfolioFixture.site.seo_description)
+    expect(site.page_copy?.experience.title).toBe(
+      cmsPortfolioFixture.site.page_copy?.experience.title,
+    )
+    expect(site.page_copy?.products_index.item_cta).toBe(
+      cmsPortfolioFixture.site.page_copy?.products_index.item_cta,
+    )
+    expect(site.page_copy?.contact.card_heading).toBe(
+      cmsPortfolioFixture.site.page_copy?.contact.card_heading,
+    )
+    expect(site.page_copy?.product_detail.trust_heading).toBe(
+      cmsPortfolioFixture.site.page_copy?.product_detail.trust_heading,
+    )
 
     for (const expected of cmsPortfolioFixture.projects) {
       const live = projects.find(p => p.slug === expected.slug)
@@ -143,6 +158,15 @@ describeLive('live Directus portfolio verification', () => {
       config,
       `/files?fields=id,filename_download,title&limit=-1`,
     )
+    expect(files.map(f => f.title).filter(Boolean)).toEqual(
+      expect.arrayContaining([
+        '/favicon.ico',
+        '/favicon-16x16.png',
+        '/favicon-32x32.png',
+        '/apple-touch-icon.png',
+        '/images/experience/upwork.png',
+      ]),
+    )
 
     const mapped = mapPortfolio(
       { site, experience, projects, products, claims, files },
@@ -162,6 +186,8 @@ describeLive('live Directus portfolio verification', () => {
     expect(mapped.homepage.products.items[0]?.image.src).toBe(
       '/projects/rekordbox-playlist-converter/macos-app-main-window.webp',
     )
+    expect(mapped.homepage.siteName).toBe('Kazansky.dev')
+    expect(mapped.homepage.pageCopy.products_index.spotlight_cta).toBe('View product')
     expect(mapped.experience.find(r => r.id === 'upwork-reputation-team')?.icon).toBe(
       '/images/experience/upwork.png',
     )

@@ -23,6 +23,10 @@ export const SITE_FIELDS = [
   'contact_email',
   'contact_telegram',
   'menu',
+  'site_name',
+  'seo_title',
+  'seo_description',
+  'page_copy',
 ].join(',')
 
 export const FILE_FIELDS = 'id,filename_download,title'

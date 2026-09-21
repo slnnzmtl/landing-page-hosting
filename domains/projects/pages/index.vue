@@ -19,9 +19,18 @@ if (!portfolio.value) {
 }
 
 const projects = portfolio.value.products
-const personName = portfolio.value.homepage.person.name
+const home = portfolio.value.homepage
+const pageCopy = home.pageCopy
+const personName = home.person.name
 const siteUrl = resolveSiteUrl(useRuntimeConfig().public.siteUrl as string)
-usePageSeo(projectsIndexSeo(siteUrl, projects))
+usePageSeo(
+  projectsIndexSeo(siteUrl, projects, {
+    siteName: home.siteName,
+    title: pageCopy.products_index.title,
+    description: pageCopy.products_index.seo_description,
+  }),
+  home.siteName,
+)
 </script>
 
 <template>
@@ -29,9 +38,9 @@ usePageSeo(projectsIndexSeo(siteUrl, projects))
     <div class="relative z-10 mx-auto flex w-full min-w-0 max-w-6xl flex-col gap-12 px-4 py-12 sm:px-6 sm:py-20 lg:px-12">
       <AppPageHeader
         :kicker="personName"
-        title="Products"
-        description="Public products and tools. Each card opens a dedicated landing page with usage notes and downloads."
-        :back="{ to: '/', label: 'Back to homepage' }"
+        :title="pageCopy.products_index.title"
+        :description="pageCopy.products_index.description"
+        :back="{ to: pageCopy.products_index.back_href, label: pageCopy.products_index.back_label }"
       />
 
       <ul class="grid gap-5 sm:grid-cols-2">
@@ -64,7 +73,7 @@ usePageSeo(projectsIndexSeo(siteUrl, projects))
                 {{ project.shortDescription }}
               </p>
               <span class="mt-5 inline-flex items-center gap-2 text-sm font-medium text-primary transition-transform group-hover:translate-x-0.5">
-                View project
+                {{ pageCopy.products_index.item_cta }}
                 <svg
                   viewBox="0 0 20 20"
                   fill="none"

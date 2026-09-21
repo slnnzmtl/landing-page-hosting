@@ -1,3 +1,7 @@
+import type { CmsPageCopy } from '~/utils/cms/types'
+
+export type { CmsPageCopy }
+
 export interface HomepageLink {
   label: string
   href: string
@@ -92,6 +96,13 @@ export interface HomepageContent {
     email: HomepageLink
     telegram: HomepageLink
   }
+  /** From Directus `site_settings.site_name`. */
+  siteName: string
+  /** Homepage meta overrides from `seo_title` / `seo_description`. */
+  seoTitle?: string
+  seoDescription?: string
+  /** Nested UI chrome from Directus `site_settings.page_copy` (passthrough). */
+  pageCopy: CmsPageCopy
 }
 
 export type HomepageHrefKind = 'native' | 'route'

@@ -65,7 +65,7 @@ tests/
 
 **Registry** — lookup by slug, unknown-slug 404 data, and slug→route helpers used by sitemap/tests. Prerender product routes come from Directus (`fetchProductSlugs`) at generate time.
 
-**Rekordbox product data** — evergreen copy, five-step How to use walkthrough with local screenshots (no GitHub hotlinks), required links.
+**Rekordbox product data** — evergreen copy, five-step How to use walkthrough with Directus-materialized screenshots (no GitHub hotlinks), required links.
 
 **GitHub releases** — mocked `fetch` for success, empty, 403/429, network error, prerelease, and stale localStorage cache. Notes are plain text.
 

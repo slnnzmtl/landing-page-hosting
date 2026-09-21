@@ -1,10 +1,7 @@
-import { mkdirSync } from 'node:fs'
 import { defineNuxtConfig } from 'nuxt/config'
 import { getSurveyRoutes } from './domains/survey/survey-routes'
 import { getServiceRoutes } from './domains/service/service-routes'
 import { DEFAULT_DIRECTUS_URL } from './utils/cms/client'
-
-mkdirSync('.cms-assets', { recursive: true })
 
 /** Build-time only; baked into the Umami script tag (safe to expose in HTML). */
 const umamiWebsiteId = process.env.UMAMI_WEBSITE_ID || process.env.NUXT_UMAMI_WEBSITE_ID || ''
@@ -67,13 +64,6 @@ export default defineNuxtConfig({
     },
   },
   nitro: {
-    publicAssets: [
-      {
-        baseURL: '/',
-        dir: '.cms-assets',
-        maxAge: 60 * 60 * 24 * 7,
-      },
-    ],
     prerender: {
       // Explicit routes required: crawlLinks is false; service is client-only (ssr: false)
       // Product slugs are appended in nitro:config during generate (CMS-driven).

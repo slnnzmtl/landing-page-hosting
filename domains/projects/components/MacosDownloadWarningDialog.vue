@@ -3,6 +3,7 @@ import { onBeforeUnmount, onMounted, ref } from 'vue'
 
 defineProps<{
   message: string
+  title: string
 }>()
 
 const emit = defineEmits<{
@@ -42,7 +43,7 @@ onBeforeUnmount(() => {
         id="macos-download-warning-title"
         class="text-lg font-semibold"
       >
-        Before you open the app
+        {{ title }}
       </h2>
       <p class="mt-3 text-sm text-muted-foreground">
         {{ message }}

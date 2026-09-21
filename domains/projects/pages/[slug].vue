@@ -32,8 +32,18 @@ if (!project) {
   })
 }
 
+const home = portfolio.value!.homepage
+const pageCopy = home.pageCopy
+const detail = pageCopy.product_detail
 const siteUrl = resolveSiteUrl(useRuntimeConfig().public.siteUrl as string)
-usePageSeo(projectDetailSeo(siteUrl, project))
+usePageSeo(
+  projectDetailSeo(siteUrl, project, {
+    siteName: home.siteName,
+    personName: home.person.name,
+    productsLabel: pageCopy.products_index.title,
+  }),
+  home.siteName,
+)
 
 const descriptionParagraphs = computed(() => {
   const text = project.description || project.shortDescription
@@ -41,7 +51,9 @@ const descriptionParagraphs = computed(() => {
 })
 
 const benefitsHeading = computed(() => (
-  project.stackTags?.length ? 'Feature highlights' : 'Why use it'
+  project.stackTags?.length
+    ? detail.benefits_heading_with_stack
+    : detail.benefits_heading_default
 ))
 </script>
 
@@ -49,9 +61,9 @@ const benefitsHeading = computed(() => (
   <article class="relative min-h-screen w-full min-w-0 text-foreground">
     <div class="relative z-10 mx-auto flex w-full min-w-0 max-w-6xl flex-col gap-16 px-4 py-12 sm:px-6 sm:py-20 lg:px-12">
       <AppPageHeader
-        kicker="Product"
+        :kicker="detail.kicker"
         :title="project.name"
-        :back="{ to: '/projects', label: 'Back to products' }"
+        :back="{ to: detail.back_href, label: detail.back_label }"
       >
         <template #media>
           <div
@@ -107,6 +119,7 @@ const benefitsHeading = computed(() => (
           :launch="project.launch"
           :github-owner="project.github.owner"
           :github-repo="project.github.repo"
+          :download-warning-title="detail.download_warning_title"
         />
         <div
           v-else-if="project.links?.length"
@@ -198,6 +211,7 @@ const benefitsHeading = computed(() => (
           :owner="project.github.owner"
           :repo="project.github.repo"
           :macos-download-warning="project.launch?.macosDownloadWarning"
+          :download-warning-title="detail.download_warning_title"
         />
       </section>
 
@@ -206,6 +220,7 @@ const benefitsHeading = computed(() => (
         :trust-facts="project.launch.trustFacts"
         :github-owner="project.github.owner"
         :github-repo="project.github.repo"
+        :heading="detail.trust_heading"
       />
 
       <p

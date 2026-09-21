@@ -1,5 +1,6 @@
+import { existsSync } from 'node:fs'
 import { mkdir, writeFile } from 'node:fs/promises'
-import { dirname, join } from 'node:path'
+import { basename, dirname, join } from 'node:path'
 import {
   directusGet,
   resolveDirectusConfig,
@@ -102,14 +103,23 @@ async function fetchPortfolioRaw(
   return { site, experience, projects, products, claims, files }
 }
 
+/** Committed files in public/ — never overwrite from Directus titles. */
+const COMMITTED_PUBLIC_FILES = new Set(['u.js'])
+
+/**
+ * Write Directus files into `public/` so Vite/Nuxt serve them in dev and generate.
+ * Extra `nitro.publicAssets` dirs are not served by the Vite dev server.
+ */
 async function materializeCmsFiles(
   config: DirectusClientConfig,
   files: CmsFile[],
 ): Promise<void> {
-  const root = join(process.cwd(), '.cms-assets')
+  const root = join(process.cwd(), 'public')
   for (const file of files) {
     const pub = publicPathForFile(file)
+    if (COMMITTED_PUBLIC_FILES.has(basename(pub))) continue
     const dest = join(root, pub.replace(/^\//, ''))
+    if (existsSync(dest)) continue
     await mkdir(dirname(dest), { recursive: true })
     const res = await fetch(`${config.baseUrl}/assets/${file.id}`, {
       headers: { Authorization: `Bearer ${config.token}` },

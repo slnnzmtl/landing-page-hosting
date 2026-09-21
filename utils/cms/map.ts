@@ -264,6 +264,7 @@ export function mapProductSpotlights(
   site: CmsSiteSettings,
   products: CmsProduct[],
   catalog: FileCatalog = EMPTY_CATALOG,
+  spotlightCtaLabel: string,
 ): ProductSpotlight[] {
   const ordered = orderByKeys(
     products,
@@ -294,7 +295,7 @@ export function mapProductSpotlights(
         height: rewritten.height,
       },
       cta: {
-        label: 'View product',
+        label: spotlightCtaLabel,
         href: `/projects/${product.slug}`,
       },
       tags: (product.stack_tags || []).slice(0, 5),
@@ -310,6 +311,14 @@ export function mapHomepageContent(
   claims: CmsApprovedClaim[],
   catalog: FileCatalog = EMPTY_CATALOG,
 ): HomepageContent {
+  if (!site.page_copy) {
+    throw new Error('site_settings.page_copy is required')
+  }
+  if (!site.site_name) {
+    throw new Error('site_settings.site_name is required')
+  }
+
+  const pageCopy = site.page_copy
   const claimsByKey = new Map(claims.filter(c => c.key).map(c => [c.key, c]))
   const tenure = site.professional_tenure
   const proof: ProofItem[] = [
@@ -357,23 +366,32 @@ export function mapHomepageContent(
     products: {
       heading: site.products_heading,
       description: site.products_description,
-      items: mapProductSpotlights(site, products, catalog),
+      items: mapProductSpotlights(
+        site,
+        products,
+        catalog,
+        pageCopy.products_index.spotlight_cta,
+      ),
     },
     navItems,
     contact: {
       heading: site.contact_heading,
       summary: site.contact_summary,
       email: {
-        label: 'Email',
+        label: pageCopy.contact.email_label,
         href: site.contact_email.startsWith('mailto:')
           ? site.contact_email
           : `mailto:${site.contact_email}`,
       },
       telegram: {
-        label: 'Telegram',
+        label: pageCopy.contact.telegram_label,
         href: site.contact_telegram,
       },
     },
+    siteName: site.site_name,
+    seoTitle: site.seo_title ?? undefined,
+    seoDescription: site.seo_description ?? undefined,
+    pageCopy,
   }
 }
 

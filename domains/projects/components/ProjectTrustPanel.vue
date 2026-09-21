@@ -6,6 +6,7 @@ const props = defineProps<{
   trustFacts: ProjectTrustFact[]
   githubOwner: string
   githubRepo: string
+  heading: string
 }>()
 
 const { versionLabel, releaseDateLabel } = useMacosReleaseDownload(props.githubOwner, props.githubRepo)
@@ -26,7 +27,7 @@ const facts = computed(() => [
       id="project-trust-heading"
       class="text-lg font-semibold"
     >
-      Product information
+      {{ heading }}
     </h2>
     <dl class="max-w-3xl space-y-1.5 text-sm leading-relaxed text-muted-foreground">
       <div
