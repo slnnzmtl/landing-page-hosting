@@ -21,7 +21,7 @@ A Nuxt 3 + Vue 3 multi-domain app for landing pages, public product pages, JSON-
 | Domain | Routes | Purpose |
 |--------|--------|---------|
 | **Root** | `/` | Portfolio / landing homepage |
-| **projects** | `/projects`, `/projects/:slug` | Public selected products (data-driven) |
+| **projects** | `/products`, `/products/:slug` | Public selected products (data-driven; layer folder stays `domains/projects`) |
 | **survey** | `/survey`, `/survey/:slug` | JSON-driven surveys with webhook submit |
 | **service** | `/service/:page` | Service landing pages |
 
@@ -30,7 +30,7 @@ Each domain lives under `domains/<name>/` as a Nuxt layer. Page routes are prefi
 ## Features
 
 - Multi-domain Nuxt layer architecture
-- Public `/projects` catalog and product landings (first product: Simple Rekordbox Converter)
+- Public `/products` catalog and product landings (first product: Simple Rekordbox Converter)
 - Static generation (`nuxt generate`) with explicit prerender routes
 - JSON-configurable surveys (one file per survey under `domains/survey/data/`)
 - Webhook-based survey submission (JSON POST, update support via `submissionId`)
@@ -46,8 +46,8 @@ Each domain lives under `domains/<name>/` as a Nuxt layer. Page routes are prefi
 ├─ data/                          # Homepage/experience view types + helpers
 ├─ domains/
 │  ├─ projects/
-│  │  ├─ pages/                   # index, [slug] → /projects/*
-│  │  ├─ data/                    # Project types + findProject helpers
+│  │  ├─ pages/                   # index, [slug] → /products/*
+│  │  ├─ data/                    # Project types + projectPath
 │  │  └─ components/              # Gallery + GitHub releases
 │  ├─ survey/
 │  │  ├─ pages/                   # index, [slug] → /survey/*
@@ -117,18 +117,19 @@ App runs at `http://localhost:3000` by default.
 - `pnpm test:ui` — Vitest UI
 - `pnpm lint` / `pnpm lint:fix` — ESLint
 
-## Projects module
+## Products catalog (`domains/projects`)
 
-Nuxt can drop a layer page when another layer already owns the same route name (`index` vs root, `[slug]` vs survey). The projects layer re-registers `/projects` and `/projects/:slug` in `pages:extend`.
+Nuxt can drop a layer page when another layer already owns the same route name (`index` vs root, `[slug]` vs survey). The projects layer re-registers `/products` and `/products/:slug` in `pages:extend` (folder name stays `projects`; public URLs are `/products`).
 
 ### Add another selected product
 
 1. Create a published `products` row in Directus (slug, copy, links, optional gallery/media, optional `github` repo for the releases feed).
 2. Add the slug to `site_settings.product_spotlight_slugs` if it should appear on the homepage.
-3. Upload walkthrough media to Directus Files and set each file’s `title` to the public path used in guide JSON (for example `/projects/<slug>/shot.webp`). Dev and generate write those files into `public/` (gitignored except `u.js`).
-4. `nuxt generate` discovers published product slugs from Directus for prerender, sitemap, and JSON-LD. No new page file is required.
+3. Upload walkthrough media to Directus Files and set each file’s `title` to the public path used in guide JSON (for example `/projects/<slug>/shot.webp`). Dev and generate write those files into `public/` (gitignored except `u.js`). Media paths stay under `/projects/<slug>/` even though catalog pages live at `/products`.
+4. Ensure `site_settings.menu` Products href and `page_copy.product_detail.back_href` point at `/products` (not `/projects`).
+5. `nuxt generate` discovers published product slugs from Directus for prerender, sitemap, and JSON-LD. No new page file is required.
 
-First product: **Simple Rekordbox Converter** at `/projects/rekordbox-playlist-converter`. Evergreen copy lives in Directus. GitHub release versions and download URLs are fetched in the browser from `https://api.github.com/repos/slnnzmtl/rekordbox-playlist-converter/releases` (no token, 1-hour localStorage cache, stale cache if GitHub is down).
+First product: **Simple Rekordbox Converter** at `/products/rekordbox-playlist-converter`. Evergreen copy lives in Directus. GitHub release versions and download URLs are fetched in the browser from `https://api.github.com/repos/slnnzmtl/rekordbox-playlist-converter/releases` (no token, 1-hour localStorage cache, stale cache if GitHub is down).
 
 ## Survey Module
 
@@ -179,18 +180,18 @@ Surveys are JSON files in `domains/survey/data/`. Each file is eagerly loaded by
 
 Configured for Nuxt static generation. Prerender uses an explicit route list (`crawlLinks: false`) from:
 
-- `/`, `/experience`, `/survey`, `/projects`, `/sitemap.xml`, `/robots.txt`, plus `getSurveyRoutes()`, `getServiceRoutes()`, and CMS product slugs from Directus (`fetchProductSlugs` at generate time)
+- `/`, `/experience`, `/survey`, `/products`, `/sitemap.xml`, `/robots.txt`, plus `getSurveyRoutes()`, `getServiceRoutes()`, and CMS product slugs from Directus (`fetchProductSlugs` at generate time)
 
 ```bash
 pnpm build
 pnpm preview
 ```
 
-`vercel.json` builds with `@vercel/static-build` (`distDir: .output/public`). Known files (including prerendered `/projects/*`) are served from the filesystem. Unknown `/projects/*` paths return `404.html`. Legacy `/finance` and `/login` also return `404.html`. `/service/**` falls back to `/200.html` for the client-only service layer. All other unmatched paths return `404.html`.
+`vercel.json` builds with `@vercel/static-build` (`distDir: .output/public`). Known files (including prerendered `/products/*` and media under `/projects/*`) are served from the filesystem. Unknown `/products/*` and `/projects/*` page paths return `404.html` (product media files still match the filesystem first). Legacy `/finance` and `/login` also return `404.html`. `/service/**` falls back to `/200.html` for the client-only service layer. All other unmatched paths return `404.html`.
 
 Set `SURVEY_WEBHOOK_URL` in the Vercel project environment for survey submissions. Set `NUXT_PUBLIC_SITE_URL` to the production origin for canonical/social URLs. Set **`DIRECTUS_TOKEN`** (and optionally `DIRECTUS_URL`) as server-only build env vars so `nuxt generate` can read published portfolio content. Deploy finance separately via `personal-finance`.
 
-The portfolio homepage, `/experience`, and `/projects` are indexable (`index, follow`) with canonical URLs, Open Graph tags, and JSON-LD (Person, WebSite, CreativeWork / SoftwareApplication). Survey and service routes remain `noindex`.
+The portfolio homepage, `/experience`, and `/products` are indexable (`index, follow`) with canonical URLs, Open Graph tags, and JSON-LD (Person, WebSite, CreativeWork / SoftwareApplication). Survey and service routes remain `noindex`.
 
 Homepage: https://kazansky.dev
 

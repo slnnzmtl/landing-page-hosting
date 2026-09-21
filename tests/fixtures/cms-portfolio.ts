@@ -78,7 +78,7 @@ export const cmsPortfolioFixture: CmsPortfolioRaw = {
     menu: [
       { label: 'Work', href: '/' },
       { label: 'Experience', href: '/experience' },
-      { label: 'Products', href: '/projects' },
+      { label: 'Products', href: '/products' },
       { label: 'Contact', href: '/#contact' },
       { label: 'GitHub', href: 'https://github.com/slnnzmtl' },
     ],
@@ -113,7 +113,7 @@ export const cmsPortfolioFixture: CmsPortfolioRaw = {
       product_detail: {
         kicker: 'Product',
         back_label: 'Back to products',
-        back_href: '/projects',
+        back_href: '/products',
         benefits_heading_with_stack: 'Feature highlights',
         benefits_heading_default: 'Why use it',
         trust_heading: 'Product information',

@@ -38,16 +38,16 @@ describe('prefixDomainPages', () => {
     expect(pages[1].path).toBe('/survey/:slug()')
   })
 
-  it('prefixes projects index as /projects', () => {
+  it('prefixes projects layer pages as /products', () => {
     const pages: NuxtPage[] = [
       { path: '/', file: '/repo/domains/projects/pages/index.vue' },
       { path: '/:slug()', file: '/repo/domains/projects/pages/[slug].vue' },
     ]
 
-    prefixDomainPages(pages, 'projects', '/projects')
+    prefixDomainPages(pages, 'projects', '/products')
 
-    expect(pages[0].path).toBe('/projects')
-    expect(pages[1].path).toBe('/projects/:slug()')
+    expect(pages[0].path).toBe('/products')
+    expect(pages[1].path).toBe('/products/:slug()')
   })
 
   it('is idempotent', () => {

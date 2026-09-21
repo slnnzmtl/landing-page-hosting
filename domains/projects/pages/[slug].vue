@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import AppPageHeader from '~/components/AppPageHeader.vue'
 import { useHomepageUi } from '~/composables/useHomepageUi'
-import { findProject } from '../data/registry'
 import ProjectGallery from '../components/ProjectGallery.vue'
 import GithubReleases from '../components/GithubReleases.vue'
 import ProjectLaunchActions from '../components/ProjectLaunchActions.vue'
@@ -23,12 +22,12 @@ if (error.value) {
   })
 }
 
-const project = findProject(slug, portfolio.value?.products || [])
+const project = (portfolio.value?.products || []).find(p => p.slug === slug)
 
 if (!project) {
   throw createError({
     statusCode: 404,
-    statusMessage: 'Project not found',
+    statusMessage: 'Product not found',
   })
 }
 

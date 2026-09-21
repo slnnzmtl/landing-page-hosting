@@ -34,10 +34,10 @@ const handleError = () => clearError({ redirect: '/' })
           Homepage
         </NuxtLink>
         <NuxtLink
-          to="/projects"
+          to="/products"
           class="rounded-full border border-border px-6 py-3 text-sm font-medium transition hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
-          Selected projects
+          Selected products
         </NuxtLink>
         <button
           type="button"

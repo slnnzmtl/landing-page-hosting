@@ -1,23 +1,27 @@
 <script setup lang="ts">
 import { opensInNewTab } from '~/data/homepage'
 import { useHomepageUi } from '~/composables/useHomepageUi'
+import { isNavItemActive } from '~/utils/app-link'
 import { pageHash, scrollHomeToTop } from '~/utils/silent-hash'
 
-const route = useRoute()
+const router = useRouter()
 const { linkFocus, outboundAttrs } = useHomepageUi()
 const { data: portfolio } = await usePortfolio()
+
+const routePath = computed(() => router.currentRoute.value.path)
+const routeHash = computed(() => router.currentRoute.value.hash)
 
 function syncHash() {
   if (import.meta.client) {
     pageHash.value = window.location.hash
   }
 }
-watch(() => route.path, () => {
+watch(routePath, () => {
   closeMenu()
   burgerHiddenByScroll.value = false
   if (import.meta.client) lastScrollY = window.scrollY
 })
-watch(() => route.hash, (hash) => {
+watch(routeHash, (hash) => {
   if (import.meta.client && !hash && window.location.hash) return
   pageHash.value = hash
 })
@@ -77,7 +81,7 @@ function closeMenu() {
 
 function onNavClick(item: NavItem) {
   closeMenu()
-  if (item.to !== '/' || route.path !== '/' || !import.meta.client) return
+  if (item.to !== '/' || routePath.value !== '/' || !import.meta.client) return
   scrollHomeToTop()
 }
 
@@ -114,13 +118,7 @@ const sidebarLinkFocus = [linkFocus, 'focus-visible:ring-offset-background'].joi
 
 function isActive(item: NavItem) {
   if (opensInNewTab(item.to)) return false
-  if (item.to === '/#contact') {
-    return route.path === '/' && currentHash.value === '#contact'
-  }
-  if (item.to === '/') {
-    return route.path === '/' && currentHash.value !== '#contact'
-  }
-  return route.path === item.to || route.path.startsWith(`${item.to}/`)
+  return isNavItemActive(item.to, routePath.value, currentHash.value)
 }
 
 const linkBase

@@ -94,14 +94,14 @@ describe('homepage content model (CMS-mapped)', () => {
     const rekordbox = published.products.items[0]
     expect(rekordbox.slug).toBe('rekordbox-playlist-converter')
     expect(rekordbox.image.src).toContain('macos-app-main-window')
-    expect(rekordbox.cta.href).toBe('/projects/rekordbox-playlist-converter')
+    expect(rekordbox.cta.href).toBe('/products/rekordbox-playlist-converter')
   })
 
   it('seeds primary nav from site_settings.menu including GitHub', () => {
     expect(published.navItems.map(item => `${item.label}:${item.href}`)).toEqual([
       'Work:/',
       'Experience:/experience',
-      'Products:/projects',
+      'Products:/products',
       'Contact:/#contact',
       'GitHub:https://github.com/slnnzmtl',
     ])
@@ -151,7 +151,7 @@ describe('homepage href helpers', () => {
   it('opens only http(s) links in a new tab', () => {
     expect(opensInNewTab('https://github.com')).toBe(true)
     expect(opensInNewTab('mailto:kazanskydaniel@gmail.com')).toBe(false)
-    expect(opensInNewTab('/projects')).toBe(false)
+    expect(opensInNewTab('/products')).toBe(false)
   })
 
   it('maps conversion events for flagship, case, product, and contact', () => {
@@ -161,7 +161,7 @@ describe('homepage href helpers', () => {
     expect(conversionEventName('#flagship-case')).toBe(null)
     expect(conversionEventName('https://github.com/x', { featured: true })).toBe('flagship-case-open')
     expect(conversionEventName('/experience#upwork', {})).toBe('case-open')
-    expect(conversionEventName('/projects/rekordbox-playlist-converter', { product: true })).toBe('product-open')
+    expect(conversionEventName('/products/rekordbox-playlist-converter', { product: true })).toBe('product-open')
   })
 
   it('emits the conversion custom event without PII in detail', () => {

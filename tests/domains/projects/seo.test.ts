@@ -32,8 +32,8 @@ describe('site origin', () => {
   })
 
   it('builds absolute URLs from the configured origin', () => {
-    expect(absoluteUrl('https://kazansky.dev', '/projects')).toBe(
-      'https://kazansky.dev/projects',
+    expect(absoluteUrl('https://kazansky.dev', '/products')).toBe(
+      'https://kazansky.dev/products',
     )
   })
 })
@@ -41,7 +41,7 @@ describe('site origin', () => {
 describe('projects SEO documents', () => {
   const siteUrl = DEFAULT_SITE_URL
 
-  it('builds indexable CollectionPage + ItemList JSON-LD for /projects', () => {
+  it('builds indexable CollectionPage + ItemList JSON-LD for /products', () => {
     const page = projectsIndexSeo(siteUrl, products, {
       siteName: homepage.siteName,
       title: homepage.pageCopy.products_index.title,
@@ -81,7 +81,7 @@ describe('projects SEO documents', () => {
     const page = projectDetailSeo(siteUrl, rekordboxPlaylistConverter)
     const head = seoHead(siteUrl, page)
     expect(head.link).toEqual([
-      { rel: 'canonical', href: `${siteUrl}/projects/rekordbox-playlist-converter` },
+      { rel: 'canonical', href: `${siteUrl}/products/rekordbox-playlist-converter` },
     ])
     expect(head.meta).toEqual(expect.arrayContaining([
       { name: 'robots', content: 'index, follow' },
@@ -143,7 +143,7 @@ describe('homepage SEO', () => {
       expect.arrayContaining([
         'https://github.com/slnnzmtl/langgraph-appointment-bot',
         'https://github.com/slnnzmtl/directus-website-builder',
-        'https://kazansky.dev/projects/rekordbox-playlist-converter',
+        'https://kazansky.dev/products/rekordbox-playlist-converter',
       ]),
     )
     expect(list.itemListElement.map(entry => entry.item.url)).not.toContain(
@@ -199,22 +199,22 @@ describe('experience page SEO', () => {
 })
 
 describe('sitemap and robots', () => {
-  it('lists the homepage, experience page, projects index, and every registered project', () => {
+  it('lists the homepage, experience page, products index, and every registered product', () => {
     const slugs = products.map(p => p.slug)
     const xml = buildSitemapXml(DEFAULT_SITE_URL, undefined, slugs)
     expect(sitemapPaths(slugs)).toContain('/')
     expect(sitemapPaths(slugs)).toContain('/experience')
-    expect(sitemapPaths(slugs)).toContain('/projects')
-    expect(sitemapPaths(slugs)).toContain('/projects/rekordbox-playlist-converter')
+    expect(sitemapPaths(slugs)).toContain('/products')
+    expect(sitemapPaths(slugs)).toContain('/products/rekordbox-playlist-converter')
     expect(xml).toContain('<loc>https://kazansky.dev/</loc>')
     expect(xml).toContain('<loc>https://kazansky.dev/experience</loc>')
-    expect(xml).toContain('<loc>https://kazansky.dev/projects</loc>')
-    expect(xml).toContain('<loc>https://kazansky.dev/projects/rekordbox-playlist-converter</loc>')
+    expect(xml).toContain('<loc>https://kazansky.dev/products</loc>')
+    expect(xml).toContain('<loc>https://kazansky.dev/products/rekordbox-playlist-converter</loc>')
   })
 
-  it('allows crawlers on /projects and points at the sitemap', () => {
+  it('allows crawlers on /products and points at the sitemap', () => {
     const robots = buildRobotsTxt(DEFAULT_SITE_URL)
-    expect(robots).toContain('Allow: /projects')
+    expect(robots).toContain('Allow: /products')
     expect(robots).toContain('Sitemap: https://kazansky.dev/sitemap.xml')
     expect(robots).toContain('Disallow: /finance')
   })

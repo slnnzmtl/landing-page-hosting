@@ -31,8 +31,9 @@ export interface FeaturedCase {
   contribution: string
   outcome: string
   stack: string[]
-  href: string
-  hrefLabel: string
+  /** Evidence link only; omit when the CMS case has no evidence_links. */
+  href?: string
+  hrefLabel?: string
 }
 
 export interface ExperiencePreviewItem {

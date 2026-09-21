@@ -53,7 +53,7 @@ export function projectsIndexSeo(
 ): PageSeo {
   const siteName = options.siteName || SITE_NAME
   const collectionName = options.collectionName || options.title || 'Products'
-  const path = '/projects'
+  const path = '/products'
   const url = absoluteUrl(siteUrl, path)
   const image = socialImage(projects[0])
   const description = options.description
@@ -125,7 +125,7 @@ export function projectDetailSeo(
           '@type': 'ListItem',
           'position': 2,
           'name': productsLabel,
-          'item': absoluteUrl(siteUrl, '/projects'),
+          'item': absoluteUrl(siteUrl, '/products'),
         },
         {
           '@type': 'ListItem',
@@ -363,7 +363,7 @@ export function sitemapPaths(productSlugs: string[] = []): string[] {
   const paths = [
     '/',
     '/experience',
-    '/projects',
+    '/products',
     ...productSlugs.map(slug => projectPath(slug)),
   ]
   return [...new Set(paths)]
@@ -388,8 +388,8 @@ export function buildRobotsTxt(siteUrl: string): string {
   return [
     'User-agent: *',
     'Allow: /',
-    'Allow: /projects',
-    'Allow: /projects/',
+    'Allow: /products',
+    'Allow: /products/',
     'Disallow: /finance',
     'Disallow: /survey',
     'Disallow: /service',

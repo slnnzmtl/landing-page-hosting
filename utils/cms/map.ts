@@ -10,7 +10,7 @@ import type {
   ProductSpotlight,
   ProofItem,
 } from '../../data/homepage'
-import type { Project, ProjectImage } from '../../domains/projects/data/types'
+import { catalogPageHref, type Project, type ProjectImage } from '../../domains/projects/data/types'
 import { assetUrl, type DirectusClientConfig } from './client'
 import type {
   CmsApprovedClaim,
@@ -254,8 +254,9 @@ export function mapFeaturedCases(
       contribution: project.contribution || '',
       outcome: project.outcome || '',
       stack: project.stack_tags || [],
-      href: link?.href || `/projects/${project.slug}`,
-      hrefLabel: link?.label || 'View case',
+      ...(link
+        ? { href: link.href, hrefLabel: link.label || 'View case' }
+        : {}),
     }
   })
 }
@@ -296,7 +297,7 @@ export function mapProductSpotlights(
       },
       cta: {
         label: spotlightCtaLabel,
-        href: `/projects/${product.slug}`,
+        href: `/products/${product.slug}`,
       },
       tags: (product.stack_tags || []).slice(0, 5),
     }
@@ -318,7 +319,17 @@ export function mapHomepageContent(
     throw new Error('site_settings.site_name is required')
   }
 
-  const pageCopy = site.page_copy
+  const pageCopy = {
+    ...site.page_copy,
+    products_index: {
+      ...site.page_copy.products_index,
+      back_href: catalogPageHref(site.page_copy.products_index.back_href),
+    },
+    product_detail: {
+      ...site.page_copy.product_detail,
+      back_href: catalogPageHref(site.page_copy.product_detail.back_href),
+    },
+  }
   const claimsByKey = new Map(claims.filter(c => c.key).map(c => [c.key, c]))
   const tenure = site.professional_tenure
   const proof: ProofItem[] = [
@@ -343,7 +354,7 @@ export function mapHomepageContent(
   }
   const navItems = site.menu.map(item => ({
     label: item.label,
-    href: item.href,
+    href: catalogPageHref(item.href),
   }))
 
   return {
@@ -395,7 +406,7 @@ export function mapHomepageContent(
   }
 }
 
-export function mapProductToProject(
+export function mapCmsProduct(
   product: CmsProduct,
   config: Pick<DirectusClientConfig, 'baseUrl'>,
   catalog: FileCatalog = EMPTY_CATALOG,
@@ -456,14 +467,14 @@ export function mapProductToProject(
   }
 }
 
-export function mapProductsToProjects(
+export function mapCmsProducts(
   products: CmsProduct[],
   config: Pick<DirectusClientConfig, 'baseUrl'>,
   catalog: FileCatalog = EMPTY_CATALOG,
 ): Project[] {
   return [...products]
     .sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0))
-    .map(product => mapProductToProject(product, config, catalog))
+    .map(product => mapCmsProduct(product, config, catalog))
 }
 
 export function mapPortfolio(
@@ -480,7 +491,7 @@ export function mapPortfolio(
     raw.claims,
     catalog,
   )
-  const products = mapProductsToProjects(raw.products, config, catalog)
+  const products = mapCmsProducts(raw.products, config, catalog)
 
   return {
     site: raw.site,

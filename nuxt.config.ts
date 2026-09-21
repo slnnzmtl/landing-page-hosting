@@ -74,7 +74,7 @@ export default defineNuxtConfig({
         '/survey',
         ...getSurveyRoutes(),
         ...getServiceRoutes(),
-        '/projects',
+        '/products',
         '/sitemap.xml',
         '/robots.txt',
       ],
@@ -90,7 +90,7 @@ export default defineNuxtConfig({
       try {
         const { fetchProductSlugs } = await import('./utils/cms/load')
         const slugs = await fetchProductSlugs()
-        const routes = slugs.map(slug => `/projects/${slug}`)
+        const routes = slugs.map(slug => `/products/${slug}`)
         nitroConfig.prerender = nitroConfig.prerender || {}
         const existing = nitroConfig.prerender.routes || []
         nitroConfig.prerender.routes = [...new Set([...existing, ...routes])]

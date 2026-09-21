@@ -47,7 +47,7 @@ describe('AppPageHeader', () => {
       props: {
         kicker: 'Product',
         title: 'Simple Rekordbox Converter',
-        back: { to: '/projects', label: 'Back to products' },
+        back: { to: '/products', label: 'Back to products' },
       },
       slots: {
         media: '<img alt="logo" src="/logo.png">',

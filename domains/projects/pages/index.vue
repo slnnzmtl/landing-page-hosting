@@ -65,7 +65,7 @@ usePageSeo(
                 decoding="async"
               />
             </div>
-            <div>
+            <div class="flex flex-col">
               <h2 class="text-xl font-semibold text-primary">
                 {{ project.name }}
               </h2>

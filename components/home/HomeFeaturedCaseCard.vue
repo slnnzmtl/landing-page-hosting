@@ -10,10 +10,13 @@ const props = defineProps<{
 
 const { linkFocus, outboundAttrs } = useHomepageUi()
 
-const isExternal = computed(() => opensInNewTab(props.item.href))
+const isExternal = computed(() =>
+  props.item.href ? opensInNewTab(props.item.href) : false,
+)
 const isFlagship = computed(() => Boolean(props.item.featured))
 
 function onCaseCtaClick() {
+  if (!props.item.href) return
   trackHomepageHref(props.item.href, {
     featured: isFlagship.value,
     slug: props.item.slug,
@@ -75,7 +78,10 @@ const fields = computed(() => [
       {{ item.stack.join(' · ') }}
     </p>
 
-    <div class="mt-auto pt-4">
+    <div
+      v-if="item.href"
+      class="mt-auto pt-4"
+    >
       <a
         v-if="homepageHrefKind(item.href) === 'native'"
         :href="item.href"

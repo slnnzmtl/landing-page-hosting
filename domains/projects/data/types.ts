@@ -95,5 +95,12 @@ export interface Project {
 }
 
 export function projectPath(slug: string): string {
-  return `/projects/${slug}`
+  return `/products/${slug}`
+}
+
+/** Map leftover catalog page URLs after /projects → /products. Never use on media titles. */
+export function catalogPageHref(href: string): string {
+  if (href === '/projects') return '/products'
+  if (href.startsWith('/projects/')) return `/products/${href.slice('/projects/'.length)}`
+  return href
 }

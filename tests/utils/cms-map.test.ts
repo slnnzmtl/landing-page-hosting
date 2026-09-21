@@ -73,6 +73,41 @@ describe('CMS portfolio mappers', () => {
     expect(mapped.homepage.navItems[4]?.href).toBe('https://github.com/slnnzmtl')
   })
 
+  it('rewrites leftover /projects catalog hrefs from CMS copy without touching media paths', () => {
+    const result = mapPortfolio(
+      {
+        ...cmsPortfolioFixture,
+        site: {
+          ...cmsPortfolioFixture.site,
+          menu: [
+            { label: 'Work', href: '/' },
+            { label: 'Products', href: '/projects' },
+          ],
+          page_copy: {
+            ...cmsPortfolioFixture.site.page_copy!,
+            products_index: {
+              ...cmsPortfolioFixture.site.page_copy!.products_index,
+              back_href: '/',
+            },
+            product_detail: {
+              ...cmsPortfolioFixture.site.page_copy!.product_detail,
+              back_href: '/projects',
+            },
+          },
+        },
+      },
+      BASE,
+    )
+    expect(result.homepage.navItems.map(item => `${item.label}:${item.href}`)).toEqual([
+      'Work:/',
+      'Products:/products',
+    ])
+    expect(result.homepage.pageCopy.product_detail.back_href).toBe('/products')
+    expect(result.homepage.products.items[0]?.image.src).toContain(
+      '/projects/rekordbox-playlist-converter/',
+    )
+  })
+
   it('rewrites product screenshots to Directus assets via file titles', () => {
     const image = mapped.homepage.products.items[0]?.image
     expect(image?.src).toBe(
@@ -94,6 +129,26 @@ describe('CMS portfolio mappers', () => {
 
   it('marks only the first featured case as flagship', () => {
     expect(mapped.homepage.featuredCases.map(c => c.featured)).toEqual([true, false, false])
+  })
+
+  it('omits featured-case href when evidence_links are missing', () => {
+    const project = cmsPortfolioFixture.projects[0]
+    expect(project).toBeTruthy()
+    const result = mapPortfolio(
+      {
+        ...cmsPortfolioFixture,
+        projects: [{ ...project!, evidence_links: null }],
+        site: {
+          ...cmsPortfolioFixture.site,
+          featured_project_slugs: [project!.slug],
+        },
+      },
+      BASE,
+    )
+    const featured = result.homepage.featuredCases[0]
+    expect(featured?.slug).toBe(project!.slug)
+    expect(featured?.href).toBeUndefined()
+    expect(featured?.hrefLabel).toBeUndefined()
   })
 
   it('uses guide screenshot for product spotlight image', () => {

@@ -1,6 +1,5 @@
 import {
   clearPopstateNavigationAfterPaint,
-  isPopstateNavigation,
   markPopstatePending,
 } from '~/utils/navigation-popstate'
 
@@ -8,18 +7,14 @@ export default defineNuxtPlugin(() => {
   const router = useRouter()
 
   if (import.meta.client) {
+    // Capture so the flag is set before Vue Router handles popstate.
+    // Do not toggle NuxtPage `transition` / route meta here: flipping
+    // out-in off mid-navigation leaves RouterView with a null leave hook
+    // (`Cannot read properties of null (reading 'next')`) and a blank page.
     window.addEventListener('popstate', () => {
       markPopstatePending()
-    })
+    }, true)
   }
-
-  router.beforeEach((to, from) => {
-    if (!isPopstateNavigation()) return
-    to.meta.pageTransition = false
-    to.meta.layoutTransition = false
-    from.meta.pageTransition = false
-    from.meta.layoutTransition = false
-  })
 
   router.afterEach(() => {
     clearPopstateNavigationAfterPaint()

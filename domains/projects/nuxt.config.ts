@@ -9,16 +9,17 @@ const projectsSlugFile = join(projectsRoot, 'pages/[slug].vue')
 export default defineNuxtConfig({
   hooks: {
     'pages:extend'(pages) {
-      prefixDomainPages(pages, 'projects', '/projects')
+      // Folder stays domains/projects; public catalog URLs are /products.
+      prefixDomainPages(pages, 'projects', '/products')
 
       // Root pages/index.vue also maps to `/`, so Nuxt drops this layer's index.
       const hasProjectsIndex = pages.some(
-        p => p.path === '/projects' || p.file === projectsIndexFile,
+        p => p.path === '/products' || p.file === projectsIndexFile,
       )
       if (!hasProjectsIndex) {
         pages.push({
           name: 'projects',
-          path: '/projects',
+          path: '/products',
           file: projectsIndexFile,
         })
       }
@@ -28,14 +29,14 @@ export default defineNuxtConfig({
       const slugPage = pages.find(p => p.file === projectsSlugFile)
       if (slugPage) {
         slugPage.name = 'projects-slug'
-        if (!slugPage.path.startsWith('/projects')) {
-          slugPage.path = '/projects/:slug()'
+        if (!slugPage.path.startsWith('/products')) {
+          slugPage.path = '/products/:slug()'
         }
       }
       else {
         pages.push({
           name: 'projects-slug',
-          path: '/projects/:slug()',
+          path: '/products/:slug()',
           file: projectsSlugFile,
         })
       }
