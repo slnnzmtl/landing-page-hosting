@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import { starBackdropClass } from '~/utils/star-backdrop'
-import {
-  MAX_CONCURRENT_SHOOTING_STARS,
-  shouldSpawnShootingStar,
-} from '~/utils/shooting-star-schedule'
+import { shouldSpawnShootingStar } from '~/utils/shooting-star-schedule'
 
 const STAR_COLORS = [
   '#FFFFFF',
@@ -21,9 +18,9 @@ const twinkleProbability = 0.7
 const minTwinkleSpeed = 2
 const maxTwinkleSpeed = 5
 const pixelSize = 2
-const starRegenerationInterval = 5000
-const percentToRegenerate = 0.15
-const shootingStarPixelSize = 2
+const starSpawnInterval = 1000 / 25
+const starReplaceWindowMs = 5000
+const percentToReplacePerWindow = 0.15
 const targetFps = 25
 const frameInterval = 1000 / targetFps
 const parallaxFactor = -0.35
@@ -64,7 +61,7 @@ const backgroundStars: BackgroundStar[] = []
 const shootingStars: ShootingStar[] = []
 
 let animationFrameId: number | null = null
-let regenerationIntervalId: ReturnType<typeof setInterval> | null = null
+let starSpawnTimeoutId: ReturnType<typeof setTimeout> | null = null
 let shootingStarTimeoutId: ReturnType<typeof setTimeout> | null = null
 let resizeObserver: ResizeObserver | null = null
 let ctx: CanvasRenderingContext2D | null = null
@@ -130,14 +127,6 @@ function targetStarCount() {
   return Math.floor(canvasWidth * canvasHeight * starDensity)
 }
 
-function initBackgroundStars() {
-  backgroundStars.length = 0
-  const numStars = targetStarCount()
-  for (let i = 0; i < numStars; i++) {
-    backgroundStars.push(createStar())
-  }
-}
-
 function syncStarsToCanvasSize() {
   if (!canvasWidth || !canvasHeight) {
     backgroundStars.length = 0
@@ -150,31 +139,54 @@ function syncStarsToCanvasSize() {
   }
 
   const numStars = targetStarCount()
-  while (backgroundStars.length < numStars) {
-    backgroundStars.push(createStar())
-  }
   if (backgroundStars.length > numStars) {
     backgroundStars.length = numStars
   }
 }
 
-function regenerateBackgroundStars() {
-  if (backgroundStars.length === 0 || !canvasWidth || !canvasHeight) return
-
-  const numToRegenerate = Math.max(
-    1,
-    Math.floor(backgroundStars.length * percentToRegenerate),
-  )
-
-  for (let i = 0; i < numToRegenerate; i++) {
-    const randomIndex = Math.floor(Math.random() * backgroundStars.length)
-    backgroundStars[randomIndex] = createStar()
+function clearStarSpawnTimeout() {
+  if (starSpawnTimeoutId !== null) {
+    clearTimeout(starSpawnTimeoutId)
+    starSpawnTimeoutId = null
   }
 }
 
-function bindContext() {
-  const canvas = canvasRef.value
-  ctx = canvas ? canvas.getContext('2d') : null
+function nextStarSpawnDelay() {
+  const numStars = targetStarCount()
+  if (backgroundStars.length < numStars) return starSpawnInterval
+
+  const batch = Math.max(
+    1,
+    Math.floor(backgroundStars.length * percentToReplacePerWindow),
+  )
+  return starReplaceWindowMs / batch
+}
+
+function queueNextStarSpawn(delay = nextStarSpawnDelay()) {
+  clearStarSpawnTimeout()
+  if (unmounted || reducedMotion || document.hidden) return
+  if (!canvasWidth || !canvasHeight) return
+  starSpawnTimeoutId = setTimeout(spawnStarStep, delay)
+}
+
+function spawnStarStep() {
+  starSpawnTimeoutId = null
+  if (unmounted || reducedMotion || document.hidden) return
+
+  const numStars = targetStarCount()
+  if (numStars <= 0) return
+
+  if (backgroundStars.length < numStars) {
+    backgroundStars.push(createStar())
+  }
+  else {
+    const randomIndex = Math.floor(Math.random() * backgroundStars.length)
+    backgroundStars[randomIndex] = createStar()
+  }
+
+  drawBackgroundStars()
+  drawShootingStars()
+  queueNextStarSpawn()
 }
 
 function drawBackgroundStars() {
@@ -291,7 +303,7 @@ function drawShootingStars() {
       ctx.rotate((star.angle * Math.PI) / 180)
       ctx.translate(-point.x, -point.y)
       ctx.fillStyle = `rgba(180, 242, 255, ${point.opacity})`
-      ctx.fillRect(point.x, point.y, shootingStarPixelSize, shootingStarPixelSize)
+      ctx.fillRect(point.x, point.y, pixelSize, pixelSize)
       ctx.restore()
     }
 
@@ -307,10 +319,10 @@ function drawShootingStars() {
       for (let x = 0; x < starWidth; x++) {
         if ((x === 0 && y === 1) || (x === 3 && y === 0)) continue
         ctx.fillRect(
-          star.x + x * shootingStarPixelSize,
-          star.y + y * shootingStarPixelSize,
-          shootingStarPixelSize,
-          shootingStarPixelSize,
+          star.x + x * pixelSize,
+          star.y + y * pixelSize,
+          pixelSize,
+          pixelSize,
         )
       }
     }
@@ -330,23 +342,25 @@ function resizeCanvas() {
   if (!width || !height) return
   if (width === canvasWidth && height === canvasHeight) return
 
-  const hadStars = backgroundStars.length > 0
   canvasWidth = width
   canvasHeight = height
   canvas.width = width
   canvas.height = height
-  bindContext()
-
-  if (hadStars) {
-    syncStarsToCanvasSize()
-  }
-  else {
-    initBackgroundStars()
-  }
+  ctx = canvas.getContext('2d')
 
   if (reducedMotion) {
+    backgroundStars.length = 0
+    const numStars = targetStarCount()
+    for (let i = 0; i < numStars; i++) {
+      backgroundStars.push(createStar())
+    }
     drawBackgroundStars()
+    return
   }
+
+  syncStarsToCanvasSize()
+  drawBackgroundStars()
+  queueNextStarSpawn(0)
 }
 
 function clearShootingStarTimeout() {
@@ -369,7 +383,6 @@ function scheduleShootingStar() {
     reducedMotion,
     unmounted,
     activeCount: shootingStars.length,
-    max: MAX_CONCURRENT_SHOOTING_STARS,
   })) {
     shootingStars.push(createNewShootingStar())
   }
@@ -377,19 +390,17 @@ function scheduleShootingStar() {
   queueNextShootingStar()
 }
 
-function pauseShootingStars() {
-  clearShootingStarTimeout()
-  shootingStars.length = 0
-}
-
 function onVisibilityChange() {
   if (document.hidden) {
-    pauseShootingStars()
+    clearShootingStarTimeout()
+    shootingStars.length = 0
+    clearStarSpawnTimeout()
     return
   }
 
   lastTwinkleTime = performance.now()
   queueNextShootingStar()
+  queueNextStarSpawn(0)
 }
 
 function cleanup() {
@@ -399,10 +410,7 @@ function cleanup() {
     cancelAnimationFrame(animationFrameId)
     animationFrameId = null
   }
-  if (regenerationIntervalId !== null) {
-    clearInterval(regenerationIntervalId)
-    regenerationIntervalId = null
-  }
+  clearStarSpawnTimeout()
   clearShootingStarTimeout()
   shootingStars.length = 0
   document.removeEventListener('visibilitychange', onVisibilityChange)
@@ -437,7 +445,6 @@ function start() {
   }
 
   if (reducedMotion) {
-    drawBackgroundStars()
     return
   }
 
@@ -447,7 +454,6 @@ function start() {
   document.addEventListener('visibilitychange', onVisibilityChange)
   animationFrameId = requestAnimationFrame(animateCanvas)
   scheduleShootingStar()
-  regenerationIntervalId = setInterval(regenerateBackgroundStars, starRegenerationInterval)
 }
 
 onMounted(start)

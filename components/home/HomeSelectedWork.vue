@@ -33,7 +33,7 @@ function caseColClass(index: number) {
       </p>
     </div>
 
-    <div class="mt-10 grid grid-cols-1 gap-5 lg:grid-cols-12">
+    <div class="mt-10  grid grid-cols-1 gap-5 lg:grid-cols-12">
       <div
         v-for="(item, index) in cases"
         :key="item.slug"

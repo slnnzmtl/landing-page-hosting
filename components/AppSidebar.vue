@@ -140,7 +140,7 @@ function linkClass(item: NavItem) {
   <div class="contents xl:hidden">
     <button
       type="button"
-      class="fixed bottom-8 left-1/2 z-50 inline-flex h-11 w-11 -translate-x-1/2 items-center justify-center rounded-full border border-border/60 bg-black/40 text-foreground shadow-lg backdrop-blur-sm transition-[transform,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
+      class="fixed bottom-8 left-1/2 z-50 inline-flex h-16 w-16 -translate-x-1/2 items-center justify-center rounded-full border border-border/60 bg-card text-foreground shadow-lg backdrop-blur-sm transition-[transform,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
       :class="[
         sidebarLinkFocus,
         burgerRevealed ? '' : 'translate-y-24 opacity-0 pointer-events-none',

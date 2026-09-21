@@ -5,9 +5,7 @@ export function shouldSpawnShootingStar(options: {
   reducedMotion: boolean
   unmounted: boolean
   activeCount: number
-  max?: number
 }): boolean {
   if (options.unmounted || options.reducedMotion || options.hidden) return false
-  const max = options.max ?? MAX_CONCURRENT_SHOOTING_STARS
-  return options.activeCount < max
+  return options.activeCount < MAX_CONCURRENT_SHOOTING_STARS
 }
