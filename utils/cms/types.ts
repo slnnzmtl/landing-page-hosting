@@ -1,62 +1,40 @@
 export type DirectusStatus = 'draft' | 'published' | 'archived'
 
+export type CmsButtonType = 'primary' | 'secondary' | 'tertiary' | 'link'
+export type CmsButtonHrefSource = 'static' | 'github_macos_release'
+
 export interface CmsLink {
   label: string
   href: string
 }
 
-/** Tenure chips on site_settings (page intro lives on experience_page_settings). */
-export interface CmsProfessionalTenure {
-  short: string
+/** Reusable CTA / link button from the `buttons` collection. */
+export interface CmsButton {
+  id?: string
+  key?: string
+  status: DirectusStatus
   label: string
-  heroSubtitle: string
-  softwareEngineeringSince: string
+  href: string
+  type: CmsButtonType
+  href_source: CmsButtonHrefSource
+  sort?: number | null
 }
 
-/** Nested UI chrome from site_settings.page_copy — products + contact only. */
-export interface CmsPageCopy {
-  products_index: {
-    title: string
-    description: string
-    seo_description: string
-    back_label: string
-    back_href: string
-    item_cta: string
-    spotlight_cta: string
-  }
-  contact: {
-    card_heading: string
-    email_label: string
-    telegram_label: string
-  }
-  product_detail: {
-    kicker: string
-    back_label: string
-    back_href: string
-    benefits_heading_with_stack: string
-    benefits_heading_default: string
-    trust_heading: string
-    download_warning_title: string
-  }
-}
-
-/** Identity, contact, SEO, menu — site_settings singleton. */
+/** Identity, navigation, SEO, favicons — site_settings singleton. */
 export interface CmsSiteSettings {
   status: DirectusStatus
   person_name: string
   person_role: string
-  value_proposition: string
-  professional_tenure: CmsProfessionalTenure
-  contact_heading: string
-  contact_summary: string
-  contact_email: string
-  contact_telegram: string
   /** Sidebar nav: [{ label, href }] */
   menu?: CmsLink[] | null
   site_name?: string | null
   seo_title?: string | null
   seo_description?: string | null
-  page_copy?: CmsPageCopy | null
+  og_image?: string | null
+  favicon_ico?: string | null
+  favicon_png_32?: string | null
+  favicon_png_16?: string | null
+  apple_touch_icon?: string | null
 }
 
 /** M2M junction rows from Directus REST (`featured_projects.projects_id.slug`, …). */
@@ -73,18 +51,21 @@ export interface CmsM2mProductRow {
 }
 
 export interface CmsM2mClaimRow {
-  approved_claims_id?: { key?: string } | null
+  approved_claims_id?: { key?: string, id?: string } | null
+}
+
+export interface CmsM2mButtonRow {
+  buttons_id?: CmsButton | null
 }
 
 /** Homepage composition — homepage_settings singleton. */
 export interface CmsHomepageSettings {
   status: DirectusStatus
-  primary_ctas: CmsLink[]
-  profile_links: CmsLink[]
-  hero_focus: {
-    heading: string
-    items: Array<{ title: string, summary: string }>
-  }
+  value_proposition?: string | null
+  primary_ctas?: CmsM2mButtonRow[] | null
+  profile_links?: CmsM2mButtonRow[] | null
+  hero_focus_heading: string
+  hero_focus_items: Array<{ title: string, summary: string }>
   proof_heading: string
   featured_work_heading: string
   featured_work_intro: string
@@ -92,11 +73,15 @@ export interface CmsHomepageSettings {
   featured_projects: CmsM2mProjectRow[]
   experience_preview_heading: string
   experience_preview: CmsM2mExperienceRow[]
-  experience_preview_cta: CmsLink
+  experience_preview_cta?: CmsButton | null
   products_heading: string
   products_description: string
   product_spotlights: CmsM2mProductRow[]
   proof_claims: CmsM2mClaimRow[]
+  spotlight_cta: string
+  contact_heading?: string | null
+  contact_summary?: string | null
+  contact_links?: CmsLink[] | null
 }
 
 /** /experience page chrome — experience_page_settings singleton. */
@@ -107,6 +92,24 @@ export interface CmsExperiencePageSettings {
   back_label: string
   back_href: string
   seo_description: string
+}
+
+/** /products index + detail chrome — products_page_settings singleton. */
+export interface CmsProductsPageSettings {
+  status: DirectusStatus
+  title: string
+  description: string
+  seo_description: string
+  back_label: string
+  back_href: string
+  item_cta: string
+  kicker: string
+  detail_back_label: string
+  detail_back_href: string
+  benefits_heading_with_stack: string
+  benefits_heading_default: string
+  trust_heading: string
+  download_warning_title: string
 }
 
 export interface CmsFile {
@@ -145,7 +148,7 @@ export interface CmsExperienceEntry {
 
 export interface CmsApprovedClaim {
   id: string
-  key: string
+  key?: string | null
   public_wording: string
   status: DirectusStatus
 }
@@ -193,39 +196,30 @@ export interface CmsProduct {
       }
     }>
   } | null
-  launch?: {
-    lead: string
-    supportingLine: string
-    ctas: Array<{
-      label: string
-      href: string
-      kind: 'primary' | 'secondary'
-      macosDownload?: boolean
-    }>
-    macosDownloadWarning?: string
-    trustFacts: Array<{ label: string, value: string, href?: string }>
-    trademark?: string
-  } | null
-  github?: { owner: string, repo: string } | null
-  software_application?: {
-    applicationCategory: string
-    operatingSystem: string
-    license: string
-  } | null
+  launch_lead?: string | null
+  launch_supporting_line?: string | null
+  launch_ctas?: CmsM2mButtonRow[] | null
+  macos_download_warning?: string | null
+  trust_facts?: Array<{ label: string, value: string, href?: string }> | null
+  trademark?: string | null
+  github_owner?: string | null
+  github_repo?: string | null
+  application_category?: string | null
+  operating_system?: string | null
+  license_url?: string | null
   evidence_links?: CmsLink[] | null
   logo?: string | null
   social_image?: string | null
-  seo?: {
-    title?: string
-    description?: string
-    titleSuffix?: string
-  } | null
+  seo_title?: string | null
+  seo_description?: string | null
+  seo_title_suffix?: string | null
 }
 
 export interface CmsPortfolioRaw {
   site: CmsSiteSettings
   homepageSettings: CmsHomepageSettings
   experiencePage: CmsExperiencePageSettings
+  productsPage: CmsProductsPageSettings
   experience: CmsExperienceEntry[]
   projects: CmsProject[]
   products: CmsProduct[]

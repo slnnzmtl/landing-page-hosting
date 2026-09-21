@@ -1,9 +1,6 @@
 import type { PortfolioContent } from '~/utils/cms/map'
 
-export type PortfolioPayload = Pick<
-  PortfolioContent,
-  'homepage' | 'experience' | 'products' | 'professionalTenure' | 'experiencePage'
->
+export type PortfolioPayload = Omit<PortfolioContent, 'productSlugs'>
 
 /**
  * Shared SSG payload from Directus. Fetched once per generate via /api/portfolio.

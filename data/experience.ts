@@ -44,13 +44,6 @@ export interface ExperienceRole {
   homepageSummary?: string
 }
 
-export interface ProfessionalTenure {
-  short: string
-  label: string
-  heroSubtitle: string
-  softwareEngineeringSince: string
-}
-
 const MONTH_LABELS = [
   'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
@@ -142,10 +135,7 @@ export function homepageExperiencePreview(
 }
 
 /** Flatten user-facing role fields for claim-rejection tests. */
-export function experienceUserFacingCopy(
-  roles: ExperienceRole[],
-  tenure?: ProfessionalTenure,
-): string {
+export function experienceUserFacingCopy(roles: ExperienceRole[]): string {
   return roles
     .flatMap(role => [
       role.id,
@@ -162,10 +152,6 @@ export function experienceUserFacingCopy(
       ...role.technologies,
       ...(role.links ?? []).flatMap(l => [l.label, l.href]),
       role.homepageSummary ?? '',
-      tenure?.short ?? '',
-      tenure?.label ?? '',
-      tenure?.heroSubtitle ?? '',
-      tenure?.softwareEngineeringSince ?? '',
     ])
     .join(' ')
 }

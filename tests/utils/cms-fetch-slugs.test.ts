@@ -1,5 +1,48 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { fetchProductSlugs, resetPortfolioCache } from '~/utils/cms/load'
+import {
+  approvedClaimsQuery,
+  fetchProductSlugs,
+  resetPortfolioCache,
+} from '~/utils/cms/load'
+import { HOMEPAGE_SETTINGS_FIELDS, PRODUCT_FIELDS } from '~/utils/cms/fields'
+
+describe('approvedClaimsQuery', () => {
+  it('filters by key only when refs are not UUIDs', () => {
+    const path = approvedClaimsQuery([
+      'homepage-proof-tenure-years',
+      'upwork-reputation-team-outcome-1',
+    ])
+    expect(path).toContain('filter[key][_in]=')
+    expect(path).not.toContain('filter[id]')
+    expect(path).not.toContain('filter[_or]')
+  })
+
+  it('filters by id only when refs are UUIDs', () => {
+    const path = approvedClaimsQuery(['aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'])
+    expect(path).toContain('filter[id][_in]=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee')
+    expect(path).not.toContain('filter[key]')
+  })
+
+  it('ors key and id filters without putting keys on uuid id', () => {
+    const path = approvedClaimsQuery([
+      'homepage-proof-users',
+      'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+    ])
+    expect(path).toContain('filter[_or][0][key][_in]=homepage-proof-users')
+    expect(path).toContain('filter[_or][1][id][_in]=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee')
+    expect(path).not.toContain('filter[id][_in]=homepage-proof-users')
+  })
+})
+
+describe('Directus nested field allowlists', () => {
+  it('prefixes every button field so Directus does not treat them as root fields', () => {
+    expect(PRODUCT_FIELDS).toContain('launch_ctas.buttons_id.href_source')
+    expect(PRODUCT_FIELDS).not.toMatch(/buttons_id\.id,key,/)
+    expect(HOMEPAGE_SETTINGS_FIELDS).toContain('primary_ctas.buttons_id.label')
+    expect(HOMEPAGE_SETTINGS_FIELDS).toContain('experience_preview_cta.href_source')
+    expect(HOMEPAGE_SETTINGS_FIELDS).not.toMatch(/buttons_id\.id,key,/)
+  })
+})
 
 describe('fetchProductSlugs', () => {
   afterEach(() => {

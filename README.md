@@ -128,7 +128,7 @@ Nuxt can drop a layer page when another layer already owns the same route name (
 1. Create a published `products` row in Directus (slug, copy, links, optional gallery/media, optional `github` repo for the releases feed).
 2. Add the product to `homepage_settings.product_spotlights` (M2M) if it should appear on the homepage.
 3. Upload walkthrough media to Directus Files and set each file’s `title` to the public path used in guide JSON (for example `/projects/<slug>/shot.webp`). Dev and generate write those files into `public/` (gitignored except `u.js`). Media paths stay under `/projects/<slug>/` even though catalog pages live at `/products`.
-4. Ensure `site_settings.menu` Products href and `page_copy.product_detail.back_href` point at `/products` (not `/projects`).
+4. Ensure `site_settings.menu` Products href and `products_page_settings.detail_back_href` point at `/products` (not `/projects`).
 5. `nuxt generate` discovers published product slugs from Directus for prerender, sitemap, and JSON-LD. No new page file is required.
 
 First product: **Simple Rekordbox Converter** at `/products/rekordbox-playlist-converter`. Evergreen copy lives in Directus. GitHub release versions and download URLs are fetched in the browser from `https://api.github.com/repos/slnnzmtl/rekordbox-playlist-converter/releases` (no token, 1-hour localStorage cache, stale cache if GitHub is down).

@@ -27,16 +27,43 @@ describe('CMS portfolio mappers', () => {
     ).toThrow(/site_settings\.menu is required/)
   })
 
-  it('fails closed when site_settings.page_copy is missing', () => {
+  it('fails closed when a singleton is not published', () => {
     expect(() =>
       mapPortfolio(
         {
           ...cmsPortfolioFixture,
-          site: { ...cmsPortfolioFixture.site, page_copy: null },
+          site: { ...cmsPortfolioFixture.site, status: 'draft' },
         },
         BASE,
       ),
-    ).toThrow(/site_settings\.page_copy is required/)
+    ).toThrow(/site_settings not published/)
+    expect(() =>
+      mapPortfolio(
+        {
+          ...cmsPortfolioFixture,
+          homepageSettings: { ...cmsPortfolioFixture.homepageSettings, status: 'draft' },
+        },
+        BASE,
+      ),
+    ).toThrow(/homepage_settings not published/)
+    expect(() =>
+      mapPortfolio(
+        {
+          ...cmsPortfolioFixture,
+          experiencePage: { ...cmsPortfolioFixture.experiencePage, status: 'draft' },
+        },
+        BASE,
+      ),
+    ).toThrow(/experience_page_settings not published/)
+    expect(() =>
+      mapPortfolio(
+        {
+          ...cmsPortfolioFixture,
+          productsPage: { ...cmsPortfolioFixture.productsPage, status: 'draft' },
+        },
+        BASE,
+      ),
+    ).toThrow(/products_page_settings not published/)
   })
 
   it('fails closed when site_settings.site_name is missing', () => {
@@ -81,19 +108,18 @@ describe('CMS portfolio mappers', () => {
     ).toThrow(/homepage_settings\.proof_heading is required/)
   })
 
-  it('passes through page_copy and uses contact / spotlight labels from it', () => {
+  it('assembles page copy from products_page_settings and spotlight CTA', () => {
     expect(mapped.homepage.siteName).toBe(cmsPortfolioFixture.site.site_name)
-    expect(mapped.homepage.pageCopy.contact.card_heading).toBe(
-      cmsPortfolioFixture.site.page_copy!.contact.card_heading,
-    )
-    expect(mapped.homepage.contact.email.label).toBe(
-      cmsPortfolioFixture.site.page_copy!.contact.email_label,
-    )
-    expect(mapped.homepage.contact.telegram.label).toBe(
-      cmsPortfolioFixture.site.page_copy!.contact.telegram_label,
-    )
+    expect(mapped.homepage.contact.email.label).toBe('Email')
+    expect(mapped.homepage.contact.telegram.label).toBe('Telegram')
     expect(mapped.homepage.products.items[0]?.cta.label).toBe(
-      cmsPortfolioFixture.site.page_copy!.products_index.spotlight_cta,
+      cmsPortfolioFixture.homepageSettings.spotlight_cta,
+    )
+    expect(mapped.homepage.pageCopy.products_index.title).toBe(
+      cmsPortfolioFixture.productsPage.title,
+    )
+    expect(mapped.homepage.pageCopy.product_detail.kicker).toBe(
+      cmsPortfolioFixture.productsPage.kicker,
     )
     expect(mapped.homepage.seoTitle).toBe(cmsPortfolioFixture.site.seo_title)
     expect(mapped.homepage.proofHeading).toBe(
@@ -126,17 +152,11 @@ describe('CMS portfolio mappers', () => {
             { label: 'Work', href: '/' },
             { label: 'Products', href: '/projects' },
           ],
-          page_copy: {
-            ...cmsPortfolioFixture.site.page_copy!,
-            products_index: {
-              ...cmsPortfolioFixture.site.page_copy!.products_index,
-              back_href: '/',
-            },
-            product_detail: {
-              ...cmsPortfolioFixture.site.page_copy!.product_detail,
-              back_href: '/projects',
-            },
-          },
+        },
+        productsPage: {
+          ...cmsPortfolioFixture.productsPage,
+          back_href: '/',
+          detail_back_href: '/projects',
         },
       },
       BASE,
@@ -159,11 +179,26 @@ describe('CMS portfolio mappers', () => {
     expect(logo?.srcThumb).toContain('sample-converter-logo-256w.webp')
   })
 
-  it('builds proof chips from tenure plus claim wording', () => {
+  it('builds proof chips from ordered claim wording including tenure', () => {
     expect(mapped.homepage.proof).toEqual([
       { value: '5+', label: 'years across digital products' },
       { value: '10K+', label: 'active users on platform tools' },
     ])
+  })
+
+  it('maps homepage CTAs from buttons M2M', () => {
+    expect(mapped.homepage.primaryCtas).toEqual([
+      { label: 'View flagship case', href: '#flagship-case' },
+      { label: 'Discuss a project', href: '#contact' },
+    ])
+    expect(mapped.homepage.profileLinks[0]).toEqual({
+      label: 'GitHub',
+      href: 'https://github.com/example-org',
+    })
+    expect(mapped.homepage.experiencePreview.cta).toEqual({
+      label: 'View full timeline',
+      href: '/experience',
+    })
   })
 
   it('marks only the first featured case as flagship', () => {

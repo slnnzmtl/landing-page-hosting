@@ -5,7 +5,6 @@ import { trackHomepageHref } from '~/composables/useHomepageConversion'
 
 const props = defineProps<{
   contact: HomepageContent['contact']
-  cardHeading: string
 }>()
 
 const { linkFocus } = useHomepageUi()
@@ -41,10 +40,7 @@ function onContactClick(href: string) {
       </p>
     </div>
     <div class="rounded-3xl border border-dashed border-primary/40 bg-card p-8 shadow-sm">
-      <h3 class="text-sm font-semibold uppercase tracking-wide text-primary">
-        {{ cardHeading }}
-      </h3>
-      <p class="mt-6">
+      <p>
         <span class="block text-sm text-muted-foreground">
           {{ contact.email.label }}
         </span>

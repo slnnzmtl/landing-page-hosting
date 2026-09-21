@@ -4,24 +4,40 @@ export const SITE_FIELDS = [
   'status',
   'person_name',
   'person_role',
-  'value_proposition',
-  'professional_tenure',
-  'contact_heading',
-  'contact_summary',
-  'contact_email',
-  'contact_telegram',
   'menu',
   'site_name',
   'seo_title',
   'seo_description',
-  'page_copy',
+  'og_image',
+  'favicon_ico',
+  'favicon_png_32',
+  'favicon_png_16',
+  'apple_touch_icon',
 ].join(',')
+
+/** Each nested field must be a full dotted path — commas in `fields=` split at the root. */
+const BUTTON_FIELDS = [
+  'id',
+  'key',
+  'status',
+  'label',
+  'href',
+  'type',
+  'href_source',
+  'sort',
+] as const
+
+function nestedFields(prefix: string, fields: readonly string[]): string[] {
+  return fields.map(field => `${prefix}.${field}`)
+}
 
 export const HOMEPAGE_SETTINGS_FIELDS = [
   'status',
-  'primary_ctas',
-  'profile_links',
-  'hero_focus',
+  'value_proposition',
+  ...nestedFields('primary_ctas.buttons_id', BUTTON_FIELDS),
+  ...nestedFields('profile_links.buttons_id', BUTTON_FIELDS),
+  'hero_focus_heading',
+  'hero_focus_items',
   'proof_heading',
   'featured_work_heading',
   'featured_work_intro',
@@ -29,11 +45,16 @@ export const HOMEPAGE_SETTINGS_FIELDS = [
   'featured_projects.projects_id.slug',
   'experience_preview_heading',
   'experience_preview.experience_entries_id.key',
-  'experience_preview_cta',
+  ...nestedFields('experience_preview_cta', BUTTON_FIELDS),
   'products_heading',
   'products_description',
   'product_spotlights.products_id.slug',
+  'proof_claims.approved_claims_id.id',
   'proof_claims.approved_claims_id.key',
+  'spotlight_cta',
+  'contact_heading',
+  'contact_summary',
+  'contact_links',
 ].join(',')
 
 export const EXPERIENCE_PAGE_FIELDS = [
@@ -43,6 +64,23 @@ export const EXPERIENCE_PAGE_FIELDS = [
   'back_label',
   'back_href',
   'seo_description',
+].join(',')
+
+export const PRODUCTS_PAGE_FIELDS = [
+  'status',
+  'title',
+  'description',
+  'seo_description',
+  'back_label',
+  'back_href',
+  'item_cta',
+  'kicker',
+  'detail_back_label',
+  'detail_back_href',
+  'benefits_heading_with_stack',
+  'benefits_heading_default',
+  'trust_heading',
+  'download_warning_title',
 ].join(',')
 
 export const FILE_FIELDS = 'id,filename_download,title'
@@ -95,13 +133,23 @@ export const PRODUCT_FIELDS = [
   'stack_tags',
   'benefits',
   'guide',
-  'launch',
-  'github',
-  'software_application',
+  'launch_lead',
+  'launch_supporting_line',
+  ...nestedFields('launch_ctas.buttons_id', BUTTON_FIELDS),
+  'macos_download_warning',
+  'trust_facts',
+  'trademark',
+  'github_owner',
+  'github_repo',
+  'application_category',
+  'operating_system',
+  'license_url',
   'evidence_links',
   'logo',
   'social_image',
-  'seo',
+  'seo_title',
+  'seo_description',
+  'seo_title_suffix',
 ].join(',')
 
 export const BUILD_CLAIM_FIELDS = 'id,key,public_wording,status'

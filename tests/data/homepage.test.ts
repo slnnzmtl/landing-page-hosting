@@ -12,29 +12,36 @@ import { cmsPortfolioFixture } from '~/tests/fixtures/cms-portfolio'
 const BASE = { baseUrl: 'https://cms.example.test' }
 
 describe('homepage content model (CMS-mapped)', () => {
-  const { homepage: published, experience, professionalTenure: tenure } = mapPortfolio(
+  const { homepage: published, experience } = mapPortfolio(
     cmsPortfolioFixture,
     BASE,
   )
 
-  it('passes through person, role, and tenure from CMS', () => {
+  it('passes through person, role, and value proposition from CMS', () => {
     expect(published.person.name).toBe(cmsPortfolioFixture.site.person_name)
     expect(published.person.role).toBe(cmsPortfolioFixture.site.person_role)
-    expect(tenure.short).toBe(cmsPortfolioFixture.site.professional_tenure.short)
-    expect(tenure.heroSubtitle).toBe(
-      cmsPortfolioFixture.site.professional_tenure.heroSubtitle,
+    expect(published.valueProposition).toBe(
+      cmsPortfolioFixture.homepageSettings.value_proposition,
     )
-    expect(published.valueProposition).toBe(cmsPortfolioFixture.site.value_proposition)
   })
 
-  it('passes through primary CTAs and profile links', () => {
-    expect(published.primaryCtas).toEqual(cmsPortfolioFixture.homepageSettings.primary_ctas)
-    expect(published.profileLinks).toEqual(cmsPortfolioFixture.homepageSettings.profile_links)
+  it('passes through primary CTAs and profile links from buttons', () => {
+    expect(published.primaryCtas).toEqual([
+      { label: 'View flagship case', href: '#flagship-case' },
+      { label: 'Discuss a project', href: '#contact' },
+    ])
+    expect(published.profileLinks).toEqual([
+      { label: 'GitHub', href: 'https://github.com/example-org' },
+      { label: 'LinkedIn', href: 'https://www.linkedin.com/in/ada-example/' },
+    ])
   })
 
   it('passes through hero focus and homepage chrome headings', () => {
     expect(published).not.toHaveProperty('capabilities')
-    expect(published.heroFocus).toEqual(cmsPortfolioFixture.homepageSettings.hero_focus)
+    expect(published.heroFocus).toEqual({
+      heading: cmsPortfolioFixture.homepageSettings.hero_focus_heading,
+      items: cmsPortfolioFixture.homepageSettings.hero_focus_items,
+    })
     expect(published.proofHeading).toBe(cmsPortfolioFixture.homepageSettings.proof_heading)
     expect(published.featuredWorkHeading).toBe(
       cmsPortfolioFixture.homepageSettings.featured_work_heading,
@@ -42,10 +49,10 @@ describe('homepage content model (CMS-mapped)', () => {
     expect(published.flagshipLabel).toBe(cmsPortfolioFixture.homepageSettings.flagship_label)
   })
 
-  it('builds proof chips from tenure plus CMS claim keys', () => {
+  it('builds proof chips from ordered CMS claim keys including tenure', () => {
     expect(published.proof[0]).toEqual({
       value: '5+',
-      label: cmsPortfolioFixture.site.professional_tenure.label,
+      label: 'years across digital products',
     })
     expect(published.proof.slice(1).map(item => `${item.value} ${item.label}`)).toEqual([
       '10K+ active users on platform tools',
@@ -102,13 +109,9 @@ describe('homepage content model (CMS-mapped)', () => {
     expect(blob).not.toMatch(/evidence_origin|evidence_note|confidentiality_notes|private_evidence/)
   })
 
-  it('exposes contact email and telegram with CMS labels', () => {
-    expect(published.contact.email.label).toBe(
-      cmsPortfolioFixture.site.page_copy!.contact.email_label,
-    )
-    expect(published.contact.telegram.label).toBe(
-      cmsPortfolioFixture.site.page_copy!.contact.telegram_label,
-    )
+  it('exposes contact email and telegram from homepage contact_links', () => {
+    expect(published.contact.email.label).toBe('Email')
+    expect(published.contact.telegram.label).toBe('Telegram')
     expect(published.contact.email.href).toBe('mailto:ada@example.test')
     expect(published.contact.telegram.href).toBe('https://t.me/ada-example')
   })

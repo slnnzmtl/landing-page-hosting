@@ -58,10 +58,7 @@ usePageSeo(homepageSeo(siteUrl, home), home.siteName)
 
       <HomeExperiencePreview :preview="home.experiencePreview" />
 
-      <HomeContact
-        :contact="home.contact"
-        :card-heading="home.pageCopy.contact.card_heading"
-      />
+      <HomeContact :contact="home.contact" />
     </div>
   </div>
 </template>

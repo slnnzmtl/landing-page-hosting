@@ -1,4 +1,4 @@
-/** Nested UI chrome for products + contact (mapped from CMS page_copy). */
+/** Nested UI chrome for products (assembled from products_page_settings + spotlight_cta). */
 export interface PageCopy {
   products_index: {
     title: string
@@ -8,11 +8,6 @@ export interface PageCopy {
     back_href: string
     item_cta: string
     spotlight_cta: string
-  }
-  contact: {
-    card_heading: string
-    email_label: string
-    telegram_label: string
   }
   product_detail: {
     kicker: string
@@ -128,7 +123,9 @@ export interface HomepageContent {
   /** Homepage meta overrides from `seo_title` / `seo_description`. */
   seoTitle?: string
   seoDescription?: string
-  /** Products + contact chrome from Directus `site_settings.page_copy`. */
+  /** Optional homepage Open Graph image from `site_settings.og_image`. */
+  ogImage?: { src: string, alt: string, width: number, height: number }
+  /** Products chrome from Directus `products_page_settings` + spotlight CTA. */
   pageCopy: PageCopy
 }
 

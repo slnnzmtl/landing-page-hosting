@@ -10,18 +10,6 @@ export const cmsPortfolioFixture: CmsPortfolioRaw = {
     status: 'published',
     person_name: 'Ada Example',
     person_role: 'Full-Stack Engineer',
-    value_proposition:
-      'I build reliable products connecting APIs, CRMs, and operations — with 5+ years across digital delivery.',
-    professional_tenure: {
-      short: '5+ years',
-      label: 'years across digital products',
-      heroSubtitle: '5+ years across digital products and software delivery',
-      softwareEngineeringSince: 'Building software since 2020',
-    },
-    contact_heading: 'Ready to ship?',
-    contact_summary: 'I help teams build and ship reliable full-stack systems.',
-    contact_email: 'ada@example.test',
-    contact_telegram: 'https://t.me/ada-example',
     menu: [
       { label: 'Work', href: '/' },
       { label: 'Experience', href: '/experience' },
@@ -33,55 +21,63 @@ export const cmsPortfolioFixture: CmsPortfolioRaw = {
     seo_title: 'Ada Example | Full-Stack Engineer',
     seo_description:
       'I build reliable products connecting APIs, CRMs, and operations.',
-    page_copy: {
-      products_index: {
-        title: 'Products',
-        description: 'Public products and tools with dedicated landing pages.',
-        seo_description: 'Public products from Ada Example.',
-        back_label: 'Back to homepage',
-        back_href: '/',
-        item_cta: 'View project',
-        spotlight_cta: 'View product',
-      },
-      contact: {
-        card_heading: 'Get in touch',
-        email_label: 'Email',
-        telegram_label: 'Telegram',
-      },
-      product_detail: {
-        kicker: 'Product',
-        back_label: 'Back to products',
-        back_href: '/products',
-        benefits_heading_with_stack: 'Feature highlights',
-        benefits_heading_default: 'Why use it',
-        trust_heading: 'Product information',
-        download_warning_title: 'Before you open the app',
-      },
-    },
+    og_image: null,
   },
   homepageSettings: {
     status: 'published',
+    value_proposition:
+      'I build reliable products connecting APIs, CRMs, and operations — with 5+ years across digital delivery.',
     primary_ctas: [
-      { label: 'View flagship case', href: '#flagship-case' },
-      { label: 'Discuss a project', href: '#contact' },
+      {
+        buttons_id: {
+          status: 'published',
+          label: 'View flagship case',
+          href: '#flagship-case',
+          type: 'primary',
+          href_source: 'static',
+        },
+      },
+      {
+        buttons_id: {
+          status: 'published',
+          label: 'Discuss a project',
+          href: '#contact',
+          type: 'secondary',
+          href_source: 'static',
+        },
+      },
     ],
     profile_links: [
-      { label: 'GitHub', href: 'https://github.com/example-org' },
-      { label: 'LinkedIn', href: 'https://www.linkedin.com/in/ada-example/' },
+      {
+        buttons_id: {
+          status: 'published',
+          label: 'GitHub',
+          href: 'https://github.com/example-org',
+          type: 'link',
+          href_source: 'static',
+        },
+      },
+      {
+        buttons_id: {
+          status: 'published',
+          label: 'LinkedIn',
+          href: 'https://www.linkedin.com/in/ada-example/',
+          type: 'link',
+          href_source: 'static',
+        },
+      },
     ],
-    hero_focus: {
-      heading: 'Current focus',
-      items: [
-        {
-          title: 'Agent workflows',
-          summary: 'Tool-using agents with persistence and approval gates.',
-        },
-        {
-          title: 'APIs / CRM / data',
-          summary: 'Connecting models to live APIs and operational systems.',
-        },
-      ],
-    },
+    hero_focus_heading: 'Current focus',
+    hero_focus_items: [
+      {
+        title: 'Agent workflows',
+        summary: 'Tool-using agents with persistence and approval gates.',
+      },
+      {
+        title: 'APIs / CRM / data',
+        summary: 'Connecting models to live APIs and operational systems.',
+      },
+    ],
     proof_heading: 'Selected outcomes',
     featured_work_heading: 'Featured work',
     featured_work_intro: 'One representative case from recent delivery.',
@@ -95,14 +91,25 @@ export const cmsPortfolioFixture: CmsPortfolioRaw = {
       { experience_entries_id: { key: 'acme-senior-engineer' } },
     ],
     experience_preview_cta: {
+      status: 'published',
       label: 'View full timeline',
       href: '/experience',
+      type: 'link',
+      href_source: 'static',
     },
     products_heading: 'Products',
     products_description: 'Software packaged and maintained for real users.',
     product_spotlights: [{ products_id: { slug: 'sample-converter' } }],
     proof_claims: [
+      { approved_claims_id: { key: 'homepage-proof-tenure-years' } },
       { approved_claims_id: { key: 'homepage-proof-users' } },
+    ],
+    spotlight_cta: 'View product',
+    contact_heading: 'Ready to ship?',
+    contact_summary: 'I help teams build and ship reliable full-stack systems.',
+    contact_links: [
+      { label: 'Email', href: 'mailto:ada@example.test' },
+      { label: 'Telegram', href: 'https://t.me/ada-example' },
     ],
   },
   experiencePage: {
@@ -113,6 +120,22 @@ export const cmsPortfolioFixture: CmsPortfolioRaw = {
     back_href: '/#featured-work',
     seo_description:
       'Professional timeline for Ada Example: digital products and software delivery.',
+  },
+  productsPage: {
+    status: 'published',
+    title: 'Products',
+    description: 'Public products and tools with dedicated landing pages.',
+    seo_description: 'Public products from Ada Example.',
+    back_label: 'Back to homepage',
+    back_href: '/',
+    item_cta: 'View project',
+    kicker: 'Product',
+    detail_back_label: 'Back to products',
+    detail_back_href: '/products',
+    benefits_heading_with_stack: 'Feature highlights',
+    benefits_heading_default: 'Why use it',
+    trust_heading: 'Product information',
+    download_warning_title: 'Before you open the app',
   },
   experience: [
     {
@@ -210,39 +233,44 @@ export const cmsPortfolioFixture: CmsPortfolioRaw = {
           description: 'Stereo PCM with quality ceilings that never upsample.',
         },
       ],
-      launch: {
-        lead: 'Convert playlists without touching source files.',
-        supportingLine: 'Download the desktop app, or use the CLI.',
-        macosDownloadWarning: 'On first open use right click → open (ad hoc signed).',
-        ctas: [
-          {
+      launch_lead: 'Convert playlists without touching source files.',
+      launch_supporting_line: 'Download the desktop app, or use the CLI.',
+      macos_download_warning: 'On first open use right click → open (ad hoc signed).',
+      launch_ctas: [
+        {
+          buttons_id: {
+            status: 'published',
             label: 'Download for macOS',
             href: 'https://github.com/example-org/sample-converter/releases',
-            kind: 'primary',
-            macosDownload: true,
+            type: 'primary',
+            href_source: 'github_macos_release',
           },
-          {
+        },
+        {
+          buttons_id: {
+            status: 'published',
             label: 'Other platforms',
             href: 'https://github.com/example-org/sample-converter/releases',
-            kind: 'secondary',
+            type: 'secondary',
+            href_source: 'static',
           },
-        ],
-        trustFacts: [
-          { label: 'macOS', value: '11+' },
-          {
-            label: 'License',
-            value: 'GNU GPL v3',
-            href: 'https://www.gnu.org/licenses/gpl-3.0.html',
-          },
-          { label: 'Privacy', value: 'Optional analytics' },
-          {
-            label: 'Issues',
-            value: 'GitHub',
-            href: 'https://github.com/example-org/sample-converter/issues',
-          },
-        ],
-        trademark: 'Sample trademarks belong to their respective owners.',
-      },
+        },
+      ],
+      trust_facts: [
+        { label: 'macOS', value: '11+' },
+        {
+          label: 'License',
+          value: 'GNU GPL v3',
+          href: 'https://www.gnu.org/licenses/gpl-3.0.html',
+        },
+        { label: 'Privacy', value: 'Optional analytics' },
+        {
+          label: 'Issues',
+          value: 'GitHub',
+          href: 'https://github.com/example-org/sample-converter/issues',
+        },
+      ],
+      trademark: 'Sample trademarks belong to their respective owners.',
       guide: {
         title: 'How to use',
         warning: 'Do not use File → Import. Point Imported Library at the generated import XML.',
@@ -267,24 +295,24 @@ export const cmsPortfolioFixture: CmsPortfolioRaw = {
           },
         ],
       },
-      github: {
-        owner: 'example-org',
-        repo: 'sample-converter',
-      },
-      seo: {
-        title: 'Sample Converter',
-        titleSuffix: 'Ada Example',
-        description: 'Convert playlists to WAV or AIFF with a desktop app or CLI.',
-      },
-      software_application: {
-        applicationCategory: 'MultimediaApplication',
-        operatingSystem: 'macOS, Linux, Windows',
-        license: 'https://www.gnu.org/licenses/gpl-3.0.html',
-      },
+      github_owner: 'example-org',
+      github_repo: 'sample-converter',
+      seo_title: 'Sample Converter',
+      seo_title_suffix: 'Ada Example',
+      seo_description: 'Convert playlists to WAV or AIFF with a desktop app or CLI.',
+      application_category: 'MultimediaApplication',
+      operating_system: 'macOS, Linux, Windows',
+      license_url: 'https://www.gnu.org/licenses/gpl-3.0.html',
       evidence_links: null,
     },
   ],
   claims: [
+    {
+      id: 'claim-tenure-1',
+      key: 'homepage-proof-tenure-years',
+      public_wording: '5+ — years across digital products',
+      status: 'published',
+    },
     {
       id: 'claim-proof-1',
       key: 'homepage-proof-users',

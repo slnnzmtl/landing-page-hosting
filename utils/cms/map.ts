@@ -7,39 +7,38 @@ import { homepageExperiencePreview } from '../../data/experience'
 import type {
   FeaturedCase,
   HomepageContent,
+  HomepageLink,
   PageCopy,
   ProductSpotlight,
   ProofItem,
 } from '../../data/homepage'
-import { catalogPageHref, type Project, type ProjectImage } from '../../domains/projects/data/types'
+import { catalogPageHref, type Project, type ProjectImage, type ProjectLaunchCta } from '../../domains/projects/data/types'
 import { assetUrl, type DirectusClientConfig } from './client'
 import type {
   CmsApprovedClaim,
+  CmsButton,
   CmsExperienceEntry,
   CmsExperiencePageSettings,
   CmsFile,
   CmsHomepageSettings,
+  CmsLink,
+  CmsM2mButtonRow,
   CmsPortfolioRaw,
   CmsProduct,
-  CmsProfessionalTenure,
+  CmsProductsPageSettings,
   CmsProject,
   CmsSiteSettings,
 } from './types'
 
 export interface PortfolioContent {
-  site: CmsSiteSettings
-  homepageSettings: CmsHomepageSettings
-  experiencePage: CmsExperiencePageSettings
   homepage: HomepageContent
   experience: ExperienceRole[]
   products: Project[]
-  projects: CmsProject[]
-  claims: CmsApprovedClaim[]
-  professionalTenure: CmsProfessionalTenure
+  experiencePage: CmsExperiencePageSettings
   productSlugs: string[]
 }
 
-export interface FileCatalog {
+interface FileCatalog {
   byId: Map<string, CmsFile>
   byTitle: Map<string, CmsFile>
 }
@@ -155,6 +154,7 @@ function rewriteGuideImage(
     caption: image.caption,
   }
 }
+
 function orderByKeys<T>(
   items: T[],
   keys: string[],
@@ -176,16 +176,54 @@ function contributionTexts(
   }).filter(Boolean)
 }
 
+function isPublishedButton(button: CmsButton | null | undefined): button is CmsButton {
+  return Boolean(button && button.status === 'published' && button.label && button.href)
+}
+
+function mapButtonLink(button: CmsButton): HomepageLink {
+  return { label: button.label, href: button.href }
+}
+
+function mapButtonRows(rows: CmsM2mButtonRow[] | null | undefined): HomepageLink[] {
+  return (rows || [])
+    .map(row => row.buttons_id)
+    .filter(isPublishedButton)
+    .map(mapButtonLink)
+}
+
+function mapLaunchCtas(rows: CmsM2mButtonRow[] | null | undefined): ProjectLaunchCta[] {
+  return (rows || [])
+    .map(row => row.buttons_id)
+    .filter(isPublishedButton)
+    .map((button) => {
+      const kind: ProjectLaunchCta['kind'] = button.type === 'primary' ? 'primary' : 'secondary'
+      return {
+        label: button.label,
+        href: button.href,
+        kind,
+        ...(button.href_source === 'github_macos_release'
+          ? { macosDownload: true }
+          : {}),
+      }
+    })
+}
+
+function indexClaimsByRef(claims: CmsApprovedClaim[]): Map<string, CmsApprovedClaim> {
+  const byRef = new Map<string, CmsApprovedClaim>()
+  for (const claim of claims) {
+    if (claim.key) byRef.set(claim.key, claim)
+    byRef.set(claim.id, claim)
+  }
+  return byRef
+}
+
 function claimWording(
-  claimsByKey: Map<string, CmsApprovedClaim>,
+  claimsByRef: Map<string, CmsApprovedClaim>,
   claimId: string,
 ): string {
-  const byKey = claimsByKey.get(claimId)
-  if (byKey) return byKey.public_wording
-  for (const claim of claimsByKey.values()) {
-    if (claim.id === claimId) return claim.public_wording
-  }
-  throw new Error(`Missing published claim for id/key: ${claimId}`)
+  const claim = claimsByRef.get(claimId)
+  if (!claim) throw new Error(`Missing published claim for id/key: ${claimId}`)
+  return claim.public_wording
 }
 
 function splitProofWording(wording: string): ProofItem {
@@ -200,24 +238,53 @@ function splitProofWording(wording: string): ProofItem {
   }
 }
 
+function isEmailHref(href: string): boolean {
+  if (/^mailto:/i.test(href)) return true
+  const at = href.indexOf('@')
+  return at > 0 && !href.includes('/') && !href.includes(' ') && at === href.lastIndexOf('@')
+}
+
+function pickContactChannels(links: CmsLink[]): {
+  email: HomepageLink
+  telegram: HomepageLink
+} {
+  const email = links.find(link => isEmailHref(link.href))
+  const telegram = links.find(link =>
+    /^https?:\/\/(?:www\.)?t\.me\//i.test(link.href),
+  )
+  if (!email) {
+    throw new Error('homepage_settings.contact_links requires a mailto/email entry')
+  }
+  if (!telegram) {
+    throw new Error('homepage_settings.contact_links requires a t.me entry')
+  }
+  return {
+    email: {
+      label: email.label,
+      href: email.href.startsWith('mailto:')
+        ? email.href
+        : `mailto:${email.href}`,
+    },
+    telegram: {
+      label: telegram.label,
+      href: telegram.href,
+    },
+  }
+}
+
 function mapExperienceRoles(
   entries: CmsExperienceEntry[],
   claims: CmsApprovedClaim[],
   config: Pick<DirectusClientConfig, 'baseUrl'>,
   catalog: FileCatalog = EMPTY_CATALOG,
 ): ExperienceRole[] {
-  const claimsByKey = new Map(
-    claims.filter(c => c.key).map(c => [c.key, c]),
-  )
-  for (const claim of claims) {
-    claimsByKey.set(claim.id, claim)
-  }
+  const claimsByRef = indexClaimsByRef(claims)
 
   return entries.map((entry) => {
     const outcomes: ExperienceOutcome[] = (entry.outcomes || []).map((o) => {
       const qualifier = o.qualifier as OutcomeQualifier
       return {
-        text: claimWording(claimsByKey, o.claim_id),
+        text: claimWording(claimsByRef, o.claim_id),
         qualifier,
       }
     })
@@ -284,13 +351,12 @@ function mapProductSpotlights(
         `Product spotlight "${product.slug}" requires a guide step image`,
       )
     }
-    const launch = product.launch
     const rewritten = rewriteGuideImage(catalog, guideImage)
     return {
       slug: product.slug,
       title: product.name,
-      lead: launch?.lead || product.short_description,
-      supportingLine: launch?.supportingLine || '',
+      lead: product.launch_lead || product.short_description,
+      supportingLine: product.launch_supporting_line || '',
       image: {
         src: rewritten.src,
         srcThumb: rewritten.srcThumb,
@@ -327,26 +393,67 @@ export function homepageSpotlightSlugs(home: CmsHomepageSettings): string[] {
     .filter((slug): slug is string => Boolean(slug))
 }
 
+/** Proof claim keys or UUIDs from M2M (key preferred when set). */
 export function homepageProofKeys(home: CmsHomepageSettings): string[] {
   return (home.proof_claims || [])
-    .map(row => row.approved_claims_id?.key)
+    .map(row => row.approved_claims_id?.key || row.approved_claims_id?.id)
     .filter((key): key is string => Boolean(key))
+}
+
+function mapPageCopy(
+  productsPage: CmsProductsPageSettings,
+  spotlightCta: string,
+): PageCopy {
+  return {
+    products_index: {
+      title: productsPage.title,
+      description: productsPage.description,
+      seo_description: productsPage.seo_description,
+      back_label: productsPage.back_label,
+      back_href: catalogPageHref(productsPage.back_href),
+      item_cta: productsPage.item_cta,
+      spotlight_cta: spotlightCta,
+    },
+    product_detail: {
+      kicker: productsPage.kicker,
+      back_label: productsPage.detail_back_label,
+      back_href: catalogPageHref(productsPage.detail_back_href),
+      benefits_heading_with_stack: productsPage.benefits_heading_with_stack,
+      benefits_heading_default: productsPage.benefits_heading_default,
+      trust_heading: productsPage.trust_heading,
+      download_warning_title: productsPage.download_warning_title,
+    },
+  }
 }
 
 function mapHomepageContent(
   site: CmsSiteSettings,
   homepageSettings: CmsHomepageSettings,
+  productsPage: CmsProductsPageSettings,
   projects: CmsProject[],
   products: CmsProduct[],
   experience: ExperienceRole[],
   claims: CmsApprovedClaim[],
   catalog: FileCatalog = EMPTY_CATALOG,
+  config: Pick<DirectusClientConfig, 'baseUrl'> = { baseUrl: '' },
 ): HomepageContent {
-  if (!site.page_copy) {
-    throw new Error('site_settings.page_copy is required')
-  }
   if (!site.site_name) {
     throw new Error('site_settings.site_name is required')
+  }
+  if (!homepageSettings.value_proposition?.trim()) {
+    throw new Error('homepage_settings.value_proposition is required')
+  }
+  if (!homepageSettings.contact_heading?.trim()) {
+    throw new Error('homepage_settings.contact_heading is required')
+  }
+  if (!homepageSettings.contact_summary?.trim()) {
+    throw new Error('homepage_settings.contact_summary is required')
+  }
+  if (!homepageSettings.spotlight_cta?.trim()) {
+    throw new Error('homepage_settings.spotlight_cta is required')
+  }
+  if (!isPublishedButton(homepageSettings.experience_preview_cta)) {
+    throw new Error('homepage_settings.experience_preview_cta is required')
   }
 
   const featuredProjectSlugs = homepageFeaturedSlugs(homepageSettings)
@@ -375,31 +482,21 @@ function mapHomepageContent(
   if (!homepageSettings.flagship_label?.trim()) {
     throw new Error('homepage_settings.flagship_label is required')
   }
-
-  const pageCopy: PageCopy = {
-    ...site.page_copy,
-    products_index: {
-      ...site.page_copy.products_index,
-      back_href: catalogPageHref(site.page_copy.products_index.back_href),
-    },
-    product_detail: {
-      ...site.page_copy.product_detail,
-      back_href: catalogPageHref(site.page_copy.product_detail.back_href),
-    },
+  if (!homepageSettings.hero_focus_heading?.trim()) {
+    throw new Error('homepage_settings.hero_focus_heading is required')
   }
-  const claimsByKey = new Map(claims.filter(c => c.key).map(c => [c.key, c]))
-  const tenure = site.professional_tenure
-  const proof: ProofItem[] = [
-    {
-      value: tenure.short.replace(/ years$/, ''),
-      label: tenure.label,
-    },
-    ...proofClaimKeys.map((id) => {
-      const claim = claimsByKey.get(id) || claims.find(c => c.id === id || c.key === id)
-      if (!claim) throw new Error(`Missing proof claim: ${id}`)
-      return splitProofWording(claim.public_wording)
-    }),
-  ]
+  if (!homepageSettings.hero_focus_items?.length) {
+    throw new Error('homepage_settings.hero_focus_items is required')
+  }
+
+  const pageCopy = mapPageCopy(productsPage, homepageSettings.spotlight_cta)
+  const claimsByRef = indexClaimsByRef(claims)
+
+  const proof: ProofItem[] = proofClaimKeys.map((id) => {
+    const claim = claimsByRef.get(id)
+    if (!claim) throw new Error(`Missing proof claim: ${id}`)
+    return splitProofWording(claim.public_wording)
+  })
 
   const previewItems = homepageExperiencePreview(
     experiencePreviewIds,
@@ -414,15 +511,33 @@ function mapHomepageContent(
     href: catalogPageHref(item.href),
   }))
 
+  const primaryCtas = mapButtonRows(homepageSettings.primary_ctas)
+  const profileLinks = mapButtonRows(homepageSettings.profile_links)
+  if (!primaryCtas.length) {
+    throw new Error('homepage_settings.primary_ctas is required')
+  }
+
+  const contactChannels = pickContactChannels(homepageSettings.contact_links || [])
+  const ogImage = fileImage(
+    config,
+    catalog,
+    site.og_image,
+    site.site_name,
+    { width: 1200, height: 630 },
+  )
+
   return {
     person: {
       name: site.person_name,
       role: site.person_role,
     },
-    valueProposition: site.value_proposition,
-    primaryCtas: homepageSettings.primary_ctas || [],
-    profileLinks: homepageSettings.profile_links || [],
-    heroFocus: homepageSettings.hero_focus,
+    valueProposition: homepageSettings.value_proposition,
+    primaryCtas,
+    profileLinks,
+    heroFocus: {
+      heading: homepageSettings.hero_focus_heading,
+      items: homepageSettings.hero_focus_items,
+    },
     proofHeading: homepageSettings.proof_heading,
     proof,
     featuredWorkHeading: homepageSettings.featured_work_heading,
@@ -432,7 +547,7 @@ function mapHomepageContent(
     experiencePreview: {
       heading: homepageSettings.experience_preview_heading,
       items: previewItems,
-      cta: homepageSettings.experience_preview_cta,
+      cta: mapButtonLink(homepageSettings.experience_preview_cta),
     },
     products: {
       heading: homepageSettings.products_heading,
@@ -446,22 +561,22 @@ function mapHomepageContent(
     },
     navItems,
     contact: {
-      heading: site.contact_heading,
-      summary: site.contact_summary,
-      email: {
-        label: pageCopy.contact.email_label,
-        href: site.contact_email.startsWith('mailto:')
-          ? site.contact_email
-          : `mailto:${site.contact_email}`,
-      },
-      telegram: {
-        label: pageCopy.contact.telegram_label,
-        href: site.contact_telegram,
-      },
+      heading: homepageSettings.contact_heading,
+      summary: homepageSettings.contact_summary,
+      email: contactChannels.email,
+      telegram: contactChannels.telegram,
     },
     siteName: site.site_name,
     seoTitle: site.seo_title ?? undefined,
     seoDescription: site.seo_description ?? undefined,
+    ogImage: ogImage
+      ? {
+          src: ogImage.src,
+          alt: ogImage.alt,
+          width: ogImage.width,
+          height: ogImage.height,
+        }
+      : undefined,
     pageCopy,
   }
 }
@@ -501,6 +616,31 @@ function mapCmsProduct(
       }
     : undefined
 
+  const launchCtas = mapLaunchCtas(product.launch_ctas)
+  const hasLaunch = Boolean(
+    product.launch_lead
+    || product.launch_supporting_line
+    || launchCtas.length
+    || product.macos_download_warning
+    || product.trust_facts?.length
+    || product.trademark,
+  )
+
+  const github = product.github_owner && product.github_repo
+    ? { owner: product.github_owner, repo: product.github_repo }
+    : undefined
+
+  const softwareApplication
+    = product.application_category
+      && product.operating_system
+      && product.license_url
+      ? {
+          applicationCategory: product.application_category,
+          operatingSystem: product.operating_system,
+          license: product.license_url,
+        }
+      : undefined
+
   return {
     slug: product.slug,
     name: product.name,
@@ -513,16 +653,25 @@ function mapCmsProduct(
     benefits: product.benefits ?? undefined,
     guide,
     links: product.evidence_links ?? undefined,
-    launch: product.launch ?? undefined,
-    github: product.github ?? undefined,
-    seo: product.seo
+    launch: hasLaunch
       ? {
-          title: product.seo.title || product.name,
-          description: product.seo.description || product.short_description,
-          titleSuffix: product.seo.titleSuffix,
+          lead: product.launch_lead || product.short_description,
+          supportingLine: product.launch_supporting_line || '',
+          ctas: launchCtas,
+          macosDownloadWarning: product.macos_download_warning ?? undefined,
+          trustFacts: product.trust_facts || [],
+          trademark: product.trademark ?? undefined,
         }
       : undefined,
-    softwareApplication: product.software_application ?? undefined,
+    github,
+    seo: product.seo_title || product.seo_description || product.seo_title_suffix
+      ? {
+          title: product.seo_title || product.name,
+          description: product.seo_description || product.short_description,
+          titleSuffix: product.seo_title_suffix ?? undefined,
+        }
+      : undefined,
+    softwareApplication,
     stackTags: product.stack_tags ?? undefined,
   }
 }
@@ -537,33 +686,40 @@ function mapCmsProducts(
     .map(product => mapCmsProduct(product, config, catalog))
 }
 
+function requirePublished(status: string | undefined, collection: string): void {
+  if (status !== 'published') {
+    throw new Error(`${collection} not published`)
+  }
+}
+
 export function mapPortfolio(
   raw: CmsPortfolioRaw,
   config: Pick<DirectusClientConfig, 'baseUrl'>,
 ): PortfolioContent {
+  requirePublished(raw.site.status, 'site_settings')
+  requirePublished(raw.homepageSettings.status, 'homepage_settings')
+  requirePublished(raw.experiencePage.status, 'experience_page_settings')
+  requirePublished(raw.productsPage.status, 'products_page_settings')
   const catalog = buildFileCatalog(raw.files)
   const experience = mapExperienceRoles(raw.experience, raw.claims, config, catalog)
   const homepage = mapHomepageContent(
     raw.site,
     raw.homepageSettings,
+    raw.productsPage,
     raw.projects,
     raw.products,
     experience,
     raw.claims,
     catalog,
+    config,
   )
   const products = mapCmsProducts(raw.products, config, catalog)
 
   return {
-    site: raw.site,
-    homepageSettings: raw.homepageSettings,
-    experiencePage: raw.experiencePage,
     homepage,
     experience,
     products,
-    projects: raw.projects,
-    claims: raw.claims,
-    professionalTenure: raw.site.professional_tenure,
+    experiencePage: raw.experiencePage,
     productSlugs: products.map(p => p.slug),
   }
 }

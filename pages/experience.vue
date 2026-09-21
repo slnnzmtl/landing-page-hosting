@@ -5,11 +5,8 @@ useHashScroll()
 
 const portfolio = await requirePortfolio()
 const roles = portfolio.experience
-const tenure = portfolio.professionalTenure
 const home = portfolio.homepage
 const experiencePage = portfolio.experiencePage
-const pageCopy = home.pageCopy
-const intro = `${experiencePage.page_intro} ${tenure.heroSubtitle}; ${tenure.softwareEngineeringSince.toLowerCase()}.`
 const siteUrl = resolveSiteUrl(useRuntimeConfig().public.siteUrl as string)
 usePageSeo(
   experiencePageSeo(
@@ -35,16 +32,13 @@ usePageSeo(
       <AppPageHeader
         :kicker="home.person.name"
         :title="experiencePage.title"
-        :description="intro"
+        :description="experiencePage.page_intro"
         :back="{ to: experiencePage.back_href, label: experiencePage.back_label }"
       />
 
       <ExperienceTimeline :roles="roles" />
 
-      <HomeContact
-        :contact="home.contact"
-        :card-heading="pageCopy.contact.card_heading"
-      />
+      <HomeContact :contact="home.contact" />
     </div>
   </div>
 </template>

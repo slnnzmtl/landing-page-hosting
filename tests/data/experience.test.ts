@@ -11,7 +11,7 @@ import { cmsPortfolioFixture } from '~/tests/fixtures/cms-portfolio'
 const BASE = { baseUrl: 'https://cms.example.test' }
 
 describe('experience content model (CMS-mapped)', () => {
-  const { experience: roles, professionalTenure: tenure, experiencePage } = mapPortfolio(
+  const { experience: roles, experiencePage } = mapPortfolio(
     cmsPortfolioFixture,
     BASE,
   )
@@ -59,11 +59,10 @@ describe('experience content model (CMS-mapped)', () => {
     const serialized = JSON.stringify(roles)
     expect(serialized).not.toMatch(/evidence_origin|evidence_note/)
     expect(roles.every(role => !('source' in role))).toBe(true)
-    expect(experienceUserFacingCopy(roles, tenure)).toContain('Acme Corp')
+    expect(experienceUserFacingCopy(roles)).toContain('Acme Corp')
   })
 
-  it('passes through tenure and experience page chrome from CMS', () => {
-    expect(tenure).toEqual(cmsPortfolioFixture.site.professional_tenure)
+  it('passes through experience page chrome from CMS', () => {
     expect(experiencePage.title).toBe(cmsPortfolioFixture.experiencePage.title)
     expect(experiencePage.page_intro).toBe(cmsPortfolioFixture.experiencePage.page_intro)
   })

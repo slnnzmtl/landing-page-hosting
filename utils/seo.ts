@@ -45,6 +45,7 @@ export interface HomepageSeoInput {
   siteName?: string
   seoTitle?: string
   seoDescription?: string
+  ogImage?: { src: string, alt: string, width: number, height: number }
 }
 
 function isPublicCreativeWorkHref(href: string): boolean {
@@ -121,6 +122,16 @@ export function homepageSeo(siteUrl: string, home: HomepageSeoInput): PageSeo {
     path,
     robots: 'index, follow',
     ogType: 'website',
+    ...(home.ogImage
+      ? {
+          image: {
+            src: home.ogImage.src,
+            alt: home.ogImage.alt,
+            width: home.ogImage.width,
+            height: home.ogImage.height,
+          },
+        }
+      : {}),
     jsonLd: {
       '@context': 'https://schema.org',
       '@graph': graph,
