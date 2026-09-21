@@ -56,7 +56,7 @@ const benefitsHeading = computed(() => (
         <template #media>
           <div
             id="project-hero-media"
-            class="flex size-16 shrink-0 items-center justify-center rounded-xl border border-border bg-[hsl(64,0%,1.43%)] p-1.5 ring-1 ring-[hsl(64,0%,98%)]/15 sm:size-20 sm:rounded-2xl sm:p-2 lg:size-auto lg:w-full lg:rounded-3xl lg:p-8"
+            class="flex size-20 shrink-0 items-center justify-center rounded-2xl border border-border bg-[hsl(64,0%,1.43%)] p-2 ring-1 ring-[hsl(64,0%,98%)]/15 sm:size-24 sm:p-2.5 lg:size-auto lg:w-full lg:rounded-3xl lg:p-8"
           >
             <img
               v-if="project.logo"
