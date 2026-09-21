@@ -1,6 +1,6 @@
 # landing-hosting
 
-A Nuxt 3 + Vue 3 multi-domain app for landing pages, public product pages, JSON-driven surveys, and service marketing pages. Domains are Nuxt layers under `domains/`, with Tailwind UI and static generation for Vercel. Personal finance lives in the sibling [`personal-finance`](../personal-finance) app.
+A Nuxt 3 + Vue 3 multi-domain app for landing pages, public product pages, JSON-driven surveys, and service marketing pages. Domains are Nuxt layers under `domains/`, with Tailwind UI and static generation served behind Caddy on this VPS. Personal finance lives in the sibling [`personal-finance`](../personal-finance) app.
 
 - **Live site:** https://kazansky.dev
 - **Repository:** https://github.com/slnnzmtl/landing-hosting
@@ -13,7 +13,7 @@ A Nuxt 3 + Vue 3 multi-domain app for landing pages, public product pages, JSON-
 - **Charting:** Chart.js (service demos)
 - **Testing:** Vitest + Vue Test Utils
 - **Linting:** ESLint (+ lint-staged + Husky)
-- **Deploy:** Vercel static build (`.output/public`)
+- **Deploy:** Docker (nginx serving `.output/public`) behind Caddy at `127.0.0.1:8082`
 
 ## Domains
 
@@ -62,7 +62,7 @@ Each domain lives under `domains/<name>/` as a Nuxt layer. Page routes are prefi
 ├─ utils/prefix-domain-pages.ts   # Domain path prefixing
 ├─ tests/                         # Vitest suites
 ├─ nuxt.config.ts
-└─ vercel.json                    # Static build + SPA fallback
+└─ nginx.conf                     # Static routing + cache headers
 ```
 
 ## Getting Started
@@ -74,7 +74,11 @@ Each domain lives under `domains/<name>/` as a Nuxt layer. Page routes are prefi
 
 ### Environment
 
-Copy or create `.env` in the project root (gitignored):
+Copy `.env.example` to `.env` in the project root (gitignored):
+
+```bash
+cp .env.example .env
+```
 
 ```bash
 SURVEY_WEBHOOK_URL=https://example.com/webhook/survey/submit
@@ -85,9 +89,9 @@ DIRECTUS_TOKEN=
 
 `SURVEY_WEBHOOK_URL` maps to `runtimeConfig.public.surveyWebhookUrl` and is the live survey POST target; JSON `action` fields in survey files are inert placeholders only.
 
-`NUXT_PUBLIC_SITE_URL` (or `SITE_URL`) is the production origin used for canonical URLs, Open Graph tags, `sitemap.xml`, and `robots.txt`. Do not set this to a Vercel preview hostname. If unset, it defaults to `https://kazansky.dev`. Set this on Vercel production to `https://kazansky.dev` (apex). `www.kazansky.dev` and `daniel.kazansky.dev` should redirect to the apex; do not use `www` as the canonical host.
+`NUXT_PUBLIC_SITE_URL` (or `SITE_URL`) is the production origin used for canonical URLs, Open Graph tags, `sitemap.xml`, and `robots.txt`. If unset, it defaults to `https://kazansky.dev`. Set production to `https://kazansky.dev` (apex). `www.kazansky.dev` and `daniel.kazansky.dev` redirect to the apex via Caddy; do not use `www` as the canonical host.
 
-`DIRECTUS_URL` and `DIRECTUS_TOKEN` are **server-only** (never `NUXT_PUBLIC_*`). Use a Directus **static token** (Settings → Access Tokens) for a build-reader role with read access to published `site_settings`, `homepage_settings`, `experience_page_settings`, `experience_entries`, `projects`, `products`, `approved_claims`, and `files` (plus the `homepage_settings_*` junction collections) — not a session JWT (those expire and return `INVALID_CREDENTIALS`). Paste the token into Vercel without wrapping quotes. A missing token or failed published-content fetch **fails `nuxt generate`**; the currently deployed site stays up. `pnpm install` / `nuxt prepare` do not call Directus. Directus is the only authoring source for homepage, experience, and product copy — do not dual-author in TypeScript. CMS edits appear only after the next successful generate (git push, manual redeploy, or the Directus → Vercel deploy hook below).
+`DIRECTUS_URL` and `DIRECTUS_TOKEN` are **server-only** (never `NUXT_PUBLIC_*`). Use a Directus **static token** (Settings → Access Tokens) for a build-reader role with read access to published `site_settings`, `homepage_settings`, `experience_page_settings`, `experience_entries`, `projects`, `products`, `approved_claims`, and `files` (plus the `homepage_settings_*` junction collections) — not a session JWT (those expire and return `INVALID_CREDENTIALS`). Put the token in the host `.env` (gitignored); Docker Compose passes it as a BuildKit secret so it is not baked into image layers. A missing token or failed published-content fetch **fails `nuxt generate`**; the currently deployed container stays up until a successful rebuild. `pnpm install` / `nuxt prepare` do not call Directus. Directus is the only authoring source for homepage, experience, and product copy — do not dual-author in TypeScript. CMS edits appear only after the next successful generate (see rebuild below).
 
 `homepage_settings` must include chrome strings `proof_heading`, `featured_work_heading`, and `flagship_label` (in addition to composition fields). Grant the build-reader role read access to those fields.
 
@@ -173,7 +177,7 @@ Surveys are JSON files in `domains/survey/data/`. Each file is eagerly loaded by
 ### Submission
 
 - Keep JSON `action` as an inert example (`https://example.com/...`). Do not commit live webhook URLs.
-- Set `SURVEY_WEBHOOK_URL` in `.env` / Vercel to the real JSON `POST` endpoint.
+- Set `SURVEY_WEBHOOK_URL` in `.env` to the real JSON `POST` endpoint.
 - Payload shape: `{ slug, questions: [{ question, answer }], submissionId?, isUpdate? }`.
 - Responses are also stored in `localStorage` (draft + submitted state) via `useSurveyResponses`.
 - New surveys under `data/` are picked up automatically; add a `slug` so prerender includes `/survey/<slug>`.
@@ -184,28 +188,98 @@ Configured for Nuxt static generation. Prerender uses an explicit route list (`c
 
 - `/`, `/experience`, `/survey`, `/products`, `/sitemap.xml`, `/robots.txt`, plus `getSurveyRoutes()`, `getServiceRoutes()`, and CMS product slugs from Directus (`fetchProductSlugs` at generate time)
 
+Local preview:
+
 ```bash
 pnpm build
 pnpm preview
 ```
 
-`vercel.json` builds with `@vercel/static-build` (`distDir: .output/public`). Known files (including prerendered `/products/*` and media under `/projects/*`) are served from the filesystem. Unknown `/products/*` and `/projects/*` page paths return `404.html` (product media files still match the filesystem first). Legacy `/finance` and `/login` also return `404.html`. `/service/**` falls back to `/200.html` for the client-only service layer. All other unmatched paths return `404.html`.
+### Production (Docker + Caddy)
 
-Set `SURVEY_WEBHOOK_URL` in the Vercel project environment for survey submissions. Set `NUXT_PUBLIC_SITE_URL` to the production origin for canonical/social URLs. Set **`DIRECTUS_TOKEN`** (and optionally `DIRECTUS_URL`) as server-only build env vars so `nuxt generate` can read published portfolio content. Deploy finance separately via `personal-finance`.
+Production serves `.output/public` from the `landing-hosting` container on `127.0.0.1:8082`. Caddy in [`01-reverse-proxy`](../../01-reverse-proxy/Caddyfile) terminates TLS for `kazansky.dev` and reverse-proxies to that port. `www.kazansky.dev` and `daniel.kazansky.dev` 301 to the apex; `slnnzmtl.xyz` already redirects to `kazansky.dev`. Umami script is first-party (`/u.js`); collect is `POST /u/api/send` proxied to `gateway.umami.is` so ad blockers are less likely to drop events.
+
+`nginx.conf` routing: known files (including prerendered `/products/*` and media under `/projects/*`) from the filesystem; unknown `/products/*` and `/projects/*` page paths → `404.html`; legacy `/finance` and `/login` → 404; `/service/**` → `/200.html` SPA fallback; other unmatched paths → `404.html`.
+
+1. Copy env and set a Directus **static** build-reader token:
+
+   ```bash
+   cp .env.example .env
+   # Edit .env: DIRECTUS_TOKEN=... (required)
+   # Optional: SURVEY_WEBHOOK_URL, UMAMI_WEBSITE_ID, DIRECTUS_URL
+   ```
+
+2. Build and start (frees port 8082 from the legacy `kazansky-dev` stack first if needed):
+
+   ```bash
+   # If the old Vite site still owns 8082:
+   #   cd ../kazansky-dev && docker compose down
+   ./rebuild.sh
+   # or: set -a && source .env && set +a && docker compose up -d --build
+   ```
+
+3. Reload Caddy after Caddyfile changes:
+
+   ```bash
+   cd ../../01-reverse-proxy && docker compose up -d --force-recreate
+   ```
+
+4. Smoke-check:
+
+   ```bash
+   curl -sI http://127.0.0.1:8082/
+   curl -sI https://kazansky.dev/
+   curl -sI https://kazansky.dev/experience
+   curl -sI https://kazansky.dev/products/rekordbox-playlist-converter
+   curl -sI https://kazansky.dev/finance   # expect 404
+   ```
+
+Deploy finance separately via `personal-finance`.
 
 ### Refresh CMS content without a git push
 
-Because the site is fully static, published Directus changes do not appear on kazansky.dev until another `nuxt generate` runs. A successful CMS-triggered Vercel deploy is enough — no git commit is required. Typical delay is the usual generate time (about 1–3 minutes). After the deploy finishes, hard-refresh the page if a tab still shows the previous payload.
+Because the site is fully static, published Directus changes do not appear on kazansky.dev until another `nuxt generate` runs (image rebuild). `rebuild.sh` passes a unique `CMS_CACHEBUST` build arg so Docker does not reuse a cached generate when only Directus content changed. Typical delay is the generate + Docker build time (a few minutes). After the rebuild finishes, hard-refresh the page if a tab still shows the previous payload.
 
-1. **Vercel deploy hook** — Project → Settings → Git → Deploy Hooks. Create a hook (e.g. `directus-content`) on `main`. Copy the URL (`https://api.vercel.com/v1/integrations/deploy/...`) and treat it as a secret.
-2. **Directus Flow** — Settings → Flows → new flow with an **Event Hook** trigger on:
-   - `items.create` / `items.update` / `items.delete` for `site_settings`, `homepage_settings`, `experience_page_settings`, `experience_entries`, `projects`, `products`, `approved_claims`
-   - `files.upload` / `files.update` when replacing media whose `title` is already a public path under `/projects/...`
-3. **Action** — Webhook / Request URL: `POST` to the deploy hook (empty body is fine).
-4. **Filter noise** — Prefer firing when `status` is `published`, or when status changes away from published (unpublish/delete must rebuild too). Skip draft-only saves if the Flow filter allows it. Vercel queues overlapping deploys when many items are saved in a burst; optional: add a short Flow delay if you often edit many rows at once.
-5. Confirm Vercel still has a valid **static** `DIRECTUS_TOKEN` (and `DIRECTUS_URL` if not using the default). Generate fails closed if the token is missing or Directus returns `INVALID_CREDENTIALS` (expired/revoked token, or a session JWT). Recreate the static token in Directus and update the Vercel env var, then redeploy.
+1. Ensure host `.env` still has a valid **static** `DIRECTUS_TOKEN` (and `DIRECTUS_URL` if not using the default). Generate fails closed if the token is missing or Directus returns `INVALID_CREDENTIALS`.
+2. Manual: run `./rebuild.sh` on this VPS.
+3. **Redeploy hook** (for Directus Flows): `POST https://kazansky.dev/hooks/redeploy` with header `Authorization: Bearer <REDEPLOY_HOOK_SECRET>`. Caddy only accepts this from `13.140.158.49` (Directus); other source IPs get `403`. Returns `202` immediately and runs `rebuild.sh` in the background. Overlapping calls coalesce into at most one follow-up rebuild.
 
-Smoke-check: `curl -X POST '<deploy-hook-url>'` (or Directus Flow test) → Vercel production deploy starts → change a published homepage field → wait for deploy → hard-refresh `/`. Unpublish or add a product slug and confirm 404 or the new `/products/:slug` page.
+#### Enable the hook
+
+```bash
+# In .env (gitignored):
+REDEPLOY_HOOK_SECRET=$(openssl rand -hex 32)
+
+sudo cp hooks/landing-redeploy-hook.service /etc/systemd/system/
+# Unit must allow writes to /root/.docker (docker compose/buildx); otherwise rebuild exits 1.
+sudo systemctl daemon-reload
+sudo systemctl enable --now landing-redeploy-hook
+# Reload Caddy after Caddyfile changes so POST /hooks/redeploy proxies to :8083
+cd ../../01-reverse-proxy && docker compose up -d --force-recreate
+```
+
+Smoke (from this VPS, localhost health only — public POST is allowlisted to `13.140.158.49`):
+
+```bash
+# Public hook from this host is 403 (not the Directus IP):
+curl -sS -o /dev/null -w '%{http_code}\n' -X POST https://kazansky.dev/hooks/redeploy \
+  -H "Authorization: Bearer $REDEPLOY_HOOK_SECRET"
+# Local hook (does not go through Caddy):
+curl -sS -X POST http://127.0.0.1:8083/hooks/redeploy \
+  -H "Authorization: Bearer $REDEPLOY_HOOK_SECRET"
+# Health is localhost-only:
+curl -sS http://127.0.0.1:8083/health \
+  -H "Authorization: Bearer $REDEPLOY_HOOK_SECRET"
+```
+
+#### Directus Flow
+
+1. Settings → Flows → new flow with an **Event Hook** on `items.create` / `items.update` / `items.delete` for `site_settings`, `homepage_settings`, `experience_page_settings`, `experience_entries`, `projects`, `products`, `approved_claims` (and `files.upload` / `files.update` when replacing media under `/projects/...`).
+2. Action → **Webhook / Request URL**: `POST https://kazansky.dev/hooks/redeploy`
+3. Headers: `Authorization: Bearer <REDEPLOY_HOOK_SECRET>` (treat as a secret). Empty body is fine.
+4. Prefer firing when `status` is `published`, or when status leaves published (unpublish/delete must rebuild too).
+
+Smoke-check: change a published homepage field → hook → wait for rebuild → hard-refresh `/`.
 
 The portfolio homepage, `/experience`, and `/products` are indexable (`index, follow`) with canonical URLs, Open Graph tags, and JSON-LD (Person, WebSite, CreativeWork / SoftwareApplication). Survey and service routes remain `noindex`.
 

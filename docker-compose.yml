@@ -1,0 +1,33 @@
+services:
+  landing-hosting:
+    container_name: landing-hosting
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production-stage
+      args:
+        NUXT_PUBLIC_SITE_URL: ${NUXT_PUBLIC_SITE_URL:-https://kazansky.dev}
+        DIRECTUS_URL: ${DIRECTUS_URL:-https://cms.kazansky.dev}
+        UMAMI_WEBSITE_ID: ${UMAMI_WEBSITE_ID:-}
+        NUXT_UMAMI_WEBSITE_ID: ${NUXT_UMAMI_WEBSITE_ID:-}
+        CMS_CACHEBUST: ${CMS_CACHEBUST:-0}
+      secrets:
+        - DIRECTUS_TOKEN
+        - SURVEY_WEBHOOK_URL
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8082:80"
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
+
+secrets:
+  DIRECTUS_TOKEN:
+    environment: DIRECTUS_TOKEN
+  SURVEY_WEBHOOK_URL:
+    environment: SURVEY_WEBHOOK_URL

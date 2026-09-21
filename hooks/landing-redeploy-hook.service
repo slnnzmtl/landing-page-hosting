@@ -1,0 +1,23 @@
+[Unit]
+Description=landing-hosting CMS redeploy hook
+After=network.target docker.service
+Wants=docker.service
+
+[Service]
+Type=simple
+WorkingDirectory=/root/containers/02-private/landing-page-hosting
+Environment=REDEPLOY_HOOK_HOST=127.0.0.1
+Environment=REDEPLOY_HOOK_PORT=8083
+ExecStart=/usr/bin/python3 /root/containers/02-private/landing-page-hosting/hooks/redeploy_hook.py
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+ProtectSystem=strict
+PrivateTmp=true
+ProtectHome=read-only
+# docker compose/buildx writes under ~/.docker; ProtectHome=read-only otherwise EROFS.
+ReadWritePaths=/root/containers/02-private/landing-page-hosting /root/.docker
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+
+[Install]
+WantedBy=multi-user.target
