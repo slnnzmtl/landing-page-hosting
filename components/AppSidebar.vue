@@ -1,26 +1,28 @@
 <script setup lang="ts">
 import { opensInNewTab } from '~/data/homepage'
 import { useHomepageUi } from '~/composables/useHomepageUi'
+import { pageHash, scrollHomeToTop } from '~/utils/silent-hash'
 
 const route = useRoute()
 const { linkFocus, outboundAttrs } = useHomepageUi()
 const { data: portfolio } = await usePortfolio()
 
-/** Route hash can lag behind location.hash on hash-only navigations. */
-const liveHash = ref('')
 function syncHash() {
   if (import.meta.client) {
-    liveHash.value = window.location.hash
+    pageHash.value = window.location.hash
   }
 }
-watch(() => route.fullPath, () => {
-  syncHash()
+watch(() => route.path, () => {
   closeMenu()
   burgerHiddenByScroll.value = false
   if (import.meta.client) lastScrollY = window.scrollY
 })
+watch(() => route.hash, (hash) => {
+  if (import.meta.client && !hash && window.location.hash) return
+  pageHash.value = hash
+})
 
-const currentHash = computed(() => route.hash || liveHash.value)
+const currentHash = computed(() => pageHash.value)
 
 const navItems = computed(() =>
   (portfolio.value?.homepage.navItems || []).map(item => ({
@@ -75,9 +77,8 @@ function closeMenu() {
 
 function onNavClick(item: NavItem) {
   closeMenu()
-  // Same-route `/` does not run scrollBehavior; still jump to top.
   if (item.to !== '/' || route.path !== '/' || !import.meta.client) return
-  window.scrollTo({ top: 0, behavior: 'smooth' })
+  scrollHomeToTop()
 }
 
 watch(menuOpen, (open) => {

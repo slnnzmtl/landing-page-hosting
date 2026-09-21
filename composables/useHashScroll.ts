@@ -1,6 +1,7 @@
 import { onMounted, watch } from 'vue'
 import { hashElementId } from '~/utils/app-link'
 import { isPopstateNavigation } from '~/utils/navigation-popstate'
+import { pauseSilentAnchorSync } from '~/utils/silent-hash'
 
 const MAX_ATTEMPTS = 16
 const RETRY_MS = 50
@@ -23,6 +24,7 @@ export function useHashScroll() {
       const target = document.getElementById(id)
       if (!target) return false
       target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      pauseSilentAnchorSync()
       return true
     }
 

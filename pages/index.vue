@@ -3,6 +3,7 @@ import { homepageSeo, resolveSiteUrl } from '~/domains/projects/utils/seo'
 import { usePageSeo } from '~/domains/projects/composables/usePageSeo'
 
 useHashScroll()
+useContactHashRoute()
 
 const { data: portfolio, error } = await usePortfolio()
 if (error.value) {

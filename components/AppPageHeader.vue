@@ -23,7 +23,7 @@ defineProps<{
     <div
       :class="$slots.media
         ? 'flex flex-col gap-5 lg:grid lg:grid-cols-[minmax(0,1.4fr)_minmax(12rem,16rem)] lg:items-start lg:gap-x-10 lg:gap-y-5'
-        : 'contents'"
+        : 'space-y-4'"
     >
       <div
         :class="$slots.media
@@ -49,7 +49,7 @@ defineProps<{
         v-if="description || $slots.description || $slots.default"
         :class="$slots.media
           ? 'w-full space-y-4 lg:col-start-1'
-          : 'contents'"
+          : 'space-y-4'"
       >
         <div
           v-if="description || $slots.description"

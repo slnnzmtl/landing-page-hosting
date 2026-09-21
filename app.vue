@@ -33,7 +33,10 @@ const pageTransition = computed(() => {
       :class="showSiteChrome ? 'col-start-1 xl:col-start-2' : 'col-start-1'"
       tabindex="-1"
     >
-      <NuxtPage :transition="pageTransition" />
+      <NuxtPage
+        :transition="pageTransition"
+        :page-key="route.path"
+      />
     </main>
   </div>
 </template>

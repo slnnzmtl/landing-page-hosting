@@ -38,6 +38,8 @@ describe('AppPageHeader', () => {
 
     expect(wrapper.get('a').attributes('href')).toBe('/#featured-work')
     expect(wrapper.text()).toContain('Back to featured work')
+    expect(wrapper.html()).not.toContain('contents')
+    expect(wrapper.classes()).toContain('space-y-4')
   })
 
   it('places media beside the title and keeps a custom subheader', () => {
