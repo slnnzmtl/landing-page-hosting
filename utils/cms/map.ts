@@ -7,6 +7,7 @@ import { homepageExperiencePreview } from '../../data/experience'
 import type {
   FeaturedCase,
   HomepageContent,
+  PageCopy,
   ProductSpotlight,
   ProofItem,
 } from '../../data/homepage'
@@ -15,7 +16,9 @@ import { assetUrl, type DirectusClientConfig } from './client'
 import type {
   CmsApprovedClaim,
   CmsExperienceEntry,
+  CmsExperiencePageSettings,
   CmsFile,
+  CmsHomepageSettings,
   CmsPortfolioRaw,
   CmsProduct,
   CmsProfessionalTenure,
@@ -25,6 +28,8 @@ import type {
 
 export interface PortfolioContent {
   site: CmsSiteSettings
+  homepageSettings: CmsHomepageSettings
+  experiencePage: CmsExperiencePageSettings
   homepage: HomepageContent
   experience: ExperienceRole[]
   products: Project[]
@@ -39,7 +44,7 @@ export interface FileCatalog {
   byTitle: Map<string, CmsFile>
 }
 
-export function buildFileCatalog(files: CmsFile[] = []): FileCatalog {
+function buildFileCatalog(files: CmsFile[] = []): FileCatalog {
   const byId = new Map<string, CmsFile>()
   const byTitle = new Map<string, CmsFile>()
   for (const file of files) {
@@ -195,7 +200,7 @@ function splitProofWording(wording: string): ProofItem {
   }
 }
 
-export function mapExperienceRoles(
+function mapExperienceRoles(
   entries: CmsExperienceEntry[],
   claims: CmsApprovedClaim[],
   config: Pick<DirectusClientConfig, 'baseUrl'>,
@@ -238,11 +243,11 @@ export function mapExperienceRoles(
   })
 }
 
-export function mapFeaturedCases(
-  site: CmsSiteSettings,
+function mapFeaturedCases(
+  featuredProjectSlugs: string[],
   projects: CmsProject[],
 ): FeaturedCase[] {
-  const ordered = orderByKeys(projects, site.featured_project_slugs || [], p => p.slug)
+  const ordered = orderByKeys(projects, featuredProjectSlugs, p => p.slug)
   return ordered.map((project, index) => {
     const link = project.evidence_links?.[0]
     return {
@@ -261,15 +266,15 @@ export function mapFeaturedCases(
   })
 }
 
-export function mapProductSpotlights(
-  site: CmsSiteSettings,
+function mapProductSpotlights(
+  productSpotlightSlugs: string[],
   products: CmsProduct[],
   catalog: FileCatalog = EMPTY_CATALOG,
   spotlightCtaLabel: string,
 ): ProductSpotlight[] {
   const ordered = orderByKeys(
     products,
-    site.product_spotlight_slugs || [],
+    productSpotlightSlugs,
     p => p.slug,
   )
   return ordered.map((product) => {
@@ -304,8 +309,33 @@ export function mapProductSpotlights(
   })
 }
 
-export function mapHomepageContent(
+export function homepageFeaturedSlugs(home: CmsHomepageSettings): string[] {
+  return (home.featured_projects || [])
+    .map(row => row.projects_id?.slug)
+    .filter((slug): slug is string => Boolean(slug))
+}
+
+export function homepageExperienceKeys(home: CmsHomepageSettings): string[] {
+  return (home.experience_preview || [])
+    .map(row => row.experience_entries_id?.key)
+    .filter((key): key is string => Boolean(key))
+}
+
+export function homepageSpotlightSlugs(home: CmsHomepageSettings): string[] {
+  return (home.product_spotlights || [])
+    .map(row => row.products_id?.slug)
+    .filter((slug): slug is string => Boolean(slug))
+}
+
+export function homepageProofKeys(home: CmsHomepageSettings): string[] {
+  return (home.proof_claims || [])
+    .map(row => row.approved_claims_id?.key)
+    .filter((key): key is string => Boolean(key))
+}
+
+function mapHomepageContent(
   site: CmsSiteSettings,
+  homepageSettings: CmsHomepageSettings,
   projects: CmsProject[],
   products: CmsProduct[],
   experience: ExperienceRole[],
@@ -319,7 +349,34 @@ export function mapHomepageContent(
     throw new Error('site_settings.site_name is required')
   }
 
-  const pageCopy = {
+  const featuredProjectSlugs = homepageFeaturedSlugs(homepageSettings)
+  const experiencePreviewIds = homepageExperienceKeys(homepageSettings)
+  const productSpotlightSlugs = homepageSpotlightSlugs(homepageSettings)
+  const proofClaimKeys = homepageProofKeys(homepageSettings)
+
+  if (!featuredProjectSlugs.length) {
+    throw new Error('homepage_settings.featured_projects is required')
+  }
+  if (!experiencePreviewIds.length) {
+    throw new Error('homepage_settings.experience_preview is required')
+  }
+  if (!productSpotlightSlugs.length) {
+    throw new Error('homepage_settings.product_spotlights is required')
+  }
+  if (!proofClaimKeys.length) {
+    throw new Error('homepage_settings.proof_claims is required')
+  }
+  if (!homepageSettings.proof_heading?.trim()) {
+    throw new Error('homepage_settings.proof_heading is required')
+  }
+  if (!homepageSettings.featured_work_heading?.trim()) {
+    throw new Error('homepage_settings.featured_work_heading is required')
+  }
+  if (!homepageSettings.flagship_label?.trim()) {
+    throw new Error('homepage_settings.flagship_label is required')
+  }
+
+  const pageCopy: PageCopy = {
     ...site.page_copy,
     products_index: {
       ...site.page_copy.products_index,
@@ -337,7 +394,7 @@ export function mapHomepageContent(
       value: tenure.short.replace(/ years$/, ''),
       label: tenure.label,
     },
-    ...(site.proof_claim_ids || []).map((id) => {
+    ...proofClaimKeys.map((id) => {
       const claim = claimsByKey.get(id) || claims.find(c => c.id === id || c.key === id)
       if (!claim) throw new Error(`Missing proof claim: ${id}`)
       return splitProofWording(claim.public_wording)
@@ -345,7 +402,7 @@ export function mapHomepageContent(
   ]
 
   const previewItems = homepageExperiencePreview(
-    site.experience_preview_ids || [],
+    experiencePreviewIds,
     experience,
   )
 
@@ -363,22 +420,25 @@ export function mapHomepageContent(
       role: site.person_role,
     },
     valueProposition: site.value_proposition,
-    primaryCtas: site.primary_ctas || [],
-    profileLinks: site.profile_links || [],
-    heroFocus: site.hero_focus,
+    primaryCtas: homepageSettings.primary_ctas || [],
+    profileLinks: homepageSettings.profile_links || [],
+    heroFocus: homepageSettings.hero_focus,
+    proofHeading: homepageSettings.proof_heading,
     proof,
-    featuredWorkIntro: site.featured_work_intro,
-    featuredCases: mapFeaturedCases(site, projects),
+    featuredWorkHeading: homepageSettings.featured_work_heading,
+    featuredWorkIntro: homepageSettings.featured_work_intro,
+    flagshipLabel: homepageSettings.flagship_label,
+    featuredCases: mapFeaturedCases(featuredProjectSlugs, projects),
     experiencePreview: {
-      heading: site.experience_preview_heading,
+      heading: homepageSettings.experience_preview_heading,
       items: previewItems,
-      cta: site.experience_preview_cta,
+      cta: homepageSettings.experience_preview_cta,
     },
     products: {
-      heading: site.products_heading,
-      description: site.products_description,
+      heading: homepageSettings.products_heading,
+      description: homepageSettings.products_description,
       items: mapProductSpotlights(
-        site,
+        productSpotlightSlugs,
         products,
         catalog,
         pageCopy.products_index.spotlight_cta,
@@ -406,7 +466,7 @@ export function mapHomepageContent(
   }
 }
 
-export function mapCmsProduct(
+function mapCmsProduct(
   product: CmsProduct,
   config: Pick<DirectusClientConfig, 'baseUrl'>,
   catalog: FileCatalog = EMPTY_CATALOG,
@@ -467,7 +527,7 @@ export function mapCmsProduct(
   }
 }
 
-export function mapCmsProducts(
+function mapCmsProducts(
   products: CmsProduct[],
   config: Pick<DirectusClientConfig, 'baseUrl'>,
   catalog: FileCatalog = EMPTY_CATALOG,
@@ -485,6 +545,7 @@ export function mapPortfolio(
   const experience = mapExperienceRoles(raw.experience, raw.claims, config, catalog)
   const homepage = mapHomepageContent(
     raw.site,
+    raw.homepageSettings,
     raw.projects,
     raw.products,
     experience,
@@ -495,6 +556,8 @@ export function mapPortfolio(
 
   return {
     site: raw.site,
+    homepageSettings: raw.homepageSettings,
+    experiencePage: raw.experiencePage,
     homepage,
     experience,
     products,

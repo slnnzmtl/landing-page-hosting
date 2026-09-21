@@ -1,5 +1,5 @@
 import { setHeader } from 'h3'
-import { buildRobotsTxt, resolveSiteUrl } from '../../domains/projects/utils/seo'
+import { buildRobotsTxt, resolveSiteUrl } from '../../utils/seo'
 
 export default defineEventHandler((event) => {
   const config = useRuntimeConfig()

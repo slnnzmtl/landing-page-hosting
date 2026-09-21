@@ -1,5 +1,3 @@
-import { projectPath, type Project } from '../data/types'
-
 export const DEFAULT_SITE_URL = 'https://kazansky.dev'
 /** Fallback when a caller has no CMS site_name (error page, unit tests). */
 export const SITE_NAME = 'Kazansky.dev'
@@ -27,142 +25,12 @@ export function absoluteUrl(siteUrl: string, path: string): string {
   return `${origin}${path.startsWith('/') ? path : `/${path}`}`
 }
 
-function socialImage(project: Project) {
-  return project.socialImage || project.logo
-}
-
 export function personId(siteUrl: string): string {
   return `${absoluteUrl(siteUrl, '/')}#person`
 }
 
 export function websiteId(siteUrl: string): string {
   return `${absoluteUrl(siteUrl, '/')}#website`
-}
-
-export interface ProjectsIndexSeoOptions {
-  siteName?: string
-  title?: string
-  description?: string
-  collectionName?: string
-}
-
-export function projectsIndexSeo(
-  siteUrl: string,
-  projects: Project[],
-  options: ProjectsIndexSeoOptions = {},
-): PageSeo {
-  const siteName = options.siteName || SITE_NAME
-  const collectionName = options.collectionName || options.title || 'Products'
-  const path = '/products'
-  const url = absoluteUrl(siteUrl, path)
-  const image = socialImage(projects[0])
-  const description = options.description
-    || 'Public products from Daniel Kazansky, including Simple Rekordbox Converter for Rekordbox 6 and 7.'
-  return {
-    title: `${collectionName} | ${siteName}`,
-    description,
-    path,
-    robots: 'index, follow',
-    ogType: 'website',
-    image,
-    jsonLd: {
-      '@context': 'https://schema.org',
-      '@type': 'CollectionPage',
-      'name': collectionName,
-      'description':
-        'Public products from Daniel Kazansky.',
-      url,
-      'isPartOf': {
-        '@type': 'WebSite',
-        'name': siteName,
-        'url': absoluteUrl(siteUrl, '/'),
-      },
-      'mainEntity': {
-        '@type': 'ItemList',
-        'itemListElement': projects.map((project, index) => ({
-          '@type': 'ListItem',
-          'position': index + 1,
-          'name': project.name,
-          'url': absoluteUrl(siteUrl, projectPath(project.slug)),
-        })),
-      },
-    },
-  }
-}
-
-export interface ProjectDetailSeoOptions {
-  siteName?: string
-  personName?: string
-  productsLabel?: string
-}
-
-export function projectDetailSeo(
-  siteUrl: string,
-  project: Project,
-  options: ProjectDetailSeoOptions = {},
-): PageSeo {
-  const siteName = options.siteName || SITE_NAME
-  const personName = options.personName || 'Daniel Kazansky'
-  const productsLabel = options.productsLabel || 'Products'
-  const path = projectPath(project.slug)
-  const url = absoluteUrl(siteUrl, path)
-  const description = project.seo?.description ?? project.shortDescription
-  const titleSuffix = project.seo?.titleSuffix ?? siteName
-  const title = `${project.seo?.title ?? project.name} | ${titleSuffix}`
-  const image = socialImage(project)
-  const software = project.softwareApplication
-  const graph: Record<string, unknown>[] = [
-    {
-      '@type': 'BreadcrumbList',
-      'itemListElement': [
-        {
-          '@type': 'ListItem',
-          'position': 1,
-          'name': personName,
-          'item': absoluteUrl(siteUrl, '/'),
-        },
-        {
-          '@type': 'ListItem',
-          'position': 2,
-          'name': productsLabel,
-          'item': absoluteUrl(siteUrl, '/products'),
-        },
-        {
-          '@type': 'ListItem',
-          'position': 3,
-          'name': project.name,
-          'item': url,
-        },
-      ],
-    },
-  ]
-
-  if (software) {
-    graph.unshift({
-      '@type': 'SoftwareApplication',
-      'name': project.name,
-      description,
-      url,
-      'image': image ? absoluteUrl(siteUrl, image.src) : undefined,
-      'applicationCategory': software.applicationCategory,
-      'operatingSystem': software.operatingSystem,
-      'license': software.license,
-      'isAccessibleForFree': true,
-    })
-  }
-
-  return {
-    title,
-    description,
-    path,
-    robots: 'index, follow',
-    ogType: 'website',
-    image,
-    jsonLd: {
-      '@context': 'https://schema.org',
-      '@graph': graph,
-    },
-  }
 }
 
 export interface HomepageSeoInput {
@@ -267,24 +135,32 @@ export interface ExperiencePagePerson {
 }
 
 export interface ExperiencePageSeoOptions {
-  siteName?: string
-  title?: string
-  description?: string
+  siteName: string
+  title: string
+  description: string
 }
 
 export function experiencePageSeo(
   siteUrl: string,
   person: ExperiencePagePerson,
-  options: ExperiencePageSeoOptions = {},
+  options: ExperiencePageSeoOptions,
 ): PageSeo {
+  if (!options.siteName?.trim()) {
+    throw new Error('experiencePageSeo requires options.siteName from CMS')
+  }
+  if (!options.title?.trim()) {
+    throw new Error('experiencePageSeo requires options.title from CMS')
+  }
+  if (!options.description?.trim()) {
+    throw new Error('experiencePageSeo requires options.description from CMS')
+  }
   const path = '/experience'
   const url = absoluteUrl(siteUrl, path)
   const homeUrl = absoluteUrl(siteUrl, '/')
   const personEntityId = personId(siteUrl)
-  const siteName = options.siteName || SITE_NAME
-  const title = options.title || `Professional Experience | ${person.name}`
+  const siteName = options.siteName
+  const title = options.title
   const description = options.description
-    || `Professional timeline for ${person.name}, ${person.role}: digital products, websites, and software delivery from 2018 through AI-native full-stack systems.`
   return {
     title,
     description,
@@ -364,7 +240,7 @@ export function sitemapPaths(productSlugs: string[] = []): string[] {
     '/',
     '/experience',
     '/products',
-    ...productSlugs.map(slug => projectPath(slug)),
+    ...productSlugs.map(slug => `/products/${slug}`),
   ]
   return [...new Set(paths)]
 }

@@ -25,9 +25,9 @@ tests/
 │  ├─ experience.test.ts
 │  └─ homepage.test.ts
 ├─ domains/projects/
-│  ├─ registry.test.ts
 │  ├─ rekordbox-product.test.ts
 │  ├─ github-releases.test.ts
+│  ├─ useDownloadWarningDialog.test.ts
 │  └─ seo.test.ts
 ├─ fixtures/
 │  └─ cms-portfolio.ts
@@ -53,7 +53,7 @@ tests/
 
 ### Survey page logic
 
-**Index** — filter by title/description/slug, case-insensitive search, trending/empty/saved states.
+**Index** — filter by title/description/slug, case-insensitive search, empty/saved states.
 
 **Detail (`[slug]`)** — form init, progress, required vs optional validation, question types (`text` / `email` / `textarea` / `radio`), submission readiness, webhook payload mapping.
 
@@ -63,9 +63,7 @@ tests/
 
 ### Projects domain
 
-**Registry** — lookup by slug, unknown-slug 404 data, and slug→route helpers used by sitemap/tests. Prerender product routes come from Directus (`fetchProductSlugs`) at generate time.
-
-**Rekordbox product data** — evergreen copy, five-step How to use walkthrough with Directus-materialized screenshots (no GitHub hotlinks), required links.
+**Rekordbox product data** — evergreen copy, five-step How to use walkthrough with Directus-materialized screenshots (no GitHub hotlinks), required links. Prerender product routes come from Directus (`fetchProductSlugs`) at generate time.
 
 **GitHub releases** — mocked `fetch` for success, empty, 403/429, network error, prerelease, and stale localStorage cache. Notes are plain text.
 

@@ -6,18 +6,20 @@ import {
   buildSitemapXml,
   experiencePageSeo,
   homepageSeo,
-  projectDetailSeo,
-  projectsIndexSeo,
   resolveSiteUrl,
   seoHead,
   sitemapPaths,
-} from '~/domains/projects/utils/seo'
+} from '~/utils/seo'
+import {
+  projectDetailSeo,
+  projectsIndexSeo,
+} from '~/domains/projects/utils/project-seo'
 import { mapPortfolio } from '~/utils/cms/map'
 import { cmsPortfolioFixture } from '~/tests/fixtures/cms-portfolio'
 
-const BASE = { baseUrl: 'https://cms.kazansky.dev' }
-const { homepage, products } = mapPortfolio(cmsPortfolioFixture, BASE)
-const rekordboxPlaylistConverter = products[0]
+const BASE = { baseUrl: 'https://cms.example.test' }
+const { homepage, products, experiencePage } = mapPortfolio(cmsPortfolioFixture, BASE)
+const sampleConverter = products[0]
 
 describe('site origin', () => {
   it('defaults to the production origin, not a Vercel preview host', () => {
@@ -50,6 +52,7 @@ describe('projects SEO documents', () => {
     expect(page.robots).toBe('index, follow')
     expect(page.description).toBe(homepage.pageCopy.products_index.seo_description)
     expect(page.jsonLd['@type']).toBe('CollectionPage')
+    expect(page.jsonLd.description).toBe(homepage.pageCopy.products_index.seo_description)
     const main = page.jsonLd.mainEntity as { '@type': string, 'itemListElement': unknown[] }
     expect(main['@type']).toBe('ItemList')
     expect(main.itemListElement.length).toBe(products.length)
@@ -58,48 +61,86 @@ describe('projects SEO documents', () => {
     expect(blob).not.toMatch(/"offers"/)
   })
 
-  it('uses a personal portfolio suffix on the converter product title', () => {
-    const page = projectDetailSeo(siteUrl, rekordboxPlaylistConverter, {
+  it('requires CMS siteName and description for the products index', () => {
+    expect(() =>
+      projectsIndexSeo(siteUrl, products, {
+        siteName: '',
+        description: homepage.pageCopy.products_index.seo_description,
+      }),
+    ).toThrow(/siteName/)
+    expect(() =>
+      projectsIndexSeo(siteUrl, products, {
+        siteName: homepage.siteName,
+        description: '',
+      }),
+    ).toThrow(/description/)
+  })
+
+  it('uses the CMS title suffix on the product detail title', () => {
+    const page = projectDetailSeo(siteUrl, sampleConverter, {
       siteName: homepage.siteName,
       personName: homepage.person.name,
     })
-    expect(page.title).toBe('Simple Rekordbox Converter | Daniel Kazansky')
+    expect(page.title).toBe('Sample Converter | Ada Example')
   })
 
-  it('builds SoftwareApplication + BreadcrumbList JSON-LD for the converter', () => {
-    const page = projectDetailSeo(siteUrl, rekordboxPlaylistConverter)
+  it('requires CMS siteName and personName for product detail', () => {
+    expect(() =>
+      projectDetailSeo(siteUrl, sampleConverter, {
+        siteName: '',
+        personName: homepage.person.name,
+      }),
+    ).toThrow(/siteName/)
+    expect(() =>
+      projectDetailSeo(siteUrl, sampleConverter, {
+        siteName: homepage.siteName,
+        personName: '',
+      }),
+    ).toThrow(/personName/)
+  })
+
+  it('builds SoftwareApplication + BreadcrumbList JSON-LD for the product', () => {
+    const page = projectDetailSeo(siteUrl, sampleConverter, {
+      siteName: homepage.siteName,
+      personName: homepage.person.name,
+    })
     const graph = (page.jsonLd['@graph'] as Array<Record<string, unknown>>).map(node => node['@type'])
     expect(graph).toContain('SoftwareApplication')
     expect(graph).toContain('BreadcrumbList')
     const blob = JSON.stringify(page.jsonLd)
     expect(blob).not.toMatch(/aggregateRating/)
     expect(blob).not.toMatch(/reviewRating/)
-    expect(blob).not.toMatch(/v1\.2\.0/)
   })
 
   it('emits canonical, robots, and absolute social tags', () => {
-    const page = projectDetailSeo(siteUrl, rekordboxPlaylistConverter)
-    const head = seoHead(siteUrl, page)
+    const page = projectDetailSeo(siteUrl, sampleConverter, {
+      siteName: homepage.siteName,
+      personName: homepage.person.name,
+    })
+    const head = seoHead(siteUrl, page, homepage.siteName)
     expect(head.link).toEqual([
-      { rel: 'canonical', href: `${siteUrl}/products/rekordbox-playlist-converter` },
+      { rel: 'canonical', href: `${siteUrl}/products/sample-converter` },
     ])
     expect(head.meta).toEqual(expect.arrayContaining([
       { name: 'robots', content: 'index, follow' },
-      { property: 'og:image', content: absoluteUrl(siteUrl, rekordboxPlaylistConverter.socialImage!.src) },
+      { property: 'og:image', content: absoluteUrl(siteUrl, sampleConverter.socialImage!.src) },
       { name: 'twitter:card', content: 'summary_large_image' },
     ]))
   })
 
   it('escapes < in JSON-LD so script tags cannot break out', () => {
     const page = projectDetailSeo(siteUrl, {
-      ...rekordboxPlaylistConverter,
+      ...sampleConverter,
       name: 'App</script><script>alert(1)',
       seo: {
         title: 'App</script>',
         description: 'Desc</script><img src=x>',
       },
+    }, {
+      siteName: homepage.siteName,
+      personName: homepage.person.name,
     })
-    const head = seoHead(siteUrl, page)
+    const head = seoHead(siteUrl, page, homepage.siteName)
     const script = head.script?.[0] as { innerHTML?: string }
     expect(script.innerHTML).toContain('\\u003c')
     expect(script.innerHTML).not.toMatch(/<\/script>/i)
@@ -112,7 +153,7 @@ describe('homepage SEO', () => {
     expect(page.robots).toBe('index, follow')
     expect(page.path).toBe('/')
     expect(page.ogType).toBe('website')
-    expect(page.title).toBe('Daniel Kazansky | AI-Native Full-Stack Engineer')
+    expect(page.title).toBe(homepage.seoTitle)
     expect(page.description).toBe(homepage.seoDescription)
 
     const graph = page.jsonLd['@graph'] as Array<Record<string, unknown>>
@@ -129,10 +170,10 @@ describe('homepage SEO', () => {
       'sameAs': string[]
     }
     expect(website.name).toBe(homepage.siteName)
-    expect(person.name).toBe('Daniel Kazansky')
+    expect(person.name).toBe(homepage.person.name)
     expect(person['@id']).toBe('https://kazansky.dev/#person')
     expect(website.publisher['@id']).toBe(person['@id'])
-    expect(person.sameAs).toContain('https://github.com/slnnzmtl')
+    expect(person.sameAs).toContain('https://github.com/example-org')
 
     const list = graph.find(node => node['@type'] === 'ItemList') as {
       itemListElement: Array<{ item: { '@type': string, 'url': string } }>
@@ -141,9 +182,8 @@ describe('homepage SEO', () => {
     expect(list.itemListElement.every(entry => entry.item['@type'] === 'CreativeWork')).toBe(true)
     expect(list.itemListElement.map(entry => entry.item.url)).toEqual(
       expect.arrayContaining([
-        'https://github.com/slnnzmtl/langgraph-appointment-bot',
-        'https://github.com/slnnzmtl/directus-website-builder',
-        'https://kazansky.dev/products/rekordbox-playlist-converter',
+        'https://github.com/example-org/sample-flagship',
+        'https://kazansky.dev/products/sample-converter',
       ]),
     )
     expect(list.itemListElement.map(entry => entry.item.url)).not.toContain(
@@ -154,7 +194,7 @@ describe('homepage SEO', () => {
     expect(head.link).toEqual([{ rel: 'canonical', href: 'https://kazansky.dev/' }])
     expect(head.meta).toEqual(expect.arrayContaining([
       { name: 'robots', content: 'index, follow' },
-      { property: 'og:site_name', content: 'Kazansky.dev' },
+      { property: 'og:site_name', content: homepage.siteName },
       { property: 'og:url', content: 'https://kazansky.dev/' },
       { property: 'og:type', content: 'website' },
     ]))
@@ -167,23 +207,20 @@ describe('experience page SEO', () => {
     const page = experiencePageSeo(
       DEFAULT_SITE_URL,
       {
-        name: 'Daniel Kazansky',
-        role: 'AI-Native Full-Stack Engineer',
-        sameAs: [
-          'https://github.com/slnnzmtl',
-          'https://www.linkedin.com/in/daniel-kazansky/',
-        ],
+        name: homepage.person.name,
+        role: homepage.person.role,
+        sameAs: homepage.profileLinks.map(link => link.href),
       },
       {
         siteName: homepage.siteName,
-        title: `${homepage.pageCopy.experience.title} | Daniel Kazansky`,
-        description: homepage.pageCopy.experience.seo_description,
+        title: `${experiencePage.title} | ${homepage.person.name}`,
+        description: experiencePage.seo_description,
       },
     )
     expect(page.robots).toBe('index, follow')
     expect(page.path).toBe('/experience')
     expect(page.ogType).toBe('profile')
-    expect(page.description).toBe(homepage.pageCopy.experience.seo_description)
+    expect(page.description).toBe(experiencePage.seo_description)
     const types = (page.jsonLd['@graph'] as Array<Record<string, unknown>>).map(
       node => node['@type'],
     )
@@ -196,6 +233,16 @@ describe('experience page SEO', () => {
       { rel: 'canonical', href: `${DEFAULT_SITE_URL}/experience` },
     ])
   })
+
+  it('requires CMS siteName, title, and description', () => {
+    expect(() =>
+      experiencePageSeo(
+        DEFAULT_SITE_URL,
+        { name: homepage.person.name, role: homepage.person.role, sameAs: [] },
+        { siteName: '', title: 'Title', description: 'Desc' },
+      ),
+    ).toThrow(/siteName/)
+  })
 })
 
 describe('sitemap and robots', () => {
@@ -205,11 +252,11 @@ describe('sitemap and robots', () => {
     expect(sitemapPaths(slugs)).toContain('/')
     expect(sitemapPaths(slugs)).toContain('/experience')
     expect(sitemapPaths(slugs)).toContain('/products')
-    expect(sitemapPaths(slugs)).toContain('/products/rekordbox-playlist-converter')
+    expect(sitemapPaths(slugs)).toContain('/products/sample-converter')
     expect(xml).toContain('<loc>https://kazansky.dev/</loc>')
     expect(xml).toContain('<loc>https://kazansky.dev/experience</loc>')
     expect(xml).toContain('<loc>https://kazansky.dev/products</loc>')
-    expect(xml).toContain('<loc>https://kazansky.dev/products/rekordbox-playlist-converter</loc>')
+    expect(xml).toContain('<loc>https://kazansky.dev/products/sample-converter</loc>')
   })
 
   it('allows crawlers on /products and points at the sitemap', () => {

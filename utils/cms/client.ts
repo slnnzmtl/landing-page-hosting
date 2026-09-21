@@ -14,12 +14,37 @@ export type DirectusConfigSource = {
   directusToken?: string
 }
 
+/** Strip whitespace and wrapping quotes (common when pasting into Vercel env). */
+export function normalizeDirectusToken(raw: string | undefined): string {
+  return (raw || '').trim().replace(/^["']|["']$/g, '')
+}
+
+/**
+ * Fetch CMS prerender slugs during `nuxt generate` / `nuxt dev` only.
+ * `nuxt prepare` (postinstall) and Vitest must not require Directus — Vercel
+ * injects DIRECTUS_TOKEN during `pnpm install`, which would otherwise 401 the install.
+ */
+export function shouldFetchCmsPrerenderSlugs(
+  env: NodeJS.Dict<string> = process.env,
+  argv: readonly string[] = process.argv,
+): boolean {
+  const token = normalizeDirectusToken(env.DIRECTUS_TOKEN || env.NUXT_DIRECTUS_TOKEN)
+  if (!token) return false
+  if (env.VITEST) return false
+  const lifecycle = env.npm_lifecycle_event || ''
+  if (lifecycle === 'postinstall' || lifecycle === 'prepare') return false
+  if (argv.some(arg => arg === 'prepare' || /[/\\]prepare(?:\.mjs)?$/.test(arg))) {
+    return false
+  }
+  return true
+}
+
 export function resolveDirectusConfig(
   source: DirectusConfigSource = process.env as DirectusConfigSource,
 ): DirectusClientConfig {
   const rawBaseUrl = source.directusUrl || source.DIRECTUS_URL || DEFAULT_DIRECTUS_URL
   const baseUrl = rawBaseUrl.replace(/\/+$/, '')
-  const token = source.directusToken || source.DIRECTUS_TOKEN || ''
+  const token = normalizeDirectusToken(source.directusToken || source.DIRECTUS_TOKEN)
   if (!token) {
     throw new Error(
       'Directus token missing. Set DIRECTUS_TOKEN (server-only) for build/dev.',

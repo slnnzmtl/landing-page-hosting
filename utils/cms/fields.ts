@@ -6,18 +6,6 @@ export const SITE_FIELDS = [
   'person_role',
   'value_proposition',
   'professional_tenure',
-  'primary_ctas',
-  'profile_links',
-  'hero_focus',
-  'featured_work_intro',
-  'featured_project_slugs',
-  'experience_preview_heading',
-  'experience_preview_ids',
-  'experience_preview_cta',
-  'products_heading',
-  'products_description',
-  'product_spotlight_slugs',
-  'proof_claim_ids',
   'contact_heading',
   'contact_summary',
   'contact_email',
@@ -27,6 +15,34 @@ export const SITE_FIELDS = [
   'seo_title',
   'seo_description',
   'page_copy',
+].join(',')
+
+export const HOMEPAGE_SETTINGS_FIELDS = [
+  'status',
+  'primary_ctas',
+  'profile_links',
+  'hero_focus',
+  'proof_heading',
+  'featured_work_heading',
+  'featured_work_intro',
+  'flagship_label',
+  'featured_projects.projects_id.slug',
+  'experience_preview_heading',
+  'experience_preview.experience_entries_id.key',
+  'experience_preview_cta',
+  'products_heading',
+  'products_description',
+  'product_spotlights.products_id.slug',
+  'proof_claims.approved_claims_id.key',
+].join(',')
+
+export const EXPERIENCE_PAGE_FIELDS = [
+  'status',
+  'title',
+  'page_intro',
+  'back_label',
+  'back_href',
+  'seo_description',
 ].join(',')
 
 export const FILE_FIELDS = 'id,filename_download,title'
@@ -59,22 +75,13 @@ export const PROJECT_FIELDS = [
   'status',
   'sort',
   'name',
-  'track',
   'role',
-  'confidentiality_level',
-  'experience_id',
   'short_description',
-  'description',
   'problem',
   'contribution',
-  'solution',
   'outcome',
   'stack_tags',
-  'capability_tags',
   'evidence_links',
-  'logo',
-  'social_image',
-  'seo',
 ].join(',')
 
 export const PRODUCT_FIELDS = [

@@ -1,4 +1,4 @@
-import { resolveSiteUrl, seoHead, type PageSeo } from '../utils/seo'
+import { resolveSiteUrl, seoHead, type PageSeo } from '~/utils/seo'
 
 export function usePageSeo(page: PageSeo, siteName?: string) {
   const config = useRuntimeConfig()

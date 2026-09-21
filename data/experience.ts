@@ -49,7 +49,6 @@ export interface ProfessionalTenure {
   label: string
   heroSubtitle: string
   softwareEngineeringSince: string
-  pageIntro: string
 }
 
 const MONTH_LABELS = [

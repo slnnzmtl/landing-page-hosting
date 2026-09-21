@@ -9,12 +9,18 @@ import {
 import {
   BUILD_CLAIM_FIELDS,
   EXPERIENCE_FIELDS,
+  EXPERIENCE_PAGE_FIELDS,
   FILE_FIELDS,
+  HOMEPAGE_SETTINGS_FIELDS,
   PRODUCT_FIELDS,
   PROJECT_FIELDS,
   SITE_FIELDS,
 } from './fields'
 import {
+  homepageExperienceKeys,
+  homepageFeaturedSlugs,
+  homepageProofKeys,
+  homepageSpotlightSlugs,
   mapPortfolio,
   publicPathForFile,
   type PortfolioContent,
@@ -22,14 +28,14 @@ import {
 import type {
   CmsApprovedClaim,
   CmsExperienceEntry,
+  CmsExperiencePageSettings,
+  CmsHomepageSettings,
   CmsPortfolioRaw,
   CmsProduct,
   CmsProject,
   CmsSiteSettings,
   CmsFile,
 } from './types'
-
-export type { PortfolioContent }
 
 let portfolioPromise: Promise<PortfolioContent> | null = null
 
@@ -50,57 +56,94 @@ async function claimsByKeys(
   )
 }
 
+function requireHomepageKeys(list: string[], label: string): string[] {
+  if (!list.length) throw new Error(`homepage_settings.${label} is required`)
+  return list
+}
+
 async function fetchPortfolioRaw(
   config: DirectusClientConfig,
 ): Promise<CmsPortfolioRaw> {
-  const site = await directusGet<CmsSiteSettings>(
-    config,
-    `/items/site_settings?fields=${SITE_FIELDS}`,
-  )
+  const [site, homepageSettings, experiencePage, experience, projects, products, files]
+    = await Promise.all([
+      directusGet<CmsSiteSettings>(
+        config,
+        `/items/site_settings?fields=${SITE_FIELDS}`,
+      ),
+      directusGet<CmsHomepageSettings>(
+        config,
+        `/items/homepage_settings?fields=${HOMEPAGE_SETTINGS_FIELDS}`,
+      ),
+      directusGet<CmsExperiencePageSettings>(
+        config,
+        `/items/experience_page_settings?fields=${EXPERIENCE_PAGE_FIELDS}`,
+      ),
+      directusGet<CmsExperienceEntry[]>(
+        config,
+        `/items/experience_entries`
+        + `?filter[status][_eq]=published`
+        + `&fields=${EXPERIENCE_FIELDS}`
+        + `&sort=sort`
+        + `&limit=-1`,
+      ),
+      directusGet<CmsProject[]>(
+        config,
+        `/items/projects`
+        + `?filter[status][_eq]=published`
+        + `&fields=${PROJECT_FIELDS}`
+        + `&sort=sort`
+        + `&limit=-1`,
+      ),
+      directusGet<CmsProduct[]>(
+        config,
+        `/items/products`
+        + `?filter[status][_eq]=published`
+        + `&fields=${PRODUCT_FIELDS}`
+        + `&sort=sort`
+        + `&limit=-1`,
+      ),
+      directusGet<CmsFile[]>(
+        config,
+        `/files?fields=${FILE_FIELDS}&limit=-1`,
+      ),
+    ])
+
   if (site.status !== 'published') {
     throw new Error('site_settings not published')
   }
+  if (homepageSettings.status !== 'published') {
+    throw new Error('homepage_settings not published')
+  }
+  if (experiencePage.status !== 'published') {
+    throw new Error('experience_page_settings not published')
+  }
 
-  const [experience, projects, products, files] = await Promise.all([
-    directusGet<CmsExperienceEntry[]>(
-      config,
-      `/items/experience_entries`
-      + `?filter[status][_eq]=published`
-      + `&fields=${EXPERIENCE_FIELDS}`
-      + `&sort=sort`
-      + `&limit=-1`,
-    ),
-    directusGet<CmsProject[]>(
-      config,
-      `/items/projects`
-      + `?filter[status][_eq]=published`
-      + `&fields=${PROJECT_FIELDS}`
-      + `&sort=sort`
-      + `&limit=-1`,
-    ),
-    directusGet<CmsProduct[]>(
-      config,
-      `/items/products`
-      + `?filter[status][_eq]=published`
-      + `&fields=${PRODUCT_FIELDS}`
-      + `&sort=sort`
-      + `&limit=-1`,
-    ),
-    directusGet<CmsFile[]>(
-      config,
-      `/files?fields=${FILE_FIELDS}&limit=-1`,
-    ),
-  ])
+  // Fail closed early if M2M lists are empty (Directus may return null/[]).
+  requireHomepageKeys(homepageFeaturedSlugs(homepageSettings), 'featured_projects')
+  requireHomepageKeys(homepageExperienceKeys(homepageSettings), 'experience_preview')
+  requireHomepageKeys(homepageSpotlightSlugs(homepageSettings), 'product_spotlights')
+  const proofKeys = requireHomepageKeys(
+    homepageProofKeys(homepageSettings),
+    'proof_claims',
+  )
 
   const outcomeClaimKeys = experience.flatMap(entry =>
     (entry.outcomes || []).map(o => o.claim_id).filter(Boolean),
   )
-  const proofKeys = site.proof_claim_ids || []
   const claims = await claimsByKeys(config, [...outcomeClaimKeys, ...proofKeys])
 
   await materializeCmsFiles(config, files)
 
-  return { site, experience, projects, products, claims, files }
+  return {
+    site,
+    homepageSettings,
+    experiencePage,
+    experience,
+    projects,
+    products,
+    claims,
+    files,
+  }
 }
 
 /** Committed files in public/ — never overwrite from Directus titles. */

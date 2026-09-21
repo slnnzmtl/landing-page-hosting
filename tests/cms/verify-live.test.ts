@@ -1,30 +1,23 @@
 /**
- * Live Directus inventory check. Skips when DIRECTUS_TOKEN is unset
+ * Live Directus contract check. Skips when DIRECTUS_TOKEN is unset
  * (unit CI / nuxt prepare). Run explicitly with:
  *   pnpm cms:verify
+ *
+ * Asserts published shape and that loadPortfolio/mapPortfolio succeeds —
+ * not a golden-copy diff against TypeScript fixtures. Directus is the
+ * authoring source of truth. Uses the same fetch+map path as generate.
  */
 import { readFileSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { resolveDirectusConfig } from '~/utils/cms/client'
+import { loadPortfolio, resetPortfolioCache } from '~/utils/cms/load'
 import {
-  BUILD_CLAIM_FIELDS,
-  EXPERIENCE_FIELDS,
-  PRODUCT_FIELDS,
-  PROJECT_FIELDS,
-  SITE_FIELDS,
-} from '~/utils/cms/fields'
-import { directusGet, resolveDirectusConfig } from '~/utils/cms/client'
-import { resetPortfolioCache } from '~/utils/cms/load'
-import { mapPortfolio } from '~/utils/cms/map'
-import { cmsPortfolioFixture } from '~/tests/fixtures/cms-portfolio'
-import type {
-  CmsApprovedClaim,
-  CmsExperienceEntry,
-  CmsFile,
-  CmsProduct,
-  CmsProject,
-  CmsSiteSettings,
-} from '~/utils/cms/types'
+  homepageExperienceKeys,
+  homepageFeaturedSlugs,
+  homepageProofKeys,
+  homepageSpotlightSlugs,
+} from '~/utils/cms/map'
 
 function loadEnvFile() {
   const envPath = join(process.cwd(), '.env')
@@ -58,140 +51,78 @@ if (requireLive && !hasToken) {
 
 const describeLive = hasToken && requireLive ? describe : describe.skip
 
-describeLive('live Directus portfolio verification', () => {
-  it('matches seeded inventory and public copy', async () => {
+describeLive('live Directus portfolio contract', () => {
+  it('loads published content that maps into a full homepage payload', async () => {
     resetPortfolioCache()
     const config = resolveDirectusConfig()
+    const mapped = await loadPortfolio(config)
 
-    const site = await directusGet<CmsSiteSettings>(
-      config,
-      `/items/site_settings?fields=${SITE_FIELDS}`,
-    )
+    const { site, homepageSettings, experiencePage } = mapped
     expect(site.status).toBe('published')
+    expect(homepageSettings.status).toBe('published')
+    expect(experiencePage.status).toBe('published')
+    expect(site.person_name?.trim()).toBeTruthy()
+    expect(site.site_name?.trim()).toBeTruthy()
+    expect(site.menu?.length).toBeGreaterThan(0)
+    expect(site.page_copy).toBeTruthy()
+    expect(homepageSettings.proof_heading?.trim()).toBeTruthy()
+    expect(homepageSettings.featured_work_heading?.trim()).toBeTruthy()
+    expect(homepageSettings.flagship_label?.trim()).toBeTruthy()
+    expect(experiencePage.title?.trim()).toBeTruthy()
+    expect(experiencePage.seo_description?.trim()).toBeTruthy()
 
-    const experience = await directusGet<CmsExperienceEntry[]>(
-      config,
-      `/items/experience_entries?filter[status][_eq]=published&fields=${EXPERIENCE_FIELDS}&sort=sort&limit=-1`,
-    )
-    const projects = await directusGet<CmsProject[]>(
-      config,
-      `/items/projects?filter[status][_eq]=published&fields=${PROJECT_FIELDS}&sort=sort&limit=-1`,
-    )
-    const products = await directusGet<CmsProduct[]>(
-      config,
-      `/items/products?filter[status][_eq]=published&fields=${PRODUCT_FIELDS}&sort=sort&limit=-1`,
-    )
+    expect(mapped.experience.length).toBeGreaterThan(0)
+    expect(mapped.projects.length).toBeGreaterThan(0)
+    expect(mapped.products.length).toBeGreaterThan(0)
 
-    const expectedExperienceKeys = cmsPortfolioFixture.experience.map(e => e.key)
-    const expectedProjectSlugs = cmsPortfolioFixture.projects.map(p => p.slug)
-    const expectedProductSlugs = cmsPortfolioFixture.products.map(p => p.slug)
+    const featuredSlugs = homepageFeaturedSlugs(homepageSettings)
+    const spotlightSlugs = homepageSpotlightSlugs(homepageSettings)
+    const previewKeys = homepageExperienceKeys(homepageSettings)
+    const proofKeys = homepageProofKeys(homepageSettings)
 
-    expect(experience.map(e => e.key)).toEqual(expectedExperienceKeys)
-    expect(projects.map(p => p.slug)).toEqual(expectedProjectSlugs)
-    expect(products.map(p => p.slug)).toEqual(expectedProductSlugs)
-    expect(projects.some(p => p.slug === 'rekordbox-playlist-converter')).toBe(false)
+    expect(featuredSlugs.length).toBeGreaterThan(0)
+    expect(spotlightSlugs.length).toBeGreaterThan(0)
+    expect(previewKeys.length).toBeGreaterThan(0)
+    expect(proofKeys.length).toBeGreaterThan(0)
 
-    const rekordbox = products.find(p => p.slug === 'rekordbox-playlist-converter')
-    expect(rekordbox?.logo).toBeTruthy()
-    expect(rekordbox?.guide).toBeTruthy()
-    expect(rekordbox?.launch).toBeTruthy()
+    const projectSlugs = new Set(mapped.projects.map(p => p.slug))
+    const productSlugs = new Set(mapped.products.map(p => p.slug))
+    const experienceKeys = new Set(mapped.experience.map(e => e.id))
 
-    const upwork = projects.find(p => p.slug === 'upwork-reputation-team')
-    expect(upwork?.experience_id).toBeTruthy()
-
-    expect(site.featured_project_slugs).toEqual(expectedProjectSlugs)
-    expect(site.product_spotlight_slugs).toEqual(expectedProductSlugs)
-    expect(site.proof_claim_ids).toEqual(cmsPortfolioFixture.site.proof_claim_ids)
-    expect(site.person_name).toBe(cmsPortfolioFixture.site.person_name)
-    expect(site.person_role).toBe(cmsPortfolioFixture.site.person_role)
-    expect(site.value_proposition).toBe(cmsPortfolioFixture.site.value_proposition)
-    expect(site.contact_email).toBe(cmsPortfolioFixture.site.contact_email)
-    expect(site.menu?.map(item => item.label)).toEqual(
-      cmsPortfolioFixture.site.menu?.map(item => item.label),
-    )
-    expect(site.menu?.map(item => item.href)).toEqual(
-      cmsPortfolioFixture.site.menu?.map(item => item.href),
-    )
-    expect(site.site_name).toBe(cmsPortfolioFixture.site.site_name)
-    expect(site.seo_title).toBe(cmsPortfolioFixture.site.seo_title)
-    expect(site.seo_description).toBe(cmsPortfolioFixture.site.seo_description)
-    expect(site.page_copy?.experience.title).toBe(
-      cmsPortfolioFixture.site.page_copy?.experience.title,
-    )
-    expect(site.page_copy?.products_index.item_cta).toBe(
-      cmsPortfolioFixture.site.page_copy?.products_index.item_cta,
-    )
-    expect(site.page_copy?.contact.card_heading).toBe(
-      cmsPortfolioFixture.site.page_copy?.contact.card_heading,
-    )
-    expect(site.page_copy?.product_detail.trust_heading).toBe(
-      cmsPortfolioFixture.site.page_copy?.product_detail.trust_heading,
-    )
-
-    for (const expected of cmsPortfolioFixture.projects) {
-      const live = projects.find(p => p.slug === expected.slug)
-      expect(live?.name).toBe(expected.name)
-      expect(live?.problem).toBe(expected.problem)
-      expect(live?.role).toBe(expected.role)
-      expect(live?.contribution).toBe(expected.contribution)
-      expect(live?.outcome).toBe(expected.outcome)
+    for (const slug of featuredSlugs) {
+      expect(projectSlugs.has(slug)).toBe(true)
+    }
+    for (const slug of spotlightSlugs) {
+      expect(productSlugs.has(slug)).toBe(true)
+    }
+    for (const key of previewKeys) {
+      expect(experienceKeys.has(key)).toBe(true)
     }
 
-    for (const expected of cmsPortfolioFixture.experience) {
-      const live = experience.find(e => e.key === expected.key)
-      expect(live?.organization).toBe(expected.organization)
-      expect(live?.title).toBe(expected.title)
-      expect(live?.start).toBe(expected.start)
-      expect(live?.end ?? null).toBe(expected.end ?? null)
+    // Products catalog must not overlap project case slugs.
+    for (const product of mapped.products) {
+      expect(projectSlugs.has(product.slug)).toBe(false)
+      expect(product.logo).toBeTruthy()
     }
 
-    const claimKeys = [
-      ...cmsPortfolioFixture.site.proof_claim_ids,
-      ...experience.flatMap(e => (e.outcomes || []).map(o => o.claim_id).filter(Boolean)),
-    ]
-    const uniqueClaimKeys = [...new Set(claimKeys)]
-    const claims = await directusGet<CmsApprovedClaim[]>(
-      config,
-      `/items/approved_claims?filter[status][_eq]=published&filter[key][_in]=${uniqueClaimKeys.map(encodeURIComponent).join(',')}&fields=${BUILD_CLAIM_FIELDS}&limit=-1`,
-    )
-    const files = await directusGet<CmsFile[]>(
-      config,
-      `/files?fields=id,filename_download,title&limit=-1`,
-    )
-    expect(files.map(f => f.title).filter(Boolean)).toEqual(
-      expect.arrayContaining([
-        '/favicon.ico',
-        '/favicon-16x16.png',
-        '/favicon-32x32.png',
-        '/apple-touch-icon.png',
-        '/images/experience/upwork.png',
-      ]),
-    )
+    const claimKeySet = new Set(mapped.claims.map(c => c.key))
+    for (const key of proofKeys) {
+      expect(claimKeySet.has(key)).toBe(true)
+    }
 
-    const mapped = mapPortfolio(
-      { site, experience, projects, products, claims, files },
-      config,
-    )
     const serialized = JSON.stringify(mapped)
     expect(serialized).not.toMatch(/evidence_origin|evidence_note|confidentiality_notes|private_evidence/)
-    expect(mapped.homepage.proof).toHaveLength(4)
+
+    expect(mapped.homepage.navItems.length).toBeGreaterThan(0)
+    expect(mapped.homepage.proof.length).toBeGreaterThan(1)
+    expect(mapped.homepage.proofHeading).toBe(homepageSettings.proof_heading)
+    expect(mapped.homepage.featuredWorkHeading).toBe(homepageSettings.featured_work_heading)
+    expect(mapped.homepage.flagshipLabel).toBe(homepageSettings.flagship_label)
+    expect(mapped.homepage.featuredCases.length).toBe(featuredSlugs.length)
     expect(mapped.homepage.featuredCases[0]?.featured).toBe(true)
-    expect(mapped.homepage.navItems.map(item => item.label)).toEqual([
-      'Work',
-      'Experience',
-      'Products',
-      'Contact',
-      'GitHub',
-    ])
-    expect(mapped.homepage.products.items[0]?.image.src).toBe(
-      '/projects/rekordbox-playlist-converter/macos-app-main-window.webp',
-    )
-    expect(mapped.homepage.siteName).toBe('Kazansky.dev')
-    expect(mapped.homepage.pageCopy.products_index.spotlight_cta).toBe('View product')
-    expect(mapped.experience.find(r => r.id === 'upwork-reputation-team')?.icon).toBe(
-      '/images/experience/upwork.png',
-    )
-    expect(mapped.products).toHaveLength(1)
-    expect(mapped.experience).toHaveLength(9)
+    expect(mapped.homepage.products.items.length).toBe(spotlightSlugs.length)
+    expect(mapped.homepage.siteName).toBe(site.site_name)
+    expect(mapped.products.length).toBe(productSlugs.size)
+    expect(mapped.experiencePage.title).toBe(experiencePage.title)
   }, 60_000)
 })

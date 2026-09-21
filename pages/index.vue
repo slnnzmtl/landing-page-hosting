@@ -1,25 +1,11 @@
 <script setup lang="ts">
-import { homepageSeo, resolveSiteUrl } from '~/domains/projects/utils/seo'
-import { usePageSeo } from '~/domains/projects/composables/usePageSeo'
+import { homepageSeo, resolveSiteUrl } from '~/utils/seo'
 
 useHashScroll()
 useContactHashRoute()
 
-const { data: portfolio, error } = await usePortfolio()
-if (error.value) {
-  throw createError({
-    statusCode: 500,
-    statusMessage: error.value.message || 'Failed to load portfolio content',
-  })
-}
-if (!portfolio.value) {
-  throw createError({
-    statusCode: 500,
-    statusMessage: 'Portfolio content missing',
-  })
-}
-
-const home = portfolio.value.homepage
+const portfolio = await requirePortfolio()
+const home = portfolio.homepage
 const siteUrl = resolveSiteUrl(useRuntimeConfig().public.siteUrl as string)
 usePageSeo(homepageSeo(siteUrl, home), home.siteName)
 </script>
@@ -43,7 +29,7 @@ usePageSeo(homepageSeo(siteUrl, home), home.siteName)
           id="proof-heading"
           class="text-xs font-semibold uppercase tracking-wide text-primary sm:text-sm"
         >
-          Selected outcomes
+          {{ home.proofHeading }}
         </h2>
         <ul class="mt-4 flex flex-row flex-wrap gap-x-3 gap-y-4 sm:mt-4 sm:grid sm:grid-cols-2 sm:gap-8 lg:grid-cols-4">
           <li
@@ -62,7 +48,9 @@ usePageSeo(homepageSeo(siteUrl, home), home.siteName)
       </section>
 
       <HomeSelectedWork
+        :heading="home.featuredWorkHeading"
         :intro="home.featuredWorkIntro"
+        :flagship-label="home.flagshipLabel"
         :cases="home.featuredCases"
       />
 

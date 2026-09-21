@@ -5,22 +5,16 @@ export interface CmsLink {
   href: string
 }
 
+/** Tenure chips on site_settings (page intro lives on experience_page_settings). */
 export interface CmsProfessionalTenure {
   short: string
   label: string
   heroSubtitle: string
   softwareEngineeringSince: string
-  pageIntro: string
 }
 
-/** Nested UI chrome from site_settings.page_copy (snake_case matches Directus JSON). */
+/** Nested UI chrome from site_settings.page_copy — products + contact only. */
 export interface CmsPageCopy {
-  experience: {
-    title: string
-    seo_description: string
-    back_label: string
-    back_href: string
-  }
   products_index: {
     title: string
     description: string
@@ -46,27 +40,13 @@ export interface CmsPageCopy {
   }
 }
 
+/** Identity, contact, SEO, menu — site_settings singleton. */
 export interface CmsSiteSettings {
   status: DirectusStatus
   person_name: string
   person_role: string
   value_proposition: string
   professional_tenure: CmsProfessionalTenure
-  primary_ctas: CmsLink[]
-  profile_links: CmsLink[]
-  hero_focus: {
-    heading: string
-    items: Array<{ title: string, summary: string }>
-  }
-  featured_work_intro: string
-  featured_project_slugs: string[]
-  experience_preview_heading: string
-  experience_preview_ids: string[]
-  experience_preview_cta: CmsLink
-  products_heading: string
-  products_description: string
-  product_spotlight_slugs: string[]
-  proof_claim_ids: string[]
   contact_heading: string
   contact_summary: string
   contact_email: string
@@ -77,6 +57,56 @@ export interface CmsSiteSettings {
   seo_title?: string | null
   seo_description?: string | null
   page_copy?: CmsPageCopy | null
+}
+
+/** M2M junction rows from Directus REST (`featured_projects.projects_id.slug`, …). */
+export interface CmsM2mProjectRow {
+  projects_id?: { slug?: string } | null
+}
+
+export interface CmsM2mExperienceRow {
+  experience_entries_id?: { key?: string } | null
+}
+
+export interface CmsM2mProductRow {
+  products_id?: { slug?: string } | null
+}
+
+export interface CmsM2mClaimRow {
+  approved_claims_id?: { key?: string } | null
+}
+
+/** Homepage composition — homepage_settings singleton. */
+export interface CmsHomepageSettings {
+  status: DirectusStatus
+  primary_ctas: CmsLink[]
+  profile_links: CmsLink[]
+  hero_focus: {
+    heading: string
+    items: Array<{ title: string, summary: string }>
+  }
+  proof_heading: string
+  featured_work_heading: string
+  featured_work_intro: string
+  flagship_label: string
+  featured_projects: CmsM2mProjectRow[]
+  experience_preview_heading: string
+  experience_preview: CmsM2mExperienceRow[]
+  experience_preview_cta: CmsLink
+  products_heading: string
+  products_description: string
+  product_spotlights: CmsM2mProductRow[]
+  proof_claims: CmsM2mClaimRow[]
+}
+
+/** /experience page chrome — experience_page_settings singleton. */
+export interface CmsExperiencePageSettings {
+  status: DirectusStatus
+  title: string
+  page_intro: string
+  back_label: string
+  back_href: string
+  seo_description: string
 }
 
 export interface CmsFile {
@@ -126,26 +156,13 @@ export interface CmsProject {
   status: DirectusStatus
   sort?: number | null
   name: string
-  track?: string | null
   role?: string | null
-  confidentiality_level?: string | null
-  experience_id?: string | null
   short_description?: string | null
-  description?: string | null
   problem?: string | null
   contribution?: string | null
-  solution?: string | null
   outcome?: string | null
   stack_tags?: string[] | null
-  capability_tags?: string[] | null
   evidence_links?: CmsLink[] | null
-  logo?: string | null
-  social_image?: string | null
-  seo?: {
-    title?: string
-    description?: string
-    titleSuffix?: string
-  } | null
 }
 
 export interface CmsProduct {
@@ -207,6 +224,8 @@ export interface CmsProduct {
 
 export interface CmsPortfolioRaw {
   site: CmsSiteSettings
+  homepageSettings: CmsHomepageSettings
+  experiencePage: CmsExperiencePageSettings
   experience: CmsExperienceEntry[]
   projects: CmsProject[]
   products: CmsProduct[]

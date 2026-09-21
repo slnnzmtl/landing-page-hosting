@@ -1,5 +1,5 @@
 import { setHeader } from 'h3'
-import { buildSitemapXml, resolveSiteUrl } from '../../domains/projects/utils/seo'
+import { buildSitemapXml, resolveSiteUrl } from '../../utils/seo'
 import { resolveDirectusConfig } from '~/utils/cms/client'
 import { loadPortfolio } from '~/utils/cms/load'
 

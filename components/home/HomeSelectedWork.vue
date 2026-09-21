@@ -2,9 +2,17 @@
 import type { FeaturedCase } from '~/data/homepage'
 
 defineProps<{
+  heading: string
   intro: string
+  flagshipLabel: string
   cases: FeaturedCase[]
 }>()
+
+const caseColSpans = ['lg:col-span-7', 'lg:col-span-5', 'lg:col-span-12'] as const
+
+function caseColClass(index: number) {
+  return caseColSpans[index % caseColSpans.length]
+}
 </script>
 
 <template>
@@ -18,7 +26,7 @@ defineProps<{
         id="work-heading"
         class="text-2xl font-semibold"
       >
-        Featured work
+        {{ heading }}
       </h2>
       <p class="mt-3 max-w-2xl text-muted-foreground">
         {{ intro }}
@@ -26,20 +34,15 @@ defineProps<{
     </div>
 
     <div class="mt-10 grid grid-cols-1 gap-5 lg:grid-cols-12">
-      <div class="lg:col-span-7">
-        <HomeFeaturedCaseCard :item="cases[0]" />
-      </div>
       <div
-        v-if="cases[1]"
-        class="lg:col-span-5"
+        v-for="(item, index) in cases"
+        :key="item.slug"
+        :class="caseColClass(index)"
       >
-        <HomeFeaturedCaseCard :item="cases[1]" />
-      </div>
-      <div
-        v-if="cases[2]"
-        class="lg:col-span-12"
-      >
-        <HomeFeaturedCaseCard :item="cases[2]" />
+        <HomeFeaturedCaseCard
+          :item="item"
+          :flagship-label="flagshipLabel"
+        />
       </div>
     </div>
   </section>

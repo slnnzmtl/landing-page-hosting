@@ -6,6 +6,7 @@ import { trackHomepageHref } from '~/composables/useHomepageConversion'
 
 const props = defineProps<{
   item: FeaturedCase
+  flagshipLabel: string
 }>()
 
 const { linkFocus, outboundAttrs } = useHomepageUi()
@@ -48,7 +49,7 @@ const fields = computed(() => [
       v-if="isFlagship"
       class="text-xs font-semibold uppercase tracking-wide text-primary"
     >
-      Flagship case
+      {{ flagshipLabel }}
     </p>
     <h3
       class="text-lg font-semibold leading-snug text-foreground"

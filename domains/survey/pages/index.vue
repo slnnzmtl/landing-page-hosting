@@ -25,27 +25,17 @@ const mounted = ref(false)
 // Always render the same list on SSR and client to avoid hydration diffs
 const surveys = computed(() => rawSurveys)
 
-// Basic heuristic: trending = first 3 (placeholder for future metrics)
-const TRENDING_COUNT = 3
-
 const query = ref('')
-// Potential future category filter placeholder
-const activeFilter = ref<'all' | 'trending'>('all')
 
 const filtered = computed(() => {
-  let list = [...surveys.value]
-  if (activeFilter.value === 'trending') {
-    list = list.slice(0, TRENDING_COUNT)
-  }
-  if (query.value.trim()) {
-    const q = query.value.toLowerCase()
-    list = list.filter(s =>
-      s.title.toLowerCase().includes(q)
-      || s.description.toLowerCase().includes(q)
-      || s.slug.toLowerCase().includes(q),
-    )
-  }
-  return list
+  const list = [...surveys.value]
+  if (!query.value.trim()) return list
+  const q = query.value.toLowerCase()
+  return list.filter(s =>
+    s.title.toLowerCase().includes(q)
+    || s.description.toLowerCase().includes(q)
+    || s.slug.toLowerCase().includes(q),
+  )
 })
 
 const isEmpty = computed(() => filtered.value.length === 0)
@@ -90,9 +80,8 @@ onMounted(() => {
             type="text"
             placeholder="Поиск брифов..."
             aria-label="Поиск брифов"
-            class="w-full rounded-md border bg-background/60 backdrop-blur px-3 py-2 pr-9 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition"
+            class="w-full rounded-md border bg-background/60 backdrop-blur px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition"
           />
-          <span class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground/60 text-sm">⌘K</span>
         </div>
       </div>
     </div>

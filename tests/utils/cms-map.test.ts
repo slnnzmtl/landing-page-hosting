@@ -9,10 +9,10 @@ describe('CMS portfolio mappers', () => {
   const mapped = mapPortfolio(cmsPortfolioFixture, BASE)
 
   it('maps experience contributions and claim-backed outcomes', () => {
-    const upwork = mapped.experience.find(r => r.id === 'upwork-reputation-team')
-    expect(upwork?.contributions[0]).toMatch(/Partner Certified Talent/)
-    expect(upwork?.outcomes[0].text).toMatch(/millions of freelancers/)
-    expect(upwork?.icon).toBe('/images/experience/upwork.png')
+    const role = mapped.experience.find(r => r.id === 'acme-senior-engineer')
+    expect(role?.contributions[0]).toMatch(/CRM-connected/)
+    expect(role?.outcomes[0].text).toMatch(/booking support/)
+    expect(role?.icon).toBe('/images/experience/acme.png')
   })
 
   it('fails closed when site_settings.menu is empty', () => {
@@ -51,26 +51,69 @@ describe('CMS portfolio mappers', () => {
     ).toThrow(/site_settings\.site_name is required/)
   })
 
+  it('fails closed when homepage featured_projects is empty', () => {
+    expect(() =>
+      mapPortfolio(
+        {
+          ...cmsPortfolioFixture,
+          homepageSettings: {
+            ...cmsPortfolioFixture.homepageSettings,
+            featured_projects: [],
+          },
+        },
+        BASE,
+      ),
+    ).toThrow(/homepage_settings\.featured_projects is required/)
+  })
+
+  it('fails closed when homepage chrome headings are missing', () => {
+    expect(() =>
+      mapPortfolio(
+        {
+          ...cmsPortfolioFixture,
+          homepageSettings: {
+            ...cmsPortfolioFixture.homepageSettings,
+            proof_heading: '',
+          },
+        },
+        BASE,
+      ),
+    ).toThrow(/homepage_settings\.proof_heading is required/)
+  })
+
   it('passes through page_copy and uses contact / spotlight labels from it', () => {
-    expect(mapped.homepage.siteName).toBe('Kazansky.dev')
-    expect(mapped.homepage.pageCopy.contact.card_heading).toBe('Get in touch')
-    expect(mapped.homepage.contact.email.label).toBe('Email')
-    expect(mapped.homepage.contact.telegram.label).toBe('Telegram')
-    expect(mapped.homepage.products.items[0]?.cta.label).toBe('View product')
-    expect(mapped.homepage.seoTitle).toBe(
-      'Daniel Kazansky | AI-Native Full-Stack Engineer',
+    expect(mapped.homepage.siteName).toBe(cmsPortfolioFixture.site.site_name)
+    expect(mapped.homepage.pageCopy.contact.card_heading).toBe(
+      cmsPortfolioFixture.site.page_copy!.contact.card_heading,
+    )
+    expect(mapped.homepage.contact.email.label).toBe(
+      cmsPortfolioFixture.site.page_copy!.contact.email_label,
+    )
+    expect(mapped.homepage.contact.telegram.label).toBe(
+      cmsPortfolioFixture.site.page_copy!.contact.telegram_label,
+    )
+    expect(mapped.homepage.products.items[0]?.cta.label).toBe(
+      cmsPortfolioFixture.site.page_copy!.products_index.spotlight_cta,
+    )
+    expect(mapped.homepage.seoTitle).toBe(cmsPortfolioFixture.site.seo_title)
+    expect(mapped.homepage.proofHeading).toBe(
+      cmsPortfolioFixture.homepageSettings.proof_heading,
+    )
+    expect(mapped.homepage.featuredWorkHeading).toBe(
+      cmsPortfolioFixture.homepageSettings.featured_work_heading,
+    )
+    expect(mapped.homepage.flagshipLabel).toBe(
+      cmsPortfolioFixture.homepageSettings.flagship_label,
     )
   })
 
   it('seeds sidebar nav from site_settings.menu', () => {
-    expect(mapped.homepage.navItems.map(item => item.label)).toEqual([
-      'Work',
-      'Experience',
-      'Products',
-      'Contact',
-      'GitHub',
-    ])
-    expect(mapped.homepage.navItems[4]?.href).toBe('https://github.com/slnnzmtl')
+    expect(mapped.homepage.navItems.map(item => item.label)).toEqual(
+      cmsPortfolioFixture.site.menu!.map(item => item.label),
+    )
+    expect(mapped.homepage.navItems[4]?.href).toBe(
+      cmsPortfolioFixture.site.menu![4]!.href,
+    )
   })
 
   it('rewrites leftover /projects catalog hrefs from CMS copy without touching media paths', () => {
@@ -104,31 +147,27 @@ describe('CMS portfolio mappers', () => {
     ])
     expect(result.homepage.pageCopy.product_detail.back_href).toBe('/products')
     expect(result.homepage.products.items[0]?.image.src).toContain(
-      '/projects/rekordbox-playlist-converter/',
+      '/projects/sample-converter/',
     )
   })
 
   it('rewrites product screenshots to Directus assets via file titles', () => {
     const image = mapped.homepage.products.items[0]?.image
-    expect(image?.src).toBe(
-      '/projects/rekordbox-playlist-converter/macos-app-main-window.webp',
-    )
+    expect(image?.src).toBe('/projects/sample-converter/main-window.webp')
     const logo = mapped.products[0]?.logo
-    expect(logo?.src).toContain('simple-rekordbox-converter-logo.webp')
-    expect(logo?.srcThumb).toContain('simple-rekordbox-converter-logo-256w.webp')
+    expect(logo?.src).toContain('sample-converter-logo.webp')
+    expect(logo?.srcThumb).toContain('sample-converter-logo-256w.webp')
   })
 
   it('builds proof chips from tenure plus claim wording', () => {
     expect(mapped.homepage.proof).toEqual([
-      { value: '8+', label: 'years across digital products' },
-      { value: 'Millions', label: 'Marketplace products serving millions' },
-      { value: '10M+', label: 'analytics data points' },
-      { value: '25%', label: 'higher onboarding completion' },
+      { value: '5+', label: 'years across digital products' },
+      { value: '10K+', label: 'active users on platform tools' },
     ])
   })
 
   it('marks only the first featured case as flagship', () => {
-    expect(mapped.homepage.featuredCases.map(c => c.featured)).toEqual([true, false, false])
+    expect(mapped.homepage.featuredCases.map(c => c.featured)).toEqual([true, false])
   })
 
   it('omits featured-case href when evidence_links are missing', () => {
@@ -138,9 +177,9 @@ describe('CMS portfolio mappers', () => {
       {
         ...cmsPortfolioFixture,
         projects: [{ ...project!, evidence_links: null }],
-        site: {
-          ...cmsPortfolioFixture.site,
-          featured_project_slugs: [project!.slug],
+        homepageSettings: {
+          ...cmsPortfolioFixture.homepageSettings,
+          featured_projects: [{ projects_id: { slug: project!.slug } }],
         },
       },
       BASE,
@@ -153,7 +192,7 @@ describe('CMS portfolio mappers', () => {
 
   it('uses guide screenshot for product spotlight image', () => {
     const image = mapped.homepage.products.items[0]?.image
-    expect(image?.src).toContain('macos-app-main-window.webp')
+    expect(image?.src).toContain('main-window.webp')
   })
 
   it('fails closed when a product spotlight has no guide image', () => {

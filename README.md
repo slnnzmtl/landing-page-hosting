@@ -1,6 +1,6 @@
 # landing-hosting
 
-A Nuxt 3 + Vue 3 multi-domain app for landing pages, public product pages, JSON-driven surveys, and service marketing pages. Domains are Nuxt layers under `domains/`, with Tailwind UI, Zod validation, and static generation for Vercel. Personal finance lives in the sibling [`personal-finance`](../personal-finance) app.
+A Nuxt 3 + Vue 3 multi-domain app for landing pages, public product pages, JSON-driven surveys, and service marketing pages. Domains are Nuxt layers under `domains/`, with Tailwind UI and static generation for Vercel. Personal finance lives in the sibling [`personal-finance`](../personal-finance) app.
 
 - **Live site:** https://kazansky.dev
 - **Repository:** https://github.com/slnnzmtl/landing-hosting
@@ -10,7 +10,6 @@ A Nuxt 3 + Vue 3 multi-domain app for landing pages, public product pages, JSON-
 - **Framework:** Nuxt 3 (multi-layer via `extends`)
 - **Frontend:** Vue 3 + TypeScript
 - **Styling:** Tailwind CSS (+ forms plugin)
-- **Validation:** Zod
 - **Charting:** Chart.js (service demos)
 - **Testing:** Vitest + Vue Test Utils
 - **Linting:** ESLint (+ lint-staged + Husky)
@@ -42,7 +41,7 @@ Each domain lives under `domains/<name>/` as a Nuxt layer. Page routes are prefi
 ```text
 .
 ├─ components/ui/                 # Shared UI primitives
-├─ composables/                   # Root composables (usePortfolio, useForm, …)
+├─ composables/                   # Root composables (usePortfolio, …)
 ├─ data/                          # Homepage/experience view types + helpers
 ├─ domains/
 │  ├─ projects/
@@ -58,6 +57,7 @@ Each domain lives under `domains/<name>/` as a Nuxt layer. Page routes are prefi
 │     ├─ pages/                   # Landing pages → /service/*
 │     └─ service-routes.ts
 ├─ utils/cms/                     # Directus build reader (client, fields, map, load)
+├─ utils/seo.ts                   # Site-wide SEO, sitemap, robots
 ├─ pages/index.vue                # Homepage
 ├─ utils/prefix-domain-pages.ts   # Domain path prefixing
 ├─ tests/                         # Vitest suites
@@ -87,9 +87,11 @@ DIRECTUS_TOKEN=
 
 `NUXT_PUBLIC_SITE_URL` (or `SITE_URL`) is the production origin used for canonical URLs, Open Graph tags, `sitemap.xml`, and `robots.txt`. Do not set this to a Vercel preview hostname. If unset, it defaults to `https://kazansky.dev`. Set this on Vercel production to `https://kazansky.dev` (apex). `www.kazansky.dev` and `daniel.kazansky.dev` should redirect to the apex; do not use `www` as the canonical host.
 
-`DIRECTUS_URL` and `DIRECTUS_TOKEN` are **server-only** (never `NUXT_PUBLIC_*`). The static build (`nuxt generate`) loads published portfolio content from Directus at build time. A missing token or failed published-content fetch **fails the new build**; the currently deployed site stays up. Directus is the canonical source for homepage, experience, and product copy after cutover — do not dual-author in TypeScript.
+`DIRECTUS_URL` and `DIRECTUS_TOKEN` are **server-only** (never `NUXT_PUBLIC_*`). Use a Directus **static token** (Settings → Access Tokens) for a build-reader role with read access to published `site_settings`, `homepage_settings`, `experience_page_settings`, `experience_entries`, `projects`, `products`, `approved_claims`, and `files` (plus the `homepage_settings_*` junction collections) — not a session JWT (those expire and return `INVALID_CREDENTIALS`). Paste the token into Vercel without wrapping quotes. A missing token or failed published-content fetch **fails `nuxt generate`**; the currently deployed site stays up. `pnpm install` / `nuxt prepare` do not call Directus. Directus is the only authoring source for homepage, experience, and product copy — do not dual-author in TypeScript. CMS edits appear only after the next successful generate (git push, manual redeploy, or the Directus → Vercel deploy hook below).
 
-Verify CMS inventory and public copy against the golden seed:
+`homepage_settings` must include chrome strings `proof_heading`, `featured_work_heading`, and `flagship_label` (in addition to composition fields). Grant the build-reader role read access to those fields.
+
+Verify the live Directus contract (published singletons, M2M links resolve, `mapPortfolio` succeeds):
 
 ```bash
 pnpm cms:verify
@@ -111,7 +113,7 @@ App runs at `http://localhost:3000` by default.
 - `pnpm dev` — Start dev server
 - `pnpm build` / `pnpm generate` — Static generate (`nuxt generate`); requires `DIRECTUS_TOKEN`
 - `pnpm preview` — Preview production build
-- `pnpm cms:verify` — Diff published Directus content against the golden seed fixture
+- `pnpm cms:verify` — Live Directus contract check (published shape + mapPortfolio; not a TypeScript golden dump)
 - `pnpm test` — Vitest watch mode
 - `pnpm test:run` — Run tests once
 - `pnpm test:ui` — Vitest UI
@@ -124,7 +126,7 @@ Nuxt can drop a layer page when another layer already owns the same route name (
 ### Add another selected product
 
 1. Create a published `products` row in Directus (slug, copy, links, optional gallery/media, optional `github` repo for the releases feed).
-2. Add the slug to `site_settings.product_spotlight_slugs` if it should appear on the homepage.
+2. Add the product to `homepage_settings.product_spotlights` (M2M) if it should appear on the homepage.
 3. Upload walkthrough media to Directus Files and set each file’s `title` to the public path used in guide JSON (for example `/projects/<slug>/shot.webp`). Dev and generate write those files into `public/` (gitignored except `u.js`). Media paths stay under `/projects/<slug>/` even though catalog pages live at `/products`.
 4. Ensure `site_settings.menu` Products href and `page_copy.product_detail.back_href` point at `/products` (not `/projects`).
 5. `nuxt generate` discovers published product slugs from Directus for prerender, sitemap, and JSON-LD. No new page file is required.
@@ -190,6 +192,20 @@ pnpm preview
 `vercel.json` builds with `@vercel/static-build` (`distDir: .output/public`). Known files (including prerendered `/products/*` and media under `/projects/*`) are served from the filesystem. Unknown `/products/*` and `/projects/*` page paths return `404.html` (product media files still match the filesystem first). Legacy `/finance` and `/login` also return `404.html`. `/service/**` falls back to `/200.html` for the client-only service layer. All other unmatched paths return `404.html`.
 
 Set `SURVEY_WEBHOOK_URL` in the Vercel project environment for survey submissions. Set `NUXT_PUBLIC_SITE_URL` to the production origin for canonical/social URLs. Set **`DIRECTUS_TOKEN`** (and optionally `DIRECTUS_URL`) as server-only build env vars so `nuxt generate` can read published portfolio content. Deploy finance separately via `personal-finance`.
+
+### Refresh CMS content without a git push
+
+Because the site is fully static, published Directus changes do not appear on kazansky.dev until another `nuxt generate` runs. A successful CMS-triggered Vercel deploy is enough — no git commit is required. Typical delay is the usual generate time (about 1–3 minutes). After the deploy finishes, hard-refresh the page if a tab still shows the previous payload.
+
+1. **Vercel deploy hook** — Project → Settings → Git → Deploy Hooks. Create a hook (e.g. `directus-content`) on `main`. Copy the URL (`https://api.vercel.com/v1/integrations/deploy/...`) and treat it as a secret.
+2. **Directus Flow** — Settings → Flows → new flow with an **Event Hook** trigger on:
+   - `items.create` / `items.update` / `items.delete` for `site_settings`, `homepage_settings`, `experience_page_settings`, `experience_entries`, `projects`, `products`, `approved_claims`
+   - `files.upload` / `files.update` when replacing media whose `title` is already a public path under `/projects/...`
+3. **Action** — Webhook / Request URL: `POST` to the deploy hook (empty body is fine).
+4. **Filter noise** — Prefer firing when `status` is `published`, or when status changes away from published (unpublish/delete must rebuild too). Skip draft-only saves if the Flow filter allows it. Vercel queues overlapping deploys when many items are saved in a burst; optional: add a short Flow delay if you often edit many rows at once.
+5. Confirm Vercel still has a valid **static** `DIRECTUS_TOKEN` (and `DIRECTUS_URL` if not using the default). Generate fails closed if the token is missing or Directus returns `INVALID_CREDENTIALS` (expired/revoked token, or a session JWT). Recreate the static token in Directus and update the Vercel env var, then redeploy.
+
+Smoke-check: `curl -X POST '<deploy-hook-url>'` (or Directus Flow test) → Vercel production deploy starts → change a published homepage field → wait for deploy → hard-refresh `/`. Unpublish or add a product slug and confirm 404 or the new `/products/:slug` page.
 
 The portfolio homepage, `/experience`, and `/products` are indexable (`index, follow`) with canonical URLs, Open Graph tags, and JSON-LD (Person, WebSite, CreativeWork / SoftwareApplication). Survey and service routes remain `noindex`.
 

@@ -6,23 +6,16 @@ import GithubReleases from '../components/GithubReleases.vue'
 import ProjectLaunchActions from '../components/ProjectLaunchActions.vue'
 import ProjectTrustPanel from '../components/ProjectTrustPanel.vue'
 import ProjectHowItWorks from '../components/ProjectHowItWorks.vue'
-import { usePageSeo } from '../composables/usePageSeo'
-import { projectDetailSeo, resolveSiteUrl } from '../utils/seo'
+import { resolveSiteUrl } from '~/utils/seo'
+import { projectDetailSeo } from '../utils/project-seo'
 
 const { outboundAttrs } = useHomepageUi()
 
 const route = useRoute()
 const slug = String(route.params.slug || '')
 
-const { data: portfolio, error } = await usePortfolio()
-if (error.value) {
-  throw createError({
-    statusCode: 500,
-    statusMessage: error.value.message || 'Failed to load portfolio content',
-  })
-}
-
-const project = (portfolio.value?.products || []).find(p => p.slug === slug)
+const portfolio = await requirePortfolio()
+const project = portfolio.products.find(p => p.slug === slug)
 
 if (!project) {
   throw createError({
@@ -31,7 +24,7 @@ if (!project) {
   })
 }
 
-const home = portfolio.value!.homepage
+const home = portfolio.homepage
 const pageCopy = home.pageCopy
 const detail = pageCopy.product_detail
 const siteUrl = resolveSiteUrl(useRuntimeConfig().public.siteUrl as string)

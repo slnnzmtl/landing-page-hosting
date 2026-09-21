@@ -1,25 +1,12 @@
 <script setup lang="ts">
 import AppPageHeader from '~/components/AppPageHeader.vue'
+import { resolveSiteUrl } from '~/utils/seo'
 import { projectPath } from '../data/types'
-import { usePageSeo } from '../composables/usePageSeo'
-import { projectsIndexSeo, resolveSiteUrl } from '../utils/seo'
+import { projectsIndexSeo } from '../utils/project-seo'
 
-const { data: portfolio, error } = await usePortfolio()
-if (error.value) {
-  throw createError({
-    statusCode: 500,
-    statusMessage: error.value.message || 'Failed to load portfolio content',
-  })
-}
-if (!portfolio.value) {
-  throw createError({
-    statusCode: 500,
-    statusMessage: 'Portfolio content missing',
-  })
-}
-
-const projects = portfolio.value.products
-const home = portfolio.value.homepage
+const portfolio = await requirePortfolio()
+const projects = portfolio.products
+const home = portfolio.homepage
 const pageCopy = home.pageCopy
 const personName = home.person.name
 const siteUrl = resolveSiteUrl(useRuntimeConfig().public.siteUrl as string)

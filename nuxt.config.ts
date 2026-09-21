@@ -1,7 +1,7 @@
 import { defineNuxtConfig } from 'nuxt/config'
 import { getSurveyRoutes } from './domains/survey/survey-routes'
 import { getServiceRoutes } from './domains/service/service-routes'
-import { DEFAULT_DIRECTUS_URL } from './utils/cms/client'
+import { DEFAULT_DIRECTUS_URL, shouldFetchCmsPrerenderSlugs } from './utils/cms/client'
 
 /** Build-time only; baked into the Umami script tag (safe to expose in HTML). */
 const umamiWebsiteId = process.env.UMAMI_WEBSITE_ID || process.env.NUXT_UMAMI_WEBSITE_ID || ''
@@ -82,10 +82,8 @@ export default defineNuxtConfig({
   },
   hooks: {
     async 'nitro:config'(nitroConfig) {
-      // Only fetch CMS product slugs when a token is present (generate/dev with CMS).
-      // `nuxt prepare` / Vitest must not require Directus.
-      const token = process.env.DIRECTUS_TOKEN
-      if (!token) return
+      // Generate/dev with a token only. Skip `nuxt prepare` / Vitest / postinstall.
+      if (!shouldFetchCmsPrerenderSlugs()) return
 
       try {
         const { fetchProductSlugs } = await import('./utils/cms/load')

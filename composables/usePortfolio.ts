@@ -2,7 +2,7 @@ import type { PortfolioContent } from '~/utils/cms/map'
 
 export type PortfolioPayload = Pick<
   PortfolioContent,
-  'homepage' | 'experience' | 'products' | 'professionalTenure' | 'productSlugs'
+  'homepage' | 'experience' | 'products' | 'professionalTenure' | 'experiencePage'
 >
 
 /**
@@ -15,4 +15,22 @@ export function usePortfolio() {
     () => $fetch('/api/portfolio'),
     { server: true },
   )
+}
+
+/** Fail closed when portfolio async data is missing or errored. */
+export async function requirePortfolio() {
+  const result = await usePortfolio()
+  if (result.error.value) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: result.error.value.message || 'Failed to load portfolio content',
+    })
+  }
+  if (!result.data.value) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Portfolio content missing',
+    })
+  }
+  return result.data.value
 }

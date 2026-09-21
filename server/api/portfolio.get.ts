@@ -9,6 +9,6 @@ export default defineEventHandler(async () => {
     experience: portfolio.experience,
     products: portfolio.products,
     professionalTenure: portfolio.professionalTenure,
-    productSlugs: portfolio.productSlugs,
+    experiencePage: portfolio.experiencePage,
   }
 })

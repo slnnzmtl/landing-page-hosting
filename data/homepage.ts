@@ -1,6 +1,29 @@
-import type { CmsPageCopy } from '~/utils/cms/types'
-
-export type { CmsPageCopy }
+/** Nested UI chrome for products + contact (mapped from CMS page_copy). */
+export interface PageCopy {
+  products_index: {
+    title: string
+    description: string
+    seo_description: string
+    back_label: string
+    back_href: string
+    item_cta: string
+    spotlight_cta: string
+  }
+  contact: {
+    card_heading: string
+    email_label: string
+    telegram_label: string
+  }
+  product_detail: {
+    kicker: string
+    back_label: string
+    back_href: string
+    benefits_heading_with_stack: string
+    benefits_heading_default: string
+    trust_heading: string
+    download_warning_title: string
+  }
+}
 
 export interface HomepageLink {
   label: string
@@ -84,8 +107,11 @@ export interface HomepageContent {
   primaryCtas: HomepageLink[]
   profileLinks: HomepageLink[]
   heroFocus: HeroFocus
+  proofHeading: string
   proof: ProofItem[]
+  featuredWorkHeading: string
   featuredWorkIntro: string
+  flagshipLabel: string
   featuredCases: FeaturedCase[]
   experiencePreview: ExperiencePreview
   products: ProductsSection
@@ -102,8 +128,8 @@ export interface HomepageContent {
   /** Homepage meta overrides from `seo_title` / `seo_description`. */
   seoTitle?: string
   seoDescription?: string
-  /** Nested UI chrome from Directus `site_settings.page_copy` (passthrough). */
-  pageCopy: CmsPageCopy
+  /** Products + contact chrome from Directus `site_settings.page_copy`. */
+  pageCopy: PageCopy
 }
 
 export type HomepageHrefKind = 'native' | 'route'

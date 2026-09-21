@@ -6,10 +6,10 @@ import {
 } from '~/data/homepage'
 import { homepageExperiencePreview } from '~/data/experience'
 import { CONVERSION_EVENT, trackConversion } from '~/utils/track-conversion'
-import { mapPortfolio } from '~/utils/cms/map'
+import { mapPortfolio, homepageExperienceKeys } from '~/utils/cms/map'
 import { cmsPortfolioFixture } from '~/tests/fixtures/cms-portfolio'
 
-const BASE = { baseUrl: 'https://cms.kazansky.dev' }
+const BASE = { baseUrl: 'https://cms.example.test' }
 
 describe('homepage content model (CMS-mapped)', () => {
   const { homepage: published, experience, professionalTenure: tenure } = mapPortfolio(
@@ -17,50 +17,39 @@ describe('homepage content model (CMS-mapped)', () => {
     BASE,
   )
 
-  it('identifies the person, role, and experience for a first-time visitor', () => {
-    expect(published.person.name).toBe('Daniel Kazansky')
-    expect(published.person.role).toBe('AI-Native Full-Stack Engineer')
-    expect(tenure.short).toBe('8+ years')
+  it('passes through person, role, and tenure from CMS', () => {
+    expect(published.person.name).toBe(cmsPortfolioFixture.site.person_name)
+    expect(published.person.role).toBe(cmsPortfolioFixture.site.person_role)
+    expect(tenure.short).toBe(cmsPortfolioFixture.site.professional_tenure.short)
     expect(tenure.heroSubtitle).toBe(
-      '8+ years across digital products and software delivery',
+      cmsPortfolioFixture.site.professional_tenure.heroSubtitle,
     )
-    expect(tenure.heroSubtitle.toLowerCase()).not.toMatch(
-      /8\+ years as a software engineer/,
-    )
-    expect(published.valueProposition).toMatch(/AI-enabled products/)
-    expect(published.valueProposition).toMatch(/APIs, CRMs, databases/)
-    expect(published.valueProposition).toMatch(/8\+ years/)
+    expect(published.valueProposition).toBe(cmsPortfolioFixture.site.value_proposition)
   })
 
-  it('includes flagship and contact CTAs plus GitHub, LinkedIn', () => {
-    expect(published.primaryCtas.map(item => item.href)).toEqual(['#flagship-case', '#contact'])
-    expect(published.primaryCtas[0].label).toBe('View flagship case')
-    expect(published.primaryCtas[1].label).toBe('Discuss a project')
-    const labels = published.profileLinks.map(item => item.label)
-    expect(labels).toEqual(['GitHub', 'LinkedIn'])
-    expect(published.profileLinks.find(item => item.label === 'GitHub')?.href).toBe('https://github.com/slnnzmtl')
-    expect(published.profileLinks.find(item => item.label === 'LinkedIn')?.href).toContain('linkedin.com/in/daniel-kazansky')
+  it('passes through primary CTAs and profile links', () => {
+    expect(published.primaryCtas).toEqual(cmsPortfolioFixture.homepageSettings.primary_ctas)
+    expect(published.profileLinks).toEqual(cmsPortfolioFixture.homepageSettings.profile_links)
   })
 
-  it('publishes a current-focus panel instead of standalone capability cards', () => {
+  it('passes through hero focus and homepage chrome headings', () => {
     expect(published).not.toHaveProperty('capabilities')
-    expect(published.heroFocus.heading).toBe('Current focus')
-    expect(published.heroFocus.items.map(item => item.title)).toEqual([
-      'Agent workflows',
-      'APIs / CRM / data',
-      'Production delivery',
-    ])
+    expect(published.heroFocus).toEqual(cmsPortfolioFixture.homepageSettings.hero_focus)
+    expect(published.proofHeading).toBe(cmsPortfolioFixture.homepageSettings.proof_heading)
+    expect(published.featuredWorkHeading).toBe(
+      cmsPortfolioFixture.homepageSettings.featured_work_heading,
+    )
+    expect(published.flagshipLabel).toBe(cmsPortfolioFixture.homepageSettings.flagship_label)
   })
 
-  it('uses selected-outcomes copy without internal approved-facts wording', () => {
-    expect(published.proof.map(item => `${item.value} ${item.label}`)).toEqual([
-      '8+ years across digital products',
-      'Millions Marketplace products serving millions',
-      '10M+ analytics data points',
-      '25% higher onboarding completion',
+  it('builds proof chips from tenure plus CMS claim keys', () => {
+    expect(published.proof[0]).toEqual({
+      value: '5+',
+      label: cmsPortfolioFixture.site.professional_tenure.label,
+    })
+    expect(published.proof.slice(1).map(item => `${item.value} ${item.label}`)).toEqual([
+      '10K+ active users on platform tools',
     ])
-    expect(published.proof[3].label).not.toMatch(/500\+/)
-    expect(published.proof[1].label.toLowerCase()).not.toMatch(/20m/)
   })
 
   it('does not publish a separate three-track intro', () => {
@@ -69,15 +58,11 @@ describe('homepage content model (CMS-mapped)', () => {
     expect(published).not.toHaveProperty('workSections')
   })
 
-  it('features three cases without professional / independent / open-source taxonomy', () => {
+  it('orders featured cases from homepage M2M slugs', () => {
     expect(published.featuredCases.map(item => item.slug)).toEqual([
-      'ai-appointment-crm-automation',
-      'upwork-reputation-team',
-      'directus-website-builder',
+      'sample-flagship-case',
+      'sample-secondary-case',
     ])
-    expect(published.featuredCases.find(item => item.slug === 'upwork-reputation-team')?.href).toBe(
-      '/experience#upwork-reputation-team',
-    )
     expect(published.featuredCases[0].featured).toBe(true)
     expect(published.featuredCases.filter(item => item.featured)).toHaveLength(1)
     for (const item of published.featuredCases) {
@@ -89,79 +74,69 @@ describe('homepage content model (CMS-mapped)', () => {
     }
   })
 
-  it('spotlights Rekordbox with a guide screenshot, not the product logo', () => {
+  it('spotlights the CMS product with a guide screenshot', () => {
     expect(published.products.items).toHaveLength(1)
-    const rekordbox = published.products.items[0]
-    expect(rekordbox.slug).toBe('rekordbox-playlist-converter')
-    expect(rekordbox.image.src).toContain('macos-app-main-window')
-    expect(rekordbox.cta.href).toBe('/products/rekordbox-playlist-converter')
+    const spotlight = published.products.items[0]
+    expect(spotlight.slug).toBe('sample-converter')
+    expect(spotlight.image.src).toContain('main-window')
+    expect(spotlight.cta.href).toBe('/products/sample-converter')
   })
 
-  it('seeds primary nav from site_settings.menu including GitHub', () => {
-    expect(published.navItems.map(item => `${item.label}:${item.href}`)).toEqual([
-      'Work:/',
-      'Experience:/experience',
-      'Products:/products',
-      'Contact:/#contact',
-      'GitHub:https://github.com/slnnzmtl',
-    ])
+  it('seeds primary nav from site_settings.menu', () => {
+    expect(published.navItems.map(item => `${item.label}:${item.href}`)).toEqual(
+      cmsPortfolioFixture.site.menu!.map(item => `${item.label}:${item.href}`),
+    )
   })
 
   it('derives experience preview chips from CMS preview ids', () => {
-    const chips = homepageExperiencePreview(
-      cmsPortfolioFixture.site.experience_preview_ids,
-      experience,
-    )
-    expect(chips.map(chip => chip.id)).toEqual([
-      'upwork-reputation-team',
-      'subbly-senior-software-developer',
-      'woki-lead-software-developer',
-    ])
+    const previewKeys = homepageExperienceKeys(cmsPortfolioFixture.homepageSettings)
+    const chips = homepageExperiencePreview(previewKeys, experience)
+    expect(chips.map(chip => chip.id)).toEqual(previewKeys)
     expect(published.experiencePreview.items.map(i => i.organization)).toEqual([
-      'Upwork',
-      'Subbly®',
-      'Woki.one',
+      'Acme Corp',
     ])
   })
 
-  it('keeps confidential client details and unapproved metrics out of published copy', () => {
+  it('keeps confidential client details and private fields out of published copy', () => {
     const blob = JSON.stringify(published)
     expect(blob).not.toMatch(/evidence_origin|evidence_note|confidentiality_notes|private_evidence/)
-    expect(blob.toLowerCase()).not.toMatch(/whoppah|smoke alert/)
-    expect(blob).not.toMatch(/3x ROI|40% conversion|70% time saved/)
   })
 
-  it('exposes contact email and telegram with code-owned labels', () => {
-    expect(published.contact.email.label).toBe('Email')
-    expect(published.contact.telegram.label).toBe('Telegram')
-    expect(published.contact.email.href).toBe('mailto:kazanskydaniel@gmail.com')
-    expect(published.contact.telegram.href).toBe('https://t.me/slnnzmtl')
+  it('exposes contact email and telegram with CMS labels', () => {
+    expect(published.contact.email.label).toBe(
+      cmsPortfolioFixture.site.page_copy!.contact.email_label,
+    )
+    expect(published.contact.telegram.label).toBe(
+      cmsPortfolioFixture.site.page_copy!.contact.telegram_label,
+    )
+    expect(published.contact.email.href).toBe('mailto:ada@example.test')
+    expect(published.contact.telegram.href).toBe('https://t.me/ada-example')
   })
 })
 
 describe('homepage href helpers', () => {
   it('classifies native vs route hrefs', () => {
-    expect(homepageHrefKind('https://github.com/slnnzmtl')).toBe('native')
-    expect(homepageHrefKind('mailto:kazanskydaniel@gmail.com')).toBe('native')
+    expect(homepageHrefKind('https://github.com/example-org')).toBe('native')
+    expect(homepageHrefKind('mailto:ada@example.test')).toBe('native')
     expect(homepageHrefKind('#contact')).toBe('native')
     expect(homepageHrefKind('/experience')).toBe('route')
-    expect(homepageHrefKind('/experience#upwork-reputation-team')).toBe('route')
+    expect(homepageHrefKind('/experience#acme-senior-engineer')).toBe('route')
   })
 
   it('opens only http(s) links in a new tab', () => {
     expect(opensInNewTab('https://github.com')).toBe(true)
-    expect(opensInNewTab('mailto:kazanskydaniel@gmail.com')).toBe(false)
+    expect(opensInNewTab('mailto:ada@example.test')).toBe(false)
     expect(opensInNewTab('/products')).toBe(false)
   })
 
   it('maps conversion events for flagship, case, product, and contact', () => {
-    expect(conversionEventName('mailto:kazanskydaniel@gmail.com')).toBe('contact')
-    expect(conversionEventName('https://t.me/slnnzmtl')).toBe('contact')
+    expect(conversionEventName('mailto:ada@example.test')).toBe('contact')
+    expect(conversionEventName('https://t.me/ada-example')).toBe('contact')
     expect(conversionEventName('#contact')).toBe('contact')
     expect(conversionEventName('#flagship-case')).toBe(null)
     expect(conversionEventName('https://github.com/x', { featured: true })).toBe('flagship-case-open')
-    expect(conversionEventName('/experience#upwork', {})).toBe('case-open')
-    expect(conversionEventName('/products/rekordbox-playlist-converter', { product: true })).toBe('product-open')
+    expect(conversionEventName('/experience#acme', {})).toBe('case-open')
+    expect(conversionEventName('/products/sample-converter', { product: true })).toBe('product-open')
   })
 
   it('emits the conversion custom event without PII in detail', () => {
@@ -172,12 +147,12 @@ describe('homepage href helpers', () => {
     }
     window.addEventListener(CONVERSION_EVENT, handler)
     trackConversion('contact')
-    trackConversion('case-open', { slug: 'directus-website-builder' })
+    trackConversion('case-open', { slug: 'sample-flagship-case' })
     window.removeEventListener(CONVERSION_EVENT, handler)
     expect(seen).toEqual([
       { name: 'contact', props: undefined },
-      { name: 'case-open', props: { slug: 'directus-website-builder' } },
+      { name: 'case-open', props: { slug: 'sample-flagship-case' } },
     ])
-    expect(JSON.stringify(seen)).not.toMatch(/mailto:|@gmail|kazanskydaniel/i)
+    expect(JSON.stringify(seen)).not.toMatch(/mailto:|@example\.test|ada@/i)
   })
 })
