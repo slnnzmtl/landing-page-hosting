@@ -3,22 +3,14 @@ import type { HomepageContent } from '~/data/homepage'
 import { useHomepageUi } from '~/composables/useHomepageUi'
 import { trackHomepageHref } from '~/composables/useHomepageConversion'
 
-const props = defineProps<{
+defineProps<{
   contact: HomepageContent['contact']
 }>()
 
-const { linkFocus } = useHomepageUi()
-
-const contactEmailDisplay = computed(() =>
-  props.contact.email.href.replace(/^mailto:/i, ''),
-)
-
-const contactTelegramDisplay = computed(() =>
-  props.contact.telegram.href.replace(/^https?:\/\/t\.me\//i, ''),
-)
+const { linkFocus, outboundAttrs } = useHomepageUi()
 
 function onContactClick(href: string) {
-  trackHomepageHref(href)
+  trackHomepageHref(href, { contact: true })
 }
 </script>
 
@@ -40,28 +32,21 @@ function onContactClick(href: string) {
       </p>
     </div>
     <div class="rounded-3xl border border-dashed border-primary/40 bg-card p-8 shadow-sm">
-      <p>
-        <span class="block text-sm text-muted-foreground">
-          {{ contact.email.label }}
+      <p
+        v-for="(link, index) in contact.links"
+        :key="link.href"
+        :class="index > 0 ? 'mt-4' : undefined"
+      >
+        <span class="block text-base text-muted-foreground">
+          {{ link.label }}
         </span>
         <a
-          :href="contact.email.href"
+          :href="link.href"
+          v-bind="outboundAttrs(link.href)"
           :class="['text-base font-medium text-foreground hover:text-primary', linkFocus]"
-          @click="onContactClick(contact.email.href)"
+          @click="onContactClick(link.href)"
         >
-          {{ contactEmailDisplay }}
-        </a>
-      </p>
-      <p class="mt-6">
-        <span class="block text-sm text-muted-foreground">
-          {{ contact.telegram.label }}
-        </span>
-        <a
-          :href="contact.telegram.href"
-          :class="['text-base font-medium text-foreground hover:text-primary', linkFocus]"
-          @click="onContactClick(contact.telegram.href)"
-        >
-          {{ contactTelegramDisplay }}
+          {{ link.title }}
         </a>
       </p>
     </div>

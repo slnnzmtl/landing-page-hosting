@@ -5,6 +5,7 @@ import type {
 } from '../../data/experience'
 import { homepageExperiencePreview } from '../../data/experience'
 import type {
+  ContactLink,
   FeaturedCase,
   HomepageContent,
   HomepageLink,
@@ -244,32 +245,24 @@ function isEmailHref(href: string): boolean {
   return at > 0 && !href.includes('/') && !href.includes(' ') && at === href.lastIndexOf('@')
 }
 
-function pickContactChannels(links: CmsLink[]): {
-  email: HomepageLink
-  telegram: HomepageLink
-} {
-  const email = links.find(link => isEmailHref(link.href))
-  const telegram = links.find(link =>
-    /^https?:\/\/(?:www\.)?t\.me\//i.test(link.href),
-  )
-  if (!email) {
-    throw new Error('homepage_settings.contact_links requires a mailto/email entry')
+function mapContactLinks(links: CmsLink[] | null | undefined): ContactLink[] {
+  if (!links?.length) {
+    throw new Error('homepage_settings.contact_links is required')
   }
-  if (!telegram) {
-    throw new Error('homepage_settings.contact_links requires a t.me entry')
-  }
-  return {
-    email: {
-      label: email.label,
-      href: email.href.startsWith('mailto:')
-        ? email.href
-        : `mailto:${email.href}`,
-    },
-    telegram: {
-      label: telegram.label,
-      href: telegram.href,
-    },
-  }
+  return links.map((link, index) => {
+    const label = link.label?.trim()
+    const hrefRaw = link.href?.trim()
+    const title = link.title?.trim()
+    if (!label || !hrefRaw || !title) {
+      throw new Error(
+        `homepage_settings.contact_links[${index}] requires label, href, and title`,
+      )
+    }
+    const href = isEmailHref(hrefRaw) && !/^mailto:/i.test(hrefRaw)
+      ? `mailto:${hrefRaw}`
+      : hrefRaw
+    return { label, href, title }
+  })
 }
 
 function mapExperienceRoles(
@@ -517,7 +510,7 @@ function mapHomepageContent(
     throw new Error('homepage_settings.primary_ctas is required')
   }
 
-  const contactChannels = pickContactChannels(homepageSettings.contact_links || [])
+  const contactLinks = mapContactLinks(homepageSettings.contact_links)
   const ogImage = fileImage(
     config,
     catalog,
@@ -563,8 +556,7 @@ function mapHomepageContent(
     contact: {
       heading: homepageSettings.contact_heading,
       summary: homepageSettings.contact_summary,
-      email: contactChannels.email,
-      telegram: contactChannels.telegram,
+      links: contactLinks,
     },
     siteName: site.site_name,
     seoTitle: site.seo_title ?? undefined,

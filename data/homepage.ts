@@ -25,6 +25,11 @@ export interface HomepageLink {
   href: string
 }
 
+export interface ContactLink extends HomepageLink {
+  /** Visible hyperlink text from Directus `contact_links.title`. */
+  title: string
+}
+
 export interface ProofItem {
   value: string
   label: string
@@ -115,8 +120,7 @@ export interface HomepageContent {
   contact: {
     heading: string
     summary: string
-    email: HomepageLink
-    telegram: HomepageLink
+    links: ContactLink[]
   }
   /** From Directus `site_settings.site_name`. */
   siteName: string
@@ -159,9 +163,9 @@ export function isContactHref(href: string): boolean {
 /** Map homepage CTAs to the four Umami events. Hash-only nav anchors return null. */
 export function conversionEventName(
   href: string,
-  options?: { featured?: boolean, product?: boolean },
+  options?: { featured?: boolean, product?: boolean, contact?: boolean },
 ): ConversionEventName | null {
-  if (isContactHref(href)) return 'contact'
+  if (options?.contact || isContactHref(href)) return 'contact'
   if (options?.product) return 'product-open'
   if (options?.featured) return 'flagship-case-open'
   if (href === '#flagship-case') return null

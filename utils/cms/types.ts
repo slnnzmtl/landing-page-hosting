@@ -6,6 +6,8 @@ export type CmsButtonHrefSource = 'static' | 'github_macos_release'
 export interface CmsLink {
   label: string
   href: string
+  /** Optional visible hyperlink text (contact_links). */
+  title?: string | null
 }
 
 /** Reusable CTA / link button from the `buttons` collection. */

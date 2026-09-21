@@ -108,8 +108,10 @@ export const cmsPortfolioFixture: CmsPortfolioRaw = {
     contact_heading: 'Ready to ship?',
     contact_summary: 'I help teams build and ship reliable full-stack systems.',
     contact_links: [
-      { label: 'Email', href: 'mailto:ada@example.test' },
-      { label: 'Telegram', href: 'https://t.me/ada-example' },
+      { label: 'Email', href: 'mailto:ada@example.test', title: 'ada@example.test' },
+      { label: 'Telegram', href: 'https://t.me/ada-example', title: 't.me/ada-example' },
+      { label: 'LinkedIn', href: 'https://www.linkedin.com/in/ada-example/', title: 'linkedin.com/in/ada-example/' },
+      { label: 'GitHub', href: 'https://github.com/example-org', title: 'github.com/example-org' },
     ],
   },
   experiencePage: {

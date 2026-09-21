@@ -3,7 +3,7 @@ import { trackConversion } from '~/utils/track-conversion'
 
 export function trackHomepageHref(
   href: string,
-  options?: { featured?: boolean, product?: boolean, slug?: string },
+  options?: { featured?: boolean, product?: boolean, contact?: boolean, slug?: string },
 ): void {
   const name = conversionEventName(href, options)
   if (!name) return

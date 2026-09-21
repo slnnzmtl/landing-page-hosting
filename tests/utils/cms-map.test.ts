@@ -93,6 +93,52 @@ describe('CMS portfolio mappers', () => {
     ).toThrow(/homepage_settings\.featured_projects is required/)
   })
 
+  it('fails closed when homepage contact_links is empty', () => {
+    expect(() =>
+      mapPortfolio(
+        {
+          ...cmsPortfolioFixture,
+          homepageSettings: {
+            ...cmsPortfolioFixture.homepageSettings,
+            contact_links: [],
+          },
+        },
+        BASE,
+      ),
+    ).toThrow(/homepage_settings\.contact_links is required/)
+  })
+
+  it('fails closed when a contact link is missing title', () => {
+    expect(() =>
+      mapPortfolio(
+        {
+          ...cmsPortfolioFixture,
+          homepageSettings: {
+            ...cmsPortfolioFixture.homepageSettings,
+            contact_links: [{ label: 'Email', href: 'mailto:ada@example.test' }],
+          },
+        },
+        BASE,
+      ),
+    ).toThrow(/contact_links\[0\] requires label, href, and title/)
+  })
+
+  it('normalizes bare email contact hrefs to mailto', () => {
+    const mappedBareEmail = mapPortfolio(
+      {
+        ...cmsPortfolioFixture,
+        homepageSettings: {
+          ...cmsPortfolioFixture.homepageSettings,
+          contact_links: [{ label: 'Email', href: 'ada@example.test', title: 'ada@example.test' }],
+        },
+      },
+      BASE,
+    )
+    expect(mappedBareEmail.homepage.contact.links).toEqual([
+      { label: 'Email', href: 'mailto:ada@example.test', title: 'ada@example.test' },
+    ])
+  })
+
   it('fails closed when homepage chrome headings are missing', () => {
     expect(() =>
       mapPortfolio(
@@ -110,8 +156,12 @@ describe('CMS portfolio mappers', () => {
 
   it('assembles page copy from products_page_settings and spotlight CTA', () => {
     expect(mapped.homepage.siteName).toBe(cmsPortfolioFixture.site.site_name)
-    expect(mapped.homepage.contact.email.label).toBe('Email')
-    expect(mapped.homepage.contact.telegram.label).toBe('Telegram')
+    expect(mapped.homepage.contact.links.map(link => link.label)).toEqual([
+      'Email',
+      'Telegram',
+      'LinkedIn',
+      'GitHub',
+    ])
     expect(mapped.homepage.products.items[0]?.cta.label).toBe(
       cmsPortfolioFixture.homepageSettings.spotlight_cta,
     )

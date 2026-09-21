@@ -109,11 +109,13 @@ describe('homepage content model (CMS-mapped)', () => {
     expect(blob).not.toMatch(/evidence_origin|evidence_note|confidentiality_notes|private_evidence/)
   })
 
-  it('exposes contact email and telegram from homepage contact_links', () => {
-    expect(published.contact.email.label).toBe('Email')
-    expect(published.contact.telegram.label).toBe('Telegram')
-    expect(published.contact.email.href).toBe('mailto:ada@example.test')
-    expect(published.contact.telegram.href).toBe('https://t.me/ada-example')
+  it('exposes ordered contact links from homepage contact_links', () => {
+    expect(published.contact.links).toEqual([
+      { label: 'Email', href: 'mailto:ada@example.test', title: 'ada@example.test' },
+      { label: 'Telegram', href: 'https://t.me/ada-example', title: 't.me/ada-example' },
+      { label: 'LinkedIn', href: 'https://www.linkedin.com/in/ada-example/', title: 'linkedin.com/in/ada-example/' },
+      { label: 'GitHub', href: 'https://github.com/example-org', title: 'github.com/example-org' },
+    ])
   })
 })
 
@@ -136,6 +138,7 @@ describe('homepage href helpers', () => {
     expect(conversionEventName('mailto:ada@example.test')).toBe('contact')
     expect(conversionEventName('https://t.me/ada-example')).toBe('contact')
     expect(conversionEventName('#contact')).toBe('contact')
+    expect(conversionEventName('https://github.com/example-org', { contact: true })).toBe('contact')
     expect(conversionEventName('#flagship-case')).toBe(null)
     expect(conversionEventName('https://github.com/x', { featured: true })).toBe('flagship-case-open')
     expect(conversionEventName('/experience#acme', {})).toBe('case-open')
