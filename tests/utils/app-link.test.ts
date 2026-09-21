@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { hashElementId, isNavItemActive, parseAppLink } from '~/utils/app-link'
+import { hashElementId, isNavItemActive, parseAppLink, splitSiteNav } from '~/utils/app-link'
 
 describe('parseAppLink', () => {
   it('keeps a plain path', () => {
@@ -41,5 +41,27 @@ describe('isNavItemActive', () => {
     expect(isNavItemActive('/products', '/products', '')).toBe(true)
     expect(isNavItemActive('/products', '/products/rekordbox-playlist-converter', '')).toBe(true)
     expect(isNavItemActive('/', '/experience', '')).toBe(false)
+  })
+})
+
+describe('splitSiteNav', () => {
+  it('keeps page routes primary and lifts outbound hosts into utility', () => {
+    expect(splitSiteNav([
+      { label: 'Work', to: '/' },
+      { label: 'Experience', to: '/experience' },
+      { label: 'Products', to: '/products' },
+      { label: 'Contact', to: '/#contact' },
+      { label: 'GitHub', to: 'https://github.com/example-org' },
+    ])).toEqual({
+      pageItems: [
+        { label: 'Work', to: '/' },
+        { label: 'Experience', to: '/experience' },
+        { label: 'Products', to: '/products' },
+        { label: 'Contact', to: '/#contact' },
+      ],
+      utilityItems: [
+        { label: 'GitHub', to: 'https://github.com/example-org' },
+      ],
+    })
   })
 })

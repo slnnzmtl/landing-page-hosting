@@ -1,4 +1,5 @@
 import { ref } from 'vue'
+import { hashElementId } from '~/utils/app-link'
 
 let spyPausedUntil = 0
 
@@ -11,27 +12,59 @@ export function isSilentAnchorSyncPaused(): boolean {
   return Date.now() < spyPausedUntil
 }
 
-/** Address-bar hash written by scroll-spy; Vue Router is left alone so the page does not jump. */
-export const pageHash = ref('')
+/** In-memory nav highlight only — never written to the address bar. */
+export type ActiveSection = '#contact' | ''
 
-export function setPageHash(hash: string): void {
-  pageHash.value = hash
-  if (typeof window === 'undefined') return
-  const next = `${window.location.pathname}${window.location.search}${hash}`
-  const current = `${window.location.pathname}${window.location.search}${window.location.hash}`
-  if (next === current) return
-  const x = window.scrollX
-  const y = window.scrollY
-  window.history.replaceState(window.history.state, '', next)
-  if (window.scrollX !== x || window.scrollY !== y) {
-    window.scrollTo(x, y)
-  }
+export const activeSection = ref<ActiveSection>('')
+
+export function setActiveSection(section: ActiveSection): void {
+  activeSection.value = section
 }
 
-/** Work nav: same-route `/` does not run scrollBehavior, and the spy must not re-attach `#contact`. */
-export function scrollHomeToTop(): void {
+type ReplaceLocation = (to: { path: string, hash: string }) => Promise<unknown>
+
+/**
+ * Always scroll to an in-page anchor. Update the router hash only when it differs,
+ * so same-hash clicks still work and the spy never desyncs Vue Router.
+ */
+export async function scrollToAnchor(
+  hash: string,
+  options: {
+    path?: string
+    currentPath: string
+    currentHash: string
+    replace: ReplaceLocation
+  },
+): Promise<boolean> {
+  const normalized = hash.startsWith('#') ? hash : `#${hash}`
+  const path = options.path ?? options.currentPath
+  const id = hashElementId(normalized)
+  if (!id || typeof document === 'undefined') return false
+
+  const target = document.getElementById(id)
+  if (!target) return false
+
+  pauseSilentAnchorSync()
+  setActiveSection(normalized === '#contact' ? '#contact' : '')
+  target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+
+  if (options.currentPath !== path || options.currentHash !== normalized) {
+    await options.replace({ path, hash: normalized })
+  }
+  return true
+}
+
+/** Work nav: scroll to top and clear the hash via the router when needed. */
+export async function scrollHomeToTop(options?: {
+  currentHash?: string
+  replace?: ReplaceLocation
+}): Promise<void> {
   pauseSilentAnchorSync(1200)
-  setPageHash('')
-  if (typeof window === 'undefined') return
-  window.scrollTo({ top: 0, behavior: 'smooth' })
+  setActiveSection('')
+  if (typeof window !== 'undefined') {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+  if (options?.currentHash && options.replace) {
+    await options.replace({ path: '/', hash: '' })
+  }
 }

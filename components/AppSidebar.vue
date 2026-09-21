@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { opensInNewTab } from '~/data/homepage'
 import { useHomepageUi } from '~/composables/useHomepageUi'
-import { isNavItemActive } from '~/utils/app-link'
-import { pageHash, scrollHomeToTop } from '~/utils/silent-hash'
+import { isNavItemActive, parseAppLink, splitSiteNav } from '~/utils/app-link'
+import { activeSection, scrollHomeToTop, scrollToAnchor } from '~/utils/silent-hash'
 
 const router = useRouter()
 const { linkFocus, outboundAttrs } = useHomepageUi()
@@ -11,22 +11,13 @@ const { data: portfolio } = await usePortfolio()
 const routePath = computed(() => router.currentRoute.value.path)
 const routeHash = computed(() => router.currentRoute.value.hash)
 
-function syncHash() {
-  if (import.meta.client) {
-    pageHash.value = window.location.hash
-  }
-}
 watch(routePath, () => {
   closeMenu()
   burgerHiddenByScroll.value = false
   if (import.meta.client) lastScrollY = window.scrollY
 })
-watch(routeHash, (hash) => {
-  if (import.meta.client && !hash && window.location.hash) return
-  pageHash.value = hash
-})
 
-const currentHash = computed(() => pageHash.value)
+type NavItem = { label: string, to: string }
 
 const navItems = computed(() =>
   (portfolio.value?.homepage.navItems || []).map(item => ({
@@ -34,8 +25,16 @@ const navItems = computed(() =>
     to: item.href,
   })),
 )
-
-type NavItem = { label: string, to: string }
+const groupedNav = computed(() => {
+  const { pageItems, utilityItems } = splitSiteNav(navItems.value)
+  const seen = new Set(utilityItems.map(item => item.to))
+  for (const link of portfolio.value?.homepage.profileLinks || []) {
+    if (seen.has(link.href)) continue
+    utilityItems.push({ label: link.label, to: link.href })
+    seen.add(link.href)
+  }
+  return { pageItems, utilityItems }
+})
 
 const menuOpen = ref(false)
 const burgerHiddenByScroll = ref(false)
@@ -79,10 +78,32 @@ function closeMenu() {
   menuOpen.value = false
 }
 
-function onNavClick(item: NavItem) {
+async function onNavClick(item: NavItem, event: MouseEvent) {
   closeMenu()
-  if (item.to !== '/' || routePath.value !== '/' || !import.meta.client) return
-  scrollHomeToTop()
+  if (!import.meta.client) return
+
+  const { path, hash } = parseAppLink(item.to)
+  const replace = (to: { path: string, hash: string }) => router.replace(to)
+
+  if (path === '/' && !hash) {
+    if (routePath.value !== '/') return
+    event.preventDefault()
+    await scrollHomeToTop({
+      currentHash: routeHash.value,
+      replace,
+    })
+    return
+  }
+
+  if (hash && path === routePath.value) {
+    event.preventDefault()
+    await scrollToAnchor(hash, {
+      path,
+      currentPath: routePath.value,
+      currentHash: routeHash.value,
+      replace,
+    })
+  }
 }
 
 watch(menuOpen, (open) => {
@@ -100,15 +121,12 @@ function onKeydown(event: KeyboardEvent) {
 }
 
 onMounted(() => {
-  syncHash()
   lastScrollY = window.scrollY
-  window.addEventListener('hashchange', syncHash)
   window.addEventListener('keydown', onKeydown)
   window.addEventListener('scroll', onScroll, { passive: true })
 })
 onUnmounted(() => {
   if (!import.meta.client) return
-  window.removeEventListener('hashchange', syncHash)
   window.removeEventListener('keydown', onKeydown)
   window.removeEventListener('scroll', onScroll)
   document.body.style.overflow = ''
@@ -118,19 +136,26 @@ const sidebarLinkFocus = [linkFocus, 'focus-visible:ring-offset-background'].joi
 
 function isActive(item: NavItem) {
   if (opensInNewTab(item.to)) return false
-  return isNavItemActive(item.to, routePath.value, currentHash.value)
+  // Homepage Contact/Work use scroll-spy highlight; other routes use the URL.
+  const hash = routePath.value === '/' ? activeSection.value : routeHash.value
+  return isNavItemActive(item.to, routePath.value, hash)
 }
 
-const linkBase
-  = 'rounded-xl px-3 py-2 text-sm font-medium transition-colors'
-
-function linkClass(item: NavItem) {
+function linkClass(item: NavItem, variant: 'overlay' | 'rail') {
+  const active = isActive(item)
+  if (variant === 'overlay') {
+    return [
+      'rounded-xl px-3 py-2 text-lg font-medium transition-colors',
+      sidebarLinkFocus,
+      active ? 'text-foreground' : 'text-white/70 hover:text-foreground',
+    ]
+  }
   return [
-    linkBase,
+    'relative px-0 py-1.5 text-sm font-medium tracking-wide transition-colors',
     sidebarLinkFocus,
-    isActive(item)
-      ? 'text-xl md:text-sm md:bg-card md:border border-border text-foreground'
-      : 'text-muted-foreground md:hover:bg-card hover:text-foreground',
+    active
+      ? 'text-foreground before:absolute before:-left-3 before:top-1/2 before:h-3.5 before:w-px before:-translate-y-1/2 before:bg-foreground'
+      : 'text-foreground/75 hover:text-foreground',
   ]
 }
 </script>
@@ -183,29 +208,35 @@ function linkClass(item: NavItem) {
           aria-label="Site"
         >
           <template
-            v-for="item in navItems"
+            v-for="item in groupedNav.pageItems"
             :key="item.to"
           >
+            <NuxtLink
+              :to="item.to"
+              class="w-full max-w-xs text-right"
+              :class="linkClass(item, 'overlay')"
+              :aria-current="isActive(item) ? 'page' : undefined"
+              @click="onNavClick(item, $event)"
+            >
+              {{ item.label }}
+            </NuxtLink>
+          </template>
+          <template v-if="groupedNav.utilityItems.length">
+            <div
+              class="my-4 h-px w-full max-w-xs bg-white/15"
+              aria-hidden="true"
+            />
             <a
-              v-if="opensInNewTab(item.to)"
+              v-for="item in groupedNav.utilityItems"
+              :key="item.to"
               :href="item.to"
               v-bind="outboundAttrs(item.to)"
-              class="w-full max-w-xs text-right text-lg"
-              :class="linkClass(item)"
+              class="w-full max-w-xs text-right"
+              :class="linkClass(item, 'overlay')"
               @click="closeMenu"
             >
               {{ item.label }}
             </a>
-            <NuxtLink
-              v-else
-              :to="item.to"
-              class="w-full max-w-xs text-right text-lg"
-              :class="linkClass(item)"
-              :aria-current="isActive(item) ? 'page' : undefined"
-              @click="onNavClick(item)"
-            >
-              {{ item.label }}
-            </NuxtLink>
           </template>
         </nav>
       </Transition>
@@ -218,31 +249,35 @@ function linkClass(item: NavItem) {
     aria-label="Site navigation"
   >
     <nav
-      class="flex h-full flex-col gap-1 px-4 py-8"
+      class="flex h-full flex-col px-5 py-8"
       aria-label="Site"
     >
-      <template
-        v-for="item in navItems"
-        :key="item.to"
-      >
-        <a
-          v-if="opensInNewTab(item.to)"
-          :href="item.to"
-          v-bind="outboundAttrs(item.to)"
-          :class="linkClass(item)"
-        >
-          {{ item.label }}
-        </a>
+      <div class="flex flex-col">
         <NuxtLink
-          v-else
+          v-for="item in groupedNav.pageItems"
+          :key="item.to"
           :to="item.to"
-          :class="linkClass(item)"
+          :class="linkClass(item, 'rail')"
           :aria-current="isActive(item) ? 'page' : undefined"
-          @click="onNavClick(item)"
+          @click="onNavClick(item, $event)"
         >
           {{ item.label }}
         </NuxtLink>
-      </template>
+      </div>
+      <div
+        v-if="groupedNav.utilityItems.length"
+        class="mt-auto flex flex-col"
+      >
+        <a
+          v-for="item in groupedNav.utilityItems"
+          :key="item.to"
+          :href="item.to"
+          v-bind="outboundAttrs(item.to)"
+          :class="linkClass(item, 'rail')"
+        >
+          {{ item.label }}
+        </a>
+      </div>
     </nav>
   </aside>
 </template>

@@ -10,7 +10,7 @@ const showSiteChrome = computed(() => {
 <template>
   <div
     class="relative grid min-h-screen w-full grid-cols-[minmax(0,1fr)] bg-black"
-    :class="showSiteChrome ? 'xl:grid-cols-[13rem_minmax(0,1fr)]' : ''"
+    :class="showSiteChrome ? 'xl:grid-cols-[9.5rem_minmax(0,1fr)]' : ''"
   >
     <a
       href="#main-content"

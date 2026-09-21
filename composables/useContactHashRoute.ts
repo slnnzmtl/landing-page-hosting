@@ -1,21 +1,21 @@
 import { onMounted, onUnmounted } from 'vue'
 import { selectContactHash } from '~/utils/select-contact-hash'
 import {
+  activeSection,
   isSilentAnchorSyncPaused,
-  pageHash,
-  setPageHash,
+  setActiveSection,
 } from '~/utils/silent-hash'
 
 const CONTACT_ID = 'contact'
 
 /**
- * Keep `/` vs `/#contact` aligned with the section in view, without scrolling
- * or pushing history. Clicks that already change the hash still scroll normally.
+ * Keep Contact vs Work nav highlight aligned with the section in view.
+ * Does not touch the address bar — Vue Router owns the URL.
  */
 export function useContactHashRoute() {
   let ticking = false
 
-  function syncHashFromScroll() {
+  function syncSectionFromScroll() {
     if (!import.meta.client) return
     if (isSilentAnchorSyncPaused()) return
 
@@ -23,16 +23,16 @@ export function useContactHashRoute() {
     if (!el) return
 
     const rect = el.getBoundingClientRect()
-    const nextHash = selectContactHash({
+    const next = selectContactHash({
       top: rect.top + window.scrollY,
       bottom: rect.bottom + window.scrollY,
       scrollY: window.scrollY,
       viewportHeight: window.innerHeight,
       documentHeight: document.documentElement.scrollHeight,
-      contactActive: pageHash.value === '#contact',
+      contactActive: activeSection.value === '#contact',
     })
-    if (pageHash.value === nextHash && window.location.hash === nextHash) return
-    setPageHash(nextHash)
+    if (activeSection.value === next) return
+    setActiveSection(next)
   }
 
   function onScroll() {
@@ -40,13 +40,13 @@ export function useContactHashRoute() {
     ticking = true
     requestAnimationFrame(() => {
       ticking = false
-      syncHashFromScroll()
+      syncSectionFromScroll()
     })
   }
 
   onMounted(() => {
     window.addEventListener('scroll', onScroll, { passive: true })
-    syncHashFromScroll()
+    syncSectionFromScroll()
   })
 
   onUnmounted(() => {

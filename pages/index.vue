@@ -12,18 +12,17 @@ usePageSeo(homepageSeo(siteUrl, home), home.siteName)
 
 <template>
   <div class="relative min-h-screen w-full min-w-0 text-foreground">
-    <div class="relative z-10 mx-auto flex w-full min-w-0 max-w-6xl flex-col gap-16 px-4 py-12 sm:px-6 sm:py-20 md:gap-24 lg:px-12">
+    <div class="relative z-10 mx-auto flex w-full min-w-0 max-w-6xl flex-col gap-16 px-6 py-12 pb-28 sm:px-6 sm:py-20 md:gap-24 lg:px-12 xl:pb-20">
       <HomeHero
         :person="home.person"
         :value-proposition="home.valueProposition"
         :primary-ctas="home.primaryCtas"
-        :profile-links="home.profileLinks"
         :hero-focus="home.heroFocus"
       />
 
       <section
         aria-labelledby="proof-heading"
-        class="rounded-2xl border border-border bg-card p-4 shadow-sm sm:rounded-3xl sm:p-8"
+        class="rounded-2xl border border-border bg-card p-6 shadow-sm sm:rounded-3xl sm:p-8"
       >
         <h2
           id="proof-heading"

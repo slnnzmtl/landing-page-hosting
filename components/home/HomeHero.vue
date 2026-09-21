@@ -2,19 +2,29 @@
 import type { HomepageContent, HomepageLink, HeroFocus } from '~/data/homepage'
 import { useHomepageUi } from '~/composables/useHomepageUi'
 import { trackHomepageHref } from '~/composables/useHomepageConversion'
+import { scrollToAnchor } from '~/utils/silent-hash'
 
 defineProps<{
   person: HomepageContent['person']
   valueProposition: string
   primaryCtas: HomepageLink[]
-  profileLinks: HomepageLink[]
   heroFocus: HeroFocus
 }>()
 
+const route = useRoute()
+const router = useRouter()
 const { linkFocus } = useHomepageUi()
 
-function onPrimaryCtaClick(href: string) {
+async function onPrimaryCtaClick(href: string, event: MouseEvent) {
   trackHomepageHref(href)
+  if (!href.startsWith('#')) return
+  event.preventDefault()
+  await scrollToAnchor(href, {
+    path: '/',
+    currentPath: route.path,
+    currentHash: route.hash,
+    replace: to => router.replace(to),
+  })
 }
 
 function ctaClass(index: number) {
@@ -30,32 +40,23 @@ function ctaClass(index: number) {
 </script>
 
 <template>
-  <section class="grid gap-8 lg:grid-cols-12 lg:items-start lg:gap-10">
+  <section class="grid gap-16 lg:grid-cols-12 lg:items-start lg:gap-10">
     <AppPageHeader
       class="lg:col-span-7"
       :kicker="person.name"
       :title="person.role"
       :description="valueProposition"
     >
-      <div class="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-8">
-        <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
-          <a
-            v-for="(cta, index) in primaryCtas"
-            :key="cta.href"
-            :href="cta.href"
-            :class="ctaClass(index)"
-            @click="onPrimaryCtaClick(cta.href)"
-          >
-            {{ cta.label }}
-          </a>
-        </div>
-
-        <nav
-          aria-label="Profiles"
-          class="flex w-full justify-center sm:w-auto"
+      <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+        <a
+          v-for="(cta, index) in primaryCtas"
+          :key="cta.href"
+          :href="cta.href"
+          :class="ctaClass(index)"
+          @click="onPrimaryCtaClick(cta.href, $event)"
         >
-          <HomeProfileLinkList :links="profileLinks" />
-        </nav>
+          {{ cta.label }}
+        </a>
       </div>
     </AppPageHeader>
 
@@ -69,15 +70,15 @@ function ctaClass(index: number) {
       >
         {{ heroFocus.heading }}
       </h2>
-      <ul class="mt-5 space-y-4">
+      <ul class="mt-5 space-y-2">
         <li
           v-for="item in heroFocus.items"
           :key="item.title"
         >
-          <p class="text-sm font-semibold text-foreground">
+          <p class="text-sm leading-relaxed text-foreground">
             {{ item.title }}
           </p>
-          <p class="mt-1 text-sm leading-relaxed text-muted-foreground">
+          <p v-if="item.summary" class="mt-1 text-sm leading-relaxed text-muted-foreground">
             {{ item.summary }}
           </p>
         </li>
