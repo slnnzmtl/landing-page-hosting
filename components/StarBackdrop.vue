@@ -4,16 +4,20 @@ import { starBackdropClass } from '~/utils/star-backdrop'
 const starsReady = ref(false)
 
 onMounted(() => {
-  if (typeof requestIdleCallback !== 'undefined') {
-    requestIdleCallback(() => {
+  const enable = () => {
+    const start = () => {
       starsReady.value = true
-    }, { timeout: 1500 })
+    }
+    if (typeof requestIdleCallback !== 'undefined') {
+      requestIdleCallback(start, { timeout: 6000 })
+    }
+    else {
+      setTimeout(start, 6000)
+    }
   }
-  else {
-    setTimeout(() => {
-      starsReady.value = true
-    }, 0)
-  }
+
+  if (document.readyState === 'complete') enable()
+  else window.addEventListener('load', enable, { once: true })
 })
 </script>
 

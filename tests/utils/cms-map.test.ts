@@ -223,7 +223,8 @@ describe('CMS portfolio mappers', () => {
 
   it('rewrites product screenshots to Directus assets via file titles', () => {
     const image = mapped.homepage.products.items[0]?.image
-    expect(image?.src).toBe('/projects/sample-converter/main-window.webp')
+    // Homepage spotlight prefers the 600w thumb to avoid high-DPR picking 2240w.
+    expect(image?.src).toBe('/projects/sample-converter/main-window-600w.webp')
     const logo = mapped.products[0]?.logo
     expect(logo?.src).toContain('sample-converter-logo.webp')
     expect(logo?.srcThumb).toContain('sample-converter-logo-256w.webp')
@@ -277,7 +278,9 @@ describe('CMS portfolio mappers', () => {
 
   it('uses guide screenshot for product spotlight image', () => {
     const image = mapped.homepage.products.items[0]?.image
-    expect(image?.src).toContain('main-window.webp')
+    expect(image?.src).toMatch(/main-window-600w\.webp/)
+    expect(image?.srcset).toBeUndefined()
+    expect(image?.width).toBe(600)
   })
 
   it('fails closed when a product spotlight has no guide image', () => {

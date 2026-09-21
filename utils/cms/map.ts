@@ -345,19 +345,21 @@ function mapProductSpotlights(
       )
     }
     const rewritten = rewriteGuideImage(catalog, guideImage)
+    const thumb = rewritten.srcThumb
+    // Homepage uses the 600w file only — CMS `sizes` would pick 2240w on DPR>1.
     return {
       slug: product.slug,
       title: product.name,
       lead: product.launch_lead || product.short_description,
       supportingLine: product.launch_supporting_line || '',
       image: {
-        src: rewritten.src,
-        srcThumb: rewritten.srcThumb,
-        srcset: rewritten.srcset,
-        sizes: rewritten.sizes || '(max-width: 768px) 100vw, 50vw',
+        src: thumb || rewritten.src,
+        srcThumb: thumb,
         alt: rewritten.alt,
-        width: rewritten.width,
-        height: rewritten.height,
+        width: thumb ? 600 : rewritten.width,
+        height: thumb
+          ? Math.max(1, Math.round(rewritten.height * (600 / rewritten.width)))
+          : rewritten.height,
       },
       cta: {
         label: spotlightCtaLabel,

@@ -6,7 +6,10 @@ import { DEFAULT_DIRECTUS_URL, shouldFetchCmsPrerenderSlugs } from './utils/cms/
 /** Build-time only; baked into the Umami script tag (safe to expose in HTML). */
 const umamiWebsiteId = process.env.UMAMI_WEBSITE_ID || process.env.NUXT_UMAMI_WEBSITE_ID || ''
 
-/** First-party copy of https://cloud.umami.is/script.js at public/u.js (re-copy when Umami updates). */
+/**
+ * First-party copy of https://cloud.umami.is/script.js at public/u.js (re-copy when Umami updates).
+ *  Collect is proxied by Caddy: POST /u/api/send → https://gateway.umami.is/api/send
+ */
 export default defineNuxtConfig({
   extends: [
     './domains/survey',
@@ -35,7 +38,7 @@ export default defineNuxtConfig({
               'src': '/u.js',
               'defer': true,
               'data-website-id': umamiWebsiteId,
-              'data-host-url': 'https://gateway.umami.is',
+              'data-host-url': 'https://kazansky.dev/u',
               'data-fetch-credentials': 'omit',
               'data-domains': 'kazansky.dev',
             },
@@ -61,6 +64,14 @@ export default defineNuxtConfig({
     '/service/**': {
       ssr: false,
       headers: { 'X-Robots-Tag': 'noindex, nofollow' },
+    },
+  },
+  // Avoid idle-prefetch of /experience and /products payloads during mobile TBT.
+  experimental: {
+    defaults: {
+      nuxtLink: {
+        prefetch: false,
+      },
     },
   },
   nitro: {

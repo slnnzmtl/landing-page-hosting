@@ -150,7 +150,7 @@ async function fetchPortfolioRaw(
 }
 
 /** Committed files in public/ — never overwrite from Directus titles. */
-const COMMITTED_PUBLIC_FILES = new Set(['u.js'])
+const COMMITTED_PUBLIC_FILES = new Set(['u.js', 'apple-touch-icon.png'])
 
 /**
  * Write Directus files into `public/` so Vite/Nuxt serve them in dev and generate.

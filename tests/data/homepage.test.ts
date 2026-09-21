@@ -86,6 +86,8 @@ describe('homepage content model (CMS-mapped)', () => {
     const spotlight = published.products.items[0]
     expect(spotlight.slug).toBe('sample-converter')
     expect(spotlight.image.src).toContain('main-window')
+    expect(spotlight.image.src).toMatch(/-600w\.webp/)
+    expect(spotlight.image.width).toBe(600)
     expect(spotlight.cta.href).toBe('/products/sample-converter')
   })
 
