@@ -38,9 +38,9 @@ function scrollToGroup(event: MouseEvent, anchor: string) {
   <nav
     v-if="groups.length"
     aria-label="Case sections"
-    class="sticky top-0 z-20 w-full border-y border-border/80 bg-black/90 backdrop-blur-md"
+    class="sticky top-0 z-20 w-full min-w-0 border-y border-border/80 bg-black/90 backdrop-blur-md"
   >
-    <ul class="flex gap-1 overflow-x-auto py-2.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <ul class="flex min-w-0 gap-1 overflow-x-auto px-1 py-2.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       <li
         v-for="group in groups"
         :key="group.id"
