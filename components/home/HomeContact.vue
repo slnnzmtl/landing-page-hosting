@@ -23,13 +23,13 @@ function onContactClick(href: string) {
     id="contact"
     aria-labelledby="contact-heading"
     :class="compact
-      ? 'scroll-mt-24 rounded-2xl border border-primary/30 bg-card/60 px-5 py-5 sm:flex sm:items-center sm:justify-between sm:gap-8 sm:px-6 sm:py-6'
+      ? 'scroll-mt-24 border-y border-primary/30 bg-primary/[0.045] px-5 py-6 sm:flex sm:items-center sm:justify-between sm:gap-8 sm:px-6 sm:py-7'
       : 'scroll-mt-24 grid gap-8 md:grid-cols-2'"
   >
     <div :class="compact ? 'min-w-0' : undefined">
       <h2
         id="contact-heading"
-        :class="compact ? 'text-xl font-semibold' : 'text-2xl font-semibold'"
+        :class="compact ? 'text-xl font-semibold tracking-tight' : 'text-2xl font-semibold'"
       >
         {{ contact.heading }}
       </h2>

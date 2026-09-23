@@ -1,7 +1,7 @@
 /** Shared layout/typography class tokens for case study pages. */
 
 export const casePageContainer
-  = 'mx-auto flex w-full min-w-0 max-w-6xl flex-col px-6 py-10 pb-28 sm:px-8 sm:py-14 lg:px-12 xl:pb-20'
+  = 'mx-auto flex w-full min-w-0 max-w-6xl flex-col px-6 py-9 pb-24 sm:px-8 sm:py-12 lg:px-12 xl:pb-18'
 
 /** Readable prose column (~65–72ch). */
 export const caseReadingWidth = 'max-w-[70ch]'
@@ -9,10 +9,7 @@ export const caseReadingWidth = 'max-w-[70ch]'
 /** Full page-container rail for diagrams, timelines, galleries. */
 export const caseMediaWidth = 'w-full'
 
-export const caseSectionGap = 'flex flex-col gap-11 lg:gap-14'
-
-/** Subtle alternating band behind section content. */
-export const caseSectionSurface = 'rounded-2xl bg-white/[0.025] px-4 py-6 sm:px-6 sm:py-7'
+export const caseSectionGap = 'flex flex-col gap-10 lg:gap-12'
 
 /** Narrative / body copy. */
 export const caseBodyText = 'text-base leading-7 text-pretty text-foreground/90 break-words'

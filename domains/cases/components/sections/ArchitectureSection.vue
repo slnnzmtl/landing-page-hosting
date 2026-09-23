@@ -38,16 +38,16 @@ function open(index: number) {
 
     <div
       v-if="media.length || section.items.length"
-      class="flex w-full flex-col gap-6 lg:gap-7"
+      class="flex w-full flex-col gap-5 lg:gap-6"
     >
       <ul
         v-if="section.items.length"
-        class="order-2 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+        class="order-2 grid gap-y-5 sm:grid-cols-2 sm:gap-x-8 lg:grid-cols-4 lg:gap-x-6"
       >
         <li
           v-for="(item, index) in section.items"
           :key="item.title || item.label || index"
-          class="border-l-2 border-primary/40 pl-3.5"
+          class="border-l border-primary/50 pl-3.5"
         >
           <p
             v-if="item.label || item.title"
@@ -66,7 +66,7 @@ function open(index: number) {
 
       <div
         v-if="media.length"
-        class="order-1 w-full space-y-3"
+        class="order-1 -mx-1 w-[calc(100%+0.5rem)] space-y-2 sm:mx-0 sm:w-full"
       >
         <CaseMedia
           v-for="(image, index) in media"
