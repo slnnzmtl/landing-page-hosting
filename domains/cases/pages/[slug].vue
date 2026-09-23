@@ -76,13 +76,15 @@ const hasEvidenceSection = computed(() =>
       class="relative z-10"
       :class="casePageContainer"
     >
-      <div :class="caseSectionGap">
+      <div class="flex min-w-0 flex-col gap-12 lg:gap-16">
         <CaseHero
           :case-study="caseStudy"
           :homepage="home"
         />
 
-        <CaseSectionNav :sections="caseStudy.sections" />
+        <div class="min-w-0">
+          <CaseSectionNav :sections="caseStudy.sections" />
+        </div>
 
         <div :class="caseSectionGap">
           <CaseSectionRenderer

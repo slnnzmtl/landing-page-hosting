@@ -63,7 +63,7 @@ function scrollToContact(event: MouseEvent) {
       {{ backLabel }}
     </AppBackLink>
 
-    <div class="grid min-w-0 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,0.82fr)] lg:items-center lg:gap-12">
+    <div class="grid min-w-0 gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,0.8fr)] lg:items-center lg:gap-14">
       <div class="min-w-0 space-y-5">
         <div class="space-y-3">
           <p
@@ -118,7 +118,7 @@ function scrollToContact(event: MouseEvent) {
         :image="caseStudy.heroMedia"
         size="hero"
         priority
-        class-name="lg:-mr-4"
+        class-name="w-full"
         @open="openHero"
       />
     </div>
