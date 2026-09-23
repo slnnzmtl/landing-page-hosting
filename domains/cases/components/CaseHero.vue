@@ -58,71 +58,74 @@ function scrollToContact(event: MouseEvent) {
 </script>
 
 <template>
-  <header class="w-full space-y-6">
+  <header class="w-full space-y-7 lg:space-y-8">
     <AppBackLink to="/#featured-work">
       {{ backLabel }}
     </AppBackLink>
 
-    <div class="min-w-0 space-y-5">
-      <div class="space-y-3">
-        <p
-          v-if="caseStudy.engagementLabel"
-          class="text-sm leading-6 text-foreground/85"
-        >
-          {{ caseStudy.engagementLabel }}
-        </p>
-        <h1 class="max-w-xl text-4xl font-semibold leading-[1.1] tracking-tight sm:text-5xl lg:max-w-none">
-          {{ caseStudy.name }}
-        </h1>
+    <div class="grid min-w-0 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,0.82fr)] lg:items-center lg:gap-12">
+      <div class="min-w-0 space-y-5">
+        <div class="space-y-3">
+          <p
+            v-if="caseStudy.engagementLabel"
+            class="text-sm leading-6 text-foreground/85"
+          >
+            {{ caseStudy.engagementLabel }}
+          </p>
+          <h1 class="max-w-[14ch] text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl lg:text-[3.5rem]">
+            {{ caseStudy.name }}
+          </h1>
+        </div>
+
+        <CaseParagraphs
+          :paragraphs="caseStudy.caseLeadParagraphs"
+          :class-name="caseLeadText"
+        />
+
+        <div class="flex flex-wrap items-center gap-3">
+          <a
+            v-if="primarySource && primaryIsNative"
+            :href="primarySource.href"
+            v-bind="outboundAttrs(primarySource.href)"
+            :class="[casePrimaryCta, linkFocus]"
+          >
+            {{ primarySource.label }}
+            <span
+              v-if="opensInNewTab(primarySource.href)"
+              class="sr-only"
+            >(opens in a new tab)</span>
+          </a>
+          <NuxtLink
+            v-else-if="primarySource"
+            :to="primarySource.href"
+            :class="[casePrimaryCta, linkFocus]"
+          >
+            {{ primarySource.label }}
+          </NuxtLink>
+          <a
+            v-if="contactNav"
+            href="#contact"
+            :class="[caseSecondaryCta, linkFocus]"
+            @click="scrollToContact"
+          >
+            {{ contactNav.label }}
+          </a>
+        </div>
       </div>
 
-      <CaseParagraphs
-        :paragraphs="caseStudy.caseLeadParagraphs"
-        :class-name="caseLeadText"
-      />
-
-      <div class="flex flex-wrap items-center gap-3">
-        <a
-          v-if="primarySource && primaryIsNative"
-          :href="primarySource.href"
-          v-bind="outboundAttrs(primarySource.href)"
-          :class="[casePrimaryCta, linkFocus]"
-        >
-          {{ primarySource.label }}
-          <span
-            v-if="opensInNewTab(primarySource.href)"
-            class="sr-only"
-          >(opens in a new tab)</span>
-        </a>
-        <NuxtLink
-          v-else-if="primarySource"
-          :to="primarySource.href"
-          :class="[casePrimaryCta, linkFocus]"
-        >
-          {{ primarySource.label }}
-        </NuxtLink>
-        <a
-          v-if="contactNav"
-          href="#contact"
-          :class="[caseSecondaryCta, linkFocus]"
-          @click="scrollToContact"
-        >
-          {{ contactNav.label }}
-        </a>
-      </div>
-
-      <CaseFacts
-        v-if="hasFacts"
-        :case-study="caseStudy"
+      <CaseMedia
+        v-if="caseStudy.heroMedia"
+        :image="caseStudy.heroMedia"
+        size="hero"
+        priority
+        class-name="lg:-mr-4"
+        @open="openHero"
       />
     </div>
 
-    <CaseMedia
-      v-if="caseStudy.heroMedia"
-      :image="caseStudy.heroMedia"
-      size="hero"
-      priority
-      @open="openHero"
+    <CaseFacts
+      v-if="hasFacts"
+      :case-study="caseStudy"
     />
   </header>
 </template>

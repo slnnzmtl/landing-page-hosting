@@ -95,7 +95,6 @@ function sectionSurfaceClass(index: number) {
             :section="section"
             :claims="section.kind === 'evidence' ? caseStudy.claims : []"
             :links="section.kind === 'evidence' ? caseStudy.evidenceLinks : []"
-            :stack-tags="section.kind === 'evidence' ? caseStudy.stackTags : []"
             :class="sectionSurfaceClass(index)"
           />
         </div>

@@ -9,15 +9,15 @@ export const caseReadingWidth = 'max-w-[70ch]'
 /** Full page-container rail for diagrams, timelines, galleries. */
 export const caseMediaWidth = 'w-full'
 
-export const caseSectionGap = 'flex flex-col gap-14 lg:gap-16'
+export const caseSectionGap = 'flex flex-col gap-11 lg:gap-14'
 
 /** Subtle alternating band behind section content. */
-export const caseSectionSurface = 'rounded-2xl bg-white/[0.03] px-4 py-6 sm:px-6 sm:py-8'
+export const caseSectionSurface = 'rounded-2xl bg-white/[0.025] px-4 py-6 sm:px-6 sm:py-7'
 
 /** Narrative / body copy. */
 export const caseBodyText = 'text-base leading-7 text-pretty text-foreground/90 break-words'
 
-export const caseLeadText = 'max-w-[70ch] space-y-4 text-lg leading-7 text-foreground/90 sm:text-xl'
+export const caseLeadText = 'max-w-[62ch] space-y-4 text-lg leading-7 text-foreground/90 sm:text-xl sm:leading-8'
 
 /** Card, legend, timeline, and evidence supporting copy. */
 export const caseCardText = 'text-sm leading-6 text-foreground/85'

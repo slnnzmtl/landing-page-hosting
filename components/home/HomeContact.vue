@@ -44,18 +44,26 @@ function onContactClick(href: string) {
 
     <div
       v-if="compact"
-      class="mt-4 flex flex-wrap gap-x-5 gap-y-2 sm:mt-0 sm:justify-end"
+      class="mt-4 flex flex-wrap items-center gap-3 sm:mt-0 sm:justify-end"
     >
       <a
-        v-for="link in contact.links"
+        v-if="contact.links[0]"
+        :href="contact.links[0].href"
+        v-bind="outboundAttrs(contact.links[0].href)"
+        :class="['inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90', linkFocus]"
+        @click="onContactClick(contact.links[0].href)"
+      >
+        Contact
+      </a>
+      <a
+        v-for="link in contact.links.slice(1)"
         :key="link.href"
         :href="link.href"
         v-bind="outboundAttrs(link.href)"
         :class="['text-sm font-medium text-foreground hover:text-primary', linkFocus]"
         @click="onContactClick(link.href)"
       >
-        <span class="text-muted-foreground">{{ link.label }}:</span>
-        {{ link.title }}
+        {{ link.label }} ↗
       </a>
     </div>
 
