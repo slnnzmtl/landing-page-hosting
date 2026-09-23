@@ -83,7 +83,7 @@ export const PRODUCTS_PAGE_FIELDS = [
   'download_warning_title',
 ].join(',')
 
-export const FILE_FIELDS = 'id,filename_download,title'
+export const FILE_FIELDS = 'id,filename_download,title,type,width,height'
 
 export const EXPERIENCE_FIELDS = [
   'id',
@@ -107,12 +107,43 @@ export const EXPERIENCE_FIELDS = [
   'icon_alt',
 ].join(',')
 
+const CASE_CLAIM_FIELDS = [
+  'id',
+  'key',
+  'public_wording',
+  'status',
+] as const
+
+const SECTION_MEDIA_FIELDS = [
+  'id',
+  'sort',
+  'file',
+  'alt',
+  'caption',
+  'presentation',
+] as const
+
+const SECTION_FIELDS = [
+  'id',
+  'status',
+  'sort',
+  'anchor',
+  'kind',
+  'eyebrow',
+  'heading',
+  'body',
+  'layout',
+  'items',
+  ...nestedFields('media', SECTION_MEDIA_FIELDS),
+] as const
+
 export const PROJECT_FIELDS = [
   'id',
   'slug',
   'status',
   'sort',
   'name',
+  'track',
   'role',
   'short_description',
   'problem',
@@ -120,6 +151,18 @@ export const PROJECT_FIELDS = [
   'outcome',
   'stack_tags',
   'evidence_links',
+  'case_enabled',
+  'case_lead',
+  'engagement_label',
+  'stage_label',
+  'hero_media',
+  'hero_media_alt',
+  'hero_media_caption',
+  'seo_title',
+  'seo_description',
+  'social_image',
+  ...nestedFields('case_claims.approved_claims_id', CASE_CLAIM_FIELDS),
+  ...nestedFields('case_sections', SECTION_FIELDS),
 ].join(',')
 
 export const PRODUCT_FIELDS = [

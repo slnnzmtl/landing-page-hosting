@@ -77,3 +77,29 @@ export function assetUrl(
   const q = query ? `?${query}` : ''
   return `${config.baseUrl}/assets/${fileId}${q}`
 }
+
+/** Minimal file fields needed to resolve a public URL. */
+export type CmsPublicFile = {
+  id: string
+  filename_download: string
+  /** Original public path, e.g. /images/experience/upwork.png */
+  title?: string | null
+}
+
+/**
+ * Public site path for a Directus file.
+ * Prefer `files.title` when it is a safe absolute path; otherwise `/cms-files/:id/:name`.
+ */
+export function publicPathForFile(file: CmsPublicFile): string {
+  const title = file.title?.trim()
+  if (
+    title
+    && title.startsWith('/')
+    && !title.includes('..')
+    && !title.includes('\\')
+  ) {
+    return title
+  }
+  const name = file.filename_download || file.id
+  return `/cms-files/${file.id}/${name}`
+}

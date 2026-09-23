@@ -21,6 +21,7 @@ A Nuxt 3 + Vue 3 multi-domain app for landing pages, public product pages, JSON-
 |--------|--------|---------|
 | **Root** | `/` | Portfolio / landing homepage |
 | **projects** | `/products`, `/products/:slug` | Public selected products (data-driven; layer folder stays `domains/projects`) |
+| **cases** | `/work/:slug` | Directus-backed project case studies (`case_enabled`) |
 | **survey** | `/survey`, `/survey/:slug` | JSON-driven surveys with webhook submit |
 | **service** | `/service/:page` | Service landing pages |
 
@@ -48,6 +49,10 @@ Each domain lives under `domains/<name>/` as a Nuxt layer. Page routes are prefi
 │  │  ├─ pages/                   # index, [slug] → /products/*
 │  │  ├─ data/                    # Project types + projectPath
 │  │  └─ components/              # Gallery + GitHub releases
+│  ├─ cases/
+│  │  ├─ pages/                   # [slug] → /work/*
+│  │  ├─ data/                    # CaseStudy types + casePath
+│  │  └─ components/              # Hero, sections, claims
 │  ├─ survey/
 │  │  ├─ pages/                   # index, [slug] → /survey/*
 │  │  ├─ data/*.json              # Survey definitions
@@ -137,6 +142,17 @@ Nuxt can drop a layer page when another layer already owns the same route name (
 
 First product: **Simple Rekordbox Converter** at `/products/rekordbox-playlist-converter`. Evergreen copy lives in Directus. GitHub release versions and download URLs are fetched in the browser from `https://api.github.com/repos/slnnzmtl/rekordbox-playlist-converter/releases` (no token, 1-hour localStorage cache, stale cache if GitHub is down).
 
+## Case studies (`domains/cases`)
+
+Published Directus `projects` with `case_enabled=true` generate `/work/:slug` at build time. There is no `/work` index — the homepage Selected Work section is the entry point. Case copy, sections, media, and approved claims come from Directus; Nuxt maps section `kind` values to Vue components and never renders CMS HTML.
+
+### Add another case study
+
+1. Publish a `projects` row with `case_enabled=true`, non-empty `case_lead`, and at least one published `project_sections` row.
+2. Attach media with alt text; set file `title` to the public path when materializing into `public/`.
+3. Optionally link approved claims via `case_claims`.
+4. `nuxt generate` discovers the slug via `fetchCaseSlugs`. No new Vue page file is required.
+
 ## Survey Module
 
 Surveys are JSON files in `domains/survey/data/`. Each file is eagerly loaded by `useSurveys`.
@@ -186,7 +202,7 @@ Surveys are JSON files in `domains/survey/data/`. Each file is eagerly loaded by
 
 Configured for Nuxt static generation. Prerender uses an explicit route list (`crawlLinks: false`) from:
 
-- `/`, `/experience`, `/survey`, `/products`, `/sitemap.xml`, `/robots.txt`, plus `getSurveyRoutes()`, `getServiceRoutes()`, and CMS product slugs from Directus (`fetchProductSlugs` at generate time)
+- `/`, `/experience`, `/survey`, `/products`, `/sitemap.xml`, `/robots.txt`, plus `getSurveyRoutes()`, `getServiceRoutes()`, CMS product slugs (`fetchProductSlugs`), and case-enabled project slugs (`fetchCaseSlugs` → `/work/:slug`) from Directus at generate time
 
 Local preview:
 

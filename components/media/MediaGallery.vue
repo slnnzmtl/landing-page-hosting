@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { ProjectImage } from '../data/types'
-import ProjectImageLightbox from './ProjectImageLightbox.vue'
+import type { MediaImage } from './types'
+import MediaLightbox from './MediaLightbox.vue'
 
-const props = defineProps<{
-  images: ProjectImage[]
-}>()
+const props = withDefaults(defineProps<{
+  images: MediaImage[]
+  /** Desktop grid columns. Cases use 2; products keep 2/3. */
+  columns?: 'two' | 'three'
+}>(), {
+  columns: 'three',
+})
 
 const activeIndex = ref<number | null>(null)
 
@@ -30,7 +34,12 @@ function showNext() {
 
 <template>
   <div class="space-y-4">
-    <ul class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+    <ul
+      :class="[
+        'grid gap-5 sm:grid-cols-2',
+        columns === 'three' ? 'lg:grid-cols-3' : '',
+      ]"
+    >
       <li
         v-for="(image, index) in images"
         :key="image.src"
@@ -38,7 +47,7 @@ function showNext() {
         <figure class="space-y-2">
           <button
             type="button"
-            class="block w-full overflow-hidden rounded-2xl border border-border bg-[hsl(64,0%,1.43%)] text-left shadow-sm transition hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            class="group relative block w-full cursor-zoom-in overflow-hidden rounded-2xl border border-border bg-card text-left shadow-sm transition hover:ring-2 hover:ring-primary/40 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             :aria-label="`View full size: ${image.caption || image.alt}`"
             @click="open(index)"
           >
@@ -54,15 +63,23 @@ function showNext() {
               class="h-auto w-full max-w-full"
               :style="{ aspectRatio: `${image.width} / ${image.height}` }"
             />
+            <span
+              class="pointer-events-none absolute inset-0 flex items-end justify-end bg-gradient-to-t from-black/50 via-transparent to-transparent p-3 opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100"
+              aria-hidden="true"
+            >
+              <span class="rounded-full bg-black/70 px-3 py-1 text-xs font-medium text-white">
+                View
+              </span>
+            </span>
           </button>
-          <figcaption class="text-sm text-muted-foreground">
+          <figcaption class="text-xs leading-5 text-foreground/75">
             {{ image.caption || image.alt }}
           </figcaption>
         </figure>
       </li>
     </ul>
 
-    <ProjectImageLightbox
+    <MediaLightbox
       :images="images"
       :active-index="activeIndex"
       @close="close"

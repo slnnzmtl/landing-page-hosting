@@ -1,3 +1,10 @@
+import type {
+  CaseMediaPresentation,
+  CaseSectionKind,
+  CaseSectionLayout,
+  CaseStageLabel,
+} from '../../domains/cases/data/types'
+
 export type DirectusStatus = 'draft' | 'published' | 'archived'
 
 export type CmsButtonType = 'primary' | 'secondary' | 'tertiary' | 'link'
@@ -119,6 +126,9 @@ export interface CmsFile {
   filename_download: string
   /** Original public path, e.g. /images/experience/upwork.png */
   title?: string | null
+  type?: string | null
+  width?: number | null
+  height?: number | null
 }
 
 export interface CmsExperienceOutcomeRef {
@@ -155,12 +165,53 @@ export interface CmsApprovedClaim {
   status: DirectusStatus
 }
 
+/** CMS wire aliases — single source of truth is domains/cases/data/types. */
+export type CmsCaseSectionKind = CaseSectionKind
+export type CmsCaseSectionLayout = CaseSectionLayout
+export type CmsCaseMediaPresentation = CaseMediaPresentation
+export type CmsCaseStageLabel = CaseStageLabel
+
+export interface CmsProjectSectionMedia {
+  id: string
+  sort?: number | null
+  file: string
+  alt: string
+  caption?: string | null
+  presentation: CmsCaseMediaPresentation
+}
+
+export interface CmsProjectSectionItem {
+  title?: string
+  summary?: string
+  label?: string
+  detail?: string
+}
+
+export interface CmsProjectSection {
+  id: string
+  status: DirectusStatus
+  sort?: number | null
+  anchor: string
+  kind: CmsCaseSectionKind
+  eyebrow?: string | null
+  heading: string
+  body?: string | null
+  layout: CmsCaseSectionLayout
+  items?: CmsProjectSectionItem[] | null
+  media?: CmsProjectSectionMedia[] | null
+}
+
+export interface CmsCaseClaimRow {
+  approved_claims_id?: CmsApprovedClaim | null
+}
+
 export interface CmsProject {
   id: string
   slug: string
   status: DirectusStatus
   sort?: number | null
   name: string
+  track?: string | null
   role?: string | null
   short_description?: string | null
   problem?: string | null
@@ -168,6 +219,18 @@ export interface CmsProject {
   outcome?: string | null
   stack_tags?: string[] | null
   evidence_links?: CmsLink[] | null
+  case_enabled?: boolean | null
+  case_lead?: string | null
+  engagement_label?: string | null
+  stage_label?: CmsCaseStageLabel | null
+  hero_media?: string | null
+  hero_media_alt?: string | null
+  hero_media_caption?: string | null
+  seo_title?: string | null
+  seo_description?: string | null
+  social_image?: string | null
+  case_sections?: CmsProjectSection[] | null
+  case_claims?: CmsCaseClaimRow[] | null
 }
 
 export interface CmsProduct {

@@ -50,7 +50,7 @@ describeLive('live Directus portfolio contract', () => {
     resetPortfolioCache()
     const config = resolveDirectusConfig()
     const mapped = await loadPortfolio(config)
-    const { homepage, experience, products, experiencePage, productSlugs } = mapped
+    const { homepage, experience, products, cases, experiencePage, productSlugs, caseSlugs } = mapped
 
     expect(homepage.person.name.trim()).toBeTruthy()
     expect(homepage.siteName.trim()).toBeTruthy()
@@ -73,6 +73,7 @@ describeLive('live Directus portfolio contract', () => {
     const previewKeys = homepage.experiencePreview.items.map(item => item.id)
     const experienceKeys = new Set(experience.map(role => role.id))
     const productSlugSet = new Set(productSlugs)
+    const caseSlugSet = new Set(caseSlugs)
 
     expect(featuredSlugs).toHaveLength(homepage.featuredCases.length)
     expect(spotlightSlugs.length).toBeGreaterThan(0)
@@ -88,6 +89,20 @@ describeLive('live Directus portfolio contract', () => {
     for (const product of products) {
       expect(featuredSlugs.includes(product.slug)).toBe(false)
       expect(product.logo).toBeTruthy()
+    }
+
+    const appointmentCase = cases.find(item => item.slug === 'ai-appointment-crm-automation')
+    if (appointmentCase) {
+      expect(caseSlugSet.has(appointmentCase.slug)).toBe(true)
+      expect(appointmentCase.sections.length).toBeGreaterThanOrEqual(8)
+      expect(appointmentCase.caseLeadParagraphs.length).toBeGreaterThan(0)
+      expect(appointmentCase.heroMedia).toBeUndefined()
+    }
+
+    for (const item of homepage.featuredCases) {
+      if (caseSlugSet.has(item.slug)) {
+        expect(item.href).toBe(`/work/${item.slug}`)
+      }
     }
 
     const serialized = JSON.stringify(mapped)

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import type { ProjectGuide, ProjectImage } from '../data/types'
-import ProjectImageLightbox from './ProjectImageLightbox.vue'
+import MediaLightbox from '~/components/media/MediaLightbox.vue'
 
 const props = defineProps<{
   guide: ProjectGuide
@@ -100,7 +100,7 @@ function showNext() {
       </li>
     </ol>
 
-    <ProjectImageLightbox
+    <MediaLightbox
       :images="walkthroughImages"
       :active-index="activeIndex"
       @close="close"

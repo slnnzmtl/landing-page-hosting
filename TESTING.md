@@ -29,6 +29,8 @@ tests/
 │  ├─ github-releases.test.ts
 │  ├─ useDownloadWarningDialog.test.ts
 │  └─ seo.test.ts
+├─ domains/cases/
+│  └─ case-pages.test.ts
 ├─ fixtures/
 │  └─ cms-portfolio.ts
 ├─ pages/
@@ -59,7 +61,7 @@ tests/
 
 ### Domain routing
 
-**`prefix-domain-pages`** — prefixes Nuxt pages contributed by a domain layer (`domains/<name>/pages/*` → `/<name>/...`), including the projects index collision with root `/`.
+**`prefix-domain-pages`** — prefixes Nuxt pages contributed by a domain layer (`domains/<name>/pages/*` → `/<name>/...`), including the projects index collision with root `/`, and cases → `/work`.
 
 ### Projects domain
 
@@ -67,7 +69,11 @@ tests/
 
 **GitHub releases** — mocked `fetch` for success, empty, 403/429, network error, prerelease, and stale localStorage cache. Notes are plain text.
 
-**SEO** — production site origin, canonical/OG tags, homepage Person/WebSite/CreativeWork JSON-LD, CollectionPage/SoftwareApplication for projects, sitemap and robots output.
+**SEO** — production site origin, canonical/OG tags, homepage Person/WebSite/CreativeWork JSON-LD, CollectionPage/SoftwareApplication for projects, sitemap and robots output (including `/work/:slug` case routes).
+
+### Cases domain
+
+**Case CMS mapping** — section kind registry, published-section filtering, approved-claim filtering, fail-closed validation, case SEO/JSON-LD, and grouped sticky nav labels (`caseNavGroups`).
 
 ### Homepage / experience / CMS mappers
 

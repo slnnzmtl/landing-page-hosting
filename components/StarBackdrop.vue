@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { starBackdropClass } from '~/utils/star-backdrop'
 
+const props = withDefaults(defineProps<{
+  densityFactor?: number
+}>(), {
+  densityFactor: 1,
+})
+
 const starsReady = ref(false)
 
 onMounted(() => {
@@ -27,5 +33,8 @@ onMounted(() => {
     :class="starBackdropClass"
     aria-hidden="true"
   />
-  <LazyBackgroundPixelStars v-else />
+  <LazyBackgroundPixelStars
+    v-else
+    :density-factor="props.densityFactor"
+  />
 </template>

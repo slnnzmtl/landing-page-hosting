@@ -2,9 +2,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   approvedClaimsQuery,
   fetchProductSlugs,
+  fetchCaseSlugs,
   resetPortfolioCache,
 } from '~/utils/cms/load'
-import { HOMEPAGE_SETTINGS_FIELDS, PRODUCT_FIELDS } from '~/utils/cms/fields'
+import { HOMEPAGE_SETTINGS_FIELDS, PRODUCT_FIELDS, PROJECT_FIELDS } from '~/utils/cms/fields'
 
 describe('approvedClaimsQuery', () => {
   it('filters by key only when refs are not UUIDs', () => {
@@ -42,6 +43,12 @@ describe('Directus nested field allowlists', () => {
     expect(HOMEPAGE_SETTINGS_FIELDS).toContain('experience_preview_cta.href_source')
     expect(HOMEPAGE_SETTINGS_FIELDS).not.toMatch(/buttons_id\.id,key,/)
   })
+
+  it('prefixes case section and claim nested fields', () => {
+    expect(PROJECT_FIELDS).toContain('case_sections.media.alt')
+    expect(PROJECT_FIELDS).toContain('case_claims.approved_claims_id.public_wording')
+    expect(PROJECT_FIELDS).not.toContain('confidentiality_notes')
+  })
 })
 
 describe('fetchProductSlugs', () => {
@@ -75,5 +82,34 @@ describe('fetchProductSlugs', () => {
       + '&limit=-1',
     )
     expect(init.headers).toEqual({ Authorization: 'Bearer test-token' })
+  })
+})
+
+describe('fetchCaseSlugs', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    resetPortfolioCache()
+  })
+
+  it('requests published case-enabled project slugs', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        data: [{ slug: 'ai-appointment-crm-automation' }],
+      }),
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    const slugs = await fetchCaseSlugs({
+      baseUrl: 'https://cms.example.test',
+      token: 'test-token',
+    })
+
+    expect(slugs).toEqual(['ai-appointment-crm-automation'])
+    const [url] = fetchMock.mock.calls[0] as [string]
+    expect(url).toContain('/items/projects')
+    expect(url).toContain('filter[status][_eq]=published')
+    expect(url).toContain('filter[case_enabled][_eq]=true')
+    expect(url).toContain('fields=slug')
   })
 })

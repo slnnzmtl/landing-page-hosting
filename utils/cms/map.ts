@@ -14,7 +14,10 @@ import type {
   ProofItem,
 } from '../../data/homepage'
 import { catalogPageHref, type Project, type ProjectImage, type ProjectLaunchCta } from '../../domains/projects/data/types'
-import { assetUrl, type DirectusClientConfig } from './client'
+import type { CaseStudy } from '../../domains/cases/data/types'
+import { casePath } from '../../domains/cases/data/types'
+import { assetUrl, publicPathForFile, type DirectusClientConfig } from './client'
+import { mapCases } from './map-cases'
 import type {
   CmsApprovedClaim,
   CmsButton,
@@ -35,8 +38,10 @@ export interface PortfolioContent {
   homepage: HomepageContent
   experience: ExperienceRole[]
   products: Project[]
+  cases: CaseStudy[]
   experiencePage: CmsExperiencePageSettings
   productSlugs: string[]
+  caseSlugs: string[]
 }
 
 interface FileCatalog {
@@ -55,21 +60,6 @@ function buildFileCatalog(files: CmsFile[] = []): FileCatalog {
 }
 
 const EMPTY_CATALOG = buildFileCatalog()
-
-/** Directus `files.title` stores the original site path (folder layout). */
-export function publicPathForFile(file: CmsFile): string {
-  const title = file.title?.trim()
-  if (
-    title
-    && title.startsWith('/')
-    && !title.includes('..')
-    && !title.includes('\\')
-  ) {
-    return title
-  }
-  const name = file.filename_download || file.id
-  return `/cms-files/${file.id}/${name}`
-}
 
 function resolveFileUrl(
   config: Pick<DirectusClientConfig, 'baseUrl'>,
@@ -310,7 +300,8 @@ function mapFeaturedCases(
   const ordered = orderByKeys(projects, featuredProjectSlugs, p => p.slug)
   return ordered.map((project, index) => {
     const link = project.evidence_links?.[0]
-    return {
+    const caseEnabled = Boolean(project.case_enabled)
+    const base = {
       slug: project.slug,
       title: project.name,
       featured: index === 0,
@@ -319,6 +310,16 @@ function mapFeaturedCases(
       contribution: project.contribution || '',
       outcome: project.outcome || '',
       stack: project.stack_tags || [],
+    }
+    if (caseEnabled) {
+      return {
+        ...base,
+        href: casePath(project.slug),
+        hrefLabel: 'View case',
+      }
+    }
+    return {
+      ...base,
       ...(link
         ? { href: link.href, hrefLabel: link.label || 'View case' }
         : {}),
@@ -708,12 +709,15 @@ export function mapPortfolio(
     config,
   )
   const products = mapCmsProducts(raw.products, config, catalog)
+  const cases = mapCases(raw.projects, config, catalog)
 
   return {
     homepage,
     experience,
     products,
+    cases,
     experiencePage: raw.experiencePage,
     productSlugs: products.map(p => p.slug),
+    caseSlugs: cases.map(c => c.slug),
   }
 }

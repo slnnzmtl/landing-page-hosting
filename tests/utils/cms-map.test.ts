@@ -256,8 +256,28 @@ describe('CMS portfolio mappers', () => {
     expect(mapped.homepage.featuredCases.map(c => c.featured)).toEqual([true, false])
   })
 
-  it('omits featured-case href when evidence_links are missing', () => {
+  it('keeps case-page href when evidence_links are missing', () => {
     const project = cmsPortfolioFixture.projects[0]
+    expect(project).toBeTruthy()
+    const result = mapPortfolio(
+      {
+        ...cmsPortfolioFixture,
+        projects: [{ ...project!, evidence_links: null }],
+        homepageSettings: {
+          ...cmsPortfolioFixture.homepageSettings,
+          featured_projects: [{ projects_id: { slug: project!.slug } }],
+        },
+      },
+      BASE,
+    )
+    const featured = result.homepage.featuredCases[0]
+    expect(featured?.slug).toBe(project!.slug)
+    expect(featured?.href).toBe('/work/sample-flagship-case')
+    expect(featured?.hrefLabel).toBe('View case')
+  })
+
+  it('omits featured-case href when case is disabled and evidence_links are missing', () => {
+    const project = cmsPortfolioFixture.projects[1]
     expect(project).toBeTruthy()
     const result = mapPortfolio(
       {

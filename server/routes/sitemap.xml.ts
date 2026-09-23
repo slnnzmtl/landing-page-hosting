@@ -11,5 +11,6 @@ export default defineEventHandler(async (event) => {
     resolveSiteUrl(config.public.siteUrl as string),
     undefined,
     portfolio.productSlugs,
+    portfolio.caseSlugs,
   )
 })

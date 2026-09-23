@@ -2,6 +2,13 @@
 import { starBackdropClass } from '~/utils/star-backdrop'
 import { shouldSpawnShootingStar } from '~/utils/shooting-star-schedule'
 
+const props = withDefaults(defineProps<{
+  /** Multiplier for star count. Case pages use a lower density for long reading. */
+  densityFactor?: number
+}>(), {
+  densityFactor: 1,
+})
+
 const STAR_COLORS = [
   '#FFFFFF',
   '#FFFFAA',
@@ -12,7 +19,8 @@ const STAR_COLORS = [
   '#AAFFFF',
 ] as const
 
-const starDensity = 0.00003
+const baseStarDensity = 0.00003
+const starDensity = computed(() => baseStarDensity * props.densityFactor)
 
 const twinkleProbability = 0.7
 const minTwinkleSpeed = 2
@@ -124,7 +132,7 @@ function createStar(): BackgroundStar {
 
 function targetStarCount() {
   if (!canvasWidth || !canvasHeight) return 0
-  return Math.floor(canvasWidth * canvasHeight * starDensity)
+  return Math.floor(canvasWidth * canvasHeight * starDensity.value)
 }
 
 function syncStarsToCanvasSize() {

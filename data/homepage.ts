@@ -54,7 +54,7 @@ export interface FeaturedCase {
   contribution: string
   outcome: string
   stack: string[]
-  /** Evidence link only; omit when the CMS case has no evidence_links. */
+  /** Primary CTA — case page `/work/:slug` or evidence link. */
   href?: string
   hrefLabel?: string
 }

@@ -182,7 +182,7 @@ describe('homepage SEO', () => {
     expect(list.itemListElement.every(entry => entry.item['@type'] === 'CreativeWork')).toBe(true)
     expect(list.itemListElement.map(entry => entry.item.url)).toEqual(
       expect.arrayContaining([
-        'https://github.com/example-org/sample-flagship',
+        'https://kazansky.dev/work/sample-flagship-case',
         'https://kazansky.dev/products/sample-converter',
       ]),
     )
@@ -246,17 +246,20 @@ describe('experience page SEO', () => {
 })
 
 describe('sitemap and robots', () => {
-  it('lists the homepage, experience page, products index, and every registered product', () => {
-    const slugs = products.map(p => p.slug)
-    const xml = buildSitemapXml(DEFAULT_SITE_URL, undefined, slugs)
-    expect(sitemapPaths(slugs)).toContain('/')
-    expect(sitemapPaths(slugs)).toContain('/experience')
-    expect(sitemapPaths(slugs)).toContain('/products')
-    expect(sitemapPaths(slugs)).toContain('/products/sample-converter')
+  it('lists the homepage, experience page, products, and case routes', () => {
+    const productSlugs = products.map(p => p.slug)
+    const caseSlugs = ['sample-flagship-case']
+    const xml = buildSitemapXml(DEFAULT_SITE_URL, undefined, productSlugs, caseSlugs)
+    expect(sitemapPaths(productSlugs, caseSlugs)).toContain('/')
+    expect(sitemapPaths(productSlugs, caseSlugs)).toContain('/experience')
+    expect(sitemapPaths(productSlugs, caseSlugs)).toContain('/products')
+    expect(sitemapPaths(productSlugs, caseSlugs)).toContain('/products/sample-converter')
+    expect(sitemapPaths(productSlugs, caseSlugs)).toContain('/work/sample-flagship-case')
     expect(xml).toContain('<loc>https://kazansky.dev/</loc>')
     expect(xml).toContain('<loc>https://kazansky.dev/experience</loc>')
     expect(xml).toContain('<loc>https://kazansky.dev/products</loc>')
     expect(xml).toContain('<loc>https://kazansky.dev/products/sample-converter</loc>')
+    expect(xml).toContain('<loc>https://kazansky.dev/work/sample-flagship-case</loc>')
   })
 
   it('allows crawlers on /products and points at the sitemap', () => {

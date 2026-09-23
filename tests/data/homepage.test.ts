@@ -81,6 +81,15 @@ describe('homepage content model (CMS-mapped)', () => {
     }
   })
 
+  it('links case-enabled flagship to /work/:slug only', () => {
+    const flagship = published.featuredCases[0]
+    expect(flagship.href).toBe('/work/sample-flagship-case')
+    expect(flagship.hrefLabel).toBe('View case')
+
+    const secondary = published.featuredCases[1]
+    expect(secondary.href).toBe('/experience#acme-senior-engineer')
+  })
+
   it('spotlights the CMS product with a guide screenshot', () => {
     expect(published.products.items).toHaveLength(1)
     const spotlight = published.products.items[0]

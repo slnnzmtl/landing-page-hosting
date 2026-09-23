@@ -3,9 +3,13 @@ import type { HomepageContent } from '~/data/homepage'
 import { useHomepageUi } from '~/composables/useHomepageUi'
 import { trackHomepageHref } from '~/composables/useHomepageConversion'
 
-defineProps<{
+withDefaults(defineProps<{
   contact: HomepageContent['contact']
-}>()
+  /** Single full-width CTA band (case pages). */
+  compact?: boolean
+}>(), {
+  compact: false,
+})
 
 const { linkFocus, outboundAttrs } = useHomepageUi()
 
@@ -18,20 +22,47 @@ function onContactClick(href: string) {
   <section
     id="contact"
     aria-labelledby="contact-heading"
-    class="scroll-mt-24 grid gap-8 md:grid-cols-2"
+    :class="compact
+      ? 'scroll-mt-24 rounded-2xl border border-primary/30 bg-card/60 px-5 py-5 sm:flex sm:items-center sm:justify-between sm:gap-8 sm:px-6 sm:py-6'
+      : 'scroll-mt-24 grid gap-8 md:grid-cols-2'"
   >
-    <div>
+    <div :class="compact ? 'min-w-0' : undefined">
       <h2
         id="contact-heading"
-        class="text-2xl font-semibold"
+        :class="compact ? 'text-xl font-semibold' : 'text-2xl font-semibold'"
       >
         {{ contact.heading }}
       </h2>
-      <p class="mt-3 text-muted-foreground">
+      <p
+        :class="compact
+          ? 'mt-1.5 max-w-[70ch] text-sm text-muted-foreground'
+          : 'mt-3 text-muted-foreground'"
+      >
         {{ contact.summary }}
       </p>
     </div>
-    <div class="rounded-3xl border border-dashed border-primary/40 bg-card p-8 shadow-sm">
+
+    <div
+      v-if="compact"
+      class="mt-4 flex flex-wrap gap-x-5 gap-y-2 sm:mt-0 sm:justify-end"
+    >
+      <a
+        v-for="link in contact.links"
+        :key="link.href"
+        :href="link.href"
+        v-bind="outboundAttrs(link.href)"
+        :class="['text-sm font-medium text-foreground hover:text-primary', linkFocus]"
+        @click="onContactClick(link.href)"
+      >
+        <span class="text-muted-foreground">{{ link.label }}:</span>
+        {{ link.title }}
+      </a>
+    </div>
+
+    <div
+      v-else
+      class="rounded-3xl border border-dashed border-primary/40 bg-card p-8 shadow-sm"
+    >
       <p
         v-for="(link, index) in contact.links"
         :key="link.href"

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppPageHeader from '~/components/AppPageHeader.vue'
 import { useHomepageUi } from '~/composables/useHomepageUi'
-import ProjectGallery from '../components/ProjectGallery.vue'
+import MediaGallery from '~/components/media/MediaGallery.vue'
 import GithubReleases from '../components/GithubReleases.vue'
 import ProjectLaunchActions from '../components/ProjectLaunchActions.vue'
 import ProjectTrustPanel from '../components/ProjectTrustPanel.vue'
@@ -184,7 +184,10 @@ const benefitsHeading = computed(() => (
         <h2 id="project-gallery-heading" class="text-2xl font-semibold">
           Product gallery
         </h2>
-        <ProjectGallery :images="project.gallery" />
+        <MediaGallery
+          :images="project.gallery"
+          columns="three"
+        />
       </section>
 
       <section

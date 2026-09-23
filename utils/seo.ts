@@ -246,12 +246,16 @@ export function seoHead(siteUrl: string, page: PageSeo, siteName = SITE_NAME) {
   }
 }
 
-export function sitemapPaths(productSlugs: string[] = []): string[] {
+export function sitemapPaths(
+  productSlugs: string[] = [],
+  caseSlugs: string[] = [],
+): string[] {
   const paths = [
     '/',
     '/experience',
     '/products',
     ...productSlugs.map(slug => `/products/${slug}`),
+    ...caseSlugs.map(slug => `/work/${slug}`),
   ]
   return [...new Set(paths)]
 }
@@ -260,8 +264,9 @@ export function buildSitemapXml(
   siteUrl: string,
   paths?: string[],
   productSlugs: string[] = [],
+  caseSlugs: string[] = [],
 ): string {
-  const resolvedPaths = paths ?? sitemapPaths(productSlugs)
+  const resolvedPaths = paths ?? sitemapPaths(productSlugs, caseSlugs)
   const origin = resolveSiteUrl(siteUrl)
   const urls = resolvedPaths.map((path) => {
     const loc = absoluteUrl(origin, path)

@@ -50,6 +50,16 @@ describe('prefixDomainPages', () => {
     expect(pages[1].path).toBe('/products/:slug()')
   })
 
+  it('prefixes cases layer pages as /work', () => {
+    const pages: NuxtPage[] = [
+      { path: '/:slug()', file: '/repo/domains/cases/pages/[slug].vue' },
+    ]
+
+    prefixDomainPages(pages, 'cases', '/work')
+
+    expect(pages[0].path).toBe('/work/:slug()')
+  })
+
   it('is idempotent', () => {
     const pages: NuxtPage[] = [
       { path: '/dashboard', file: '/repo/domains/service/pages/dashboard.vue' },

@@ -3,6 +3,7 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import { basename, dirname, join } from 'node:path'
 import {
   directusGet,
+  publicPathForFile,
   resolveDirectusConfig,
   type DirectusClientConfig,
 } from './client'
@@ -20,7 +21,6 @@ import {
 import {
   homepageProofKeys,
   mapPortfolio,
-  publicPathForFile,
   type PortfolioContent,
 } from './map'
 import type {
@@ -209,4 +209,20 @@ export async function fetchProductSlugs(
     + `&limit=-1`,
   )
   return products.map(p => p.slug)
+}
+
+export async function fetchCaseSlugs(
+  config?: DirectusClientConfig,
+): Promise<string[]> {
+  const resolved = config || resolveDirectusConfig()
+  const projects = await directusGet<Array<{ slug: string }>>(
+    resolved,
+    `/items/projects`
+    + `?filter[status][_eq]=published`
+    + `&filter[case_enabled][_eq]=true`
+    + `&fields=slug`
+    + `&sort=sort`
+    + `&limit=-1`,
+  )
+  return projects.map(p => p.slug)
 }

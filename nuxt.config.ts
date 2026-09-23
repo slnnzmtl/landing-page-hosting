@@ -15,6 +15,7 @@ export default defineNuxtConfig({
     './domains/survey',
     './domains/service',
     './domains/projects',
+    './domains/cases',
   ],
   modules: ['@nuxtjs/tailwindcss'],
   ssr: true,
@@ -97,15 +98,21 @@ export default defineNuxtConfig({
       if (!shouldFetchCmsPrerenderSlugs()) return
 
       try {
-        const { fetchProductSlugs } = await import('./utils/cms/load')
-        const slugs = await fetchProductSlugs()
-        const routes = slugs.map(slug => `/products/${slug}`)
+        const { fetchProductSlugs, fetchCaseSlugs } = await import('./utils/cms/load')
+        const [productSlugs, caseSlugs] = await Promise.all([
+          fetchProductSlugs(),
+          fetchCaseSlugs(),
+        ])
+        const routes = [
+          ...productSlugs.map(slug => `/products/${slug}`),
+          ...caseSlugs.map(slug => `/work/${slug}`),
+        ]
         nitroConfig.prerender = nitroConfig.prerender || {}
         const existing = nitroConfig.prerender.routes || []
         nitroConfig.prerender.routes = [...new Set([...existing, ...routes])]
       }
       catch (error) {
-        console.error('[nitro:config] Failed to load CMS product slugs:', error)
+        console.error('[nitro:config] Failed to load CMS product/case slugs:', error)
         throw error
       }
     },
