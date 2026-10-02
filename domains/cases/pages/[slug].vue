@@ -95,6 +95,7 @@ provide(openCaseLightboxKey, openLightbox)
         <HomeContact
           :contact="home.contact"
           compact
+          as="footer"
         />
       </div>
     </div>

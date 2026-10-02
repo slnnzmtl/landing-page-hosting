@@ -1,15 +1,29 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { HomepageContent } from '~/data/homepage'
 import { useHomepageUi } from '~/composables/useHomepageUi'
 import { trackHomepageHref } from '~/composables/useHomepageConversion'
 
-withDefaults(defineProps<{
+const props = withDefaults(defineProps<{
   contact: HomepageContent['contact']
   /** Single full-width CTA band (case pages). */
   compact?: boolean
+  /** Override CMS copy when this contact block is used as a page template. */
+  heading?: string
+  summary?: string
+  primaryLabel?: string
+  /** Render as a semantic footer when the block closes a page. */
+  as?: 'section' | 'footer'
 }>(), {
   compact: false,
+  heading: undefined,
+  summary: undefined,
+  primaryLabel: 'Contact',
+  as: 'section',
 })
+
+const displayHeading = computed(() => props.heading || props.contact.heading)
+const displaySummary = computed(() => props.summary || props.contact.summary)
 
 const { linkFocus, outboundAttrs } = useHomepageUi()
 
@@ -19,7 +33,8 @@ function onContactClick(href: string) {
 </script>
 
 <template>
-  <section
+  <component
+    :is="as"
     id="contact"
     aria-labelledby="contact-heading"
     :class="compact
@@ -31,14 +46,14 @@ function onContactClick(href: string) {
         id="contact-heading"
         :class="compact ? 'text-xl font-semibold tracking-tight' : 'text-2xl font-semibold'"
       >
-        {{ contact.heading }}
+        {{ displayHeading }}
       </h2>
       <p
         :class="compact
           ? 'mt-1.5 max-w-[70ch] text-sm text-muted-foreground'
           : 'mt-3 text-muted-foreground'"
       >
-        {{ contact.summary }}
+        {{ displaySummary }}
       </p>
     </div>
 
@@ -53,7 +68,7 @@ function onContactClick(href: string) {
         :class="['inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90', linkFocus]"
         @click="onContactClick(contact.links[0].href)"
       >
-        Contact
+        {{ primaryLabel }}
       </a>
       <a
         v-for="link in contact.links.slice(1)"
@@ -89,5 +104,5 @@ function onContactClick(href: string) {
         </a>
       </p>
     </div>
-  </section>
+  </component>
 </template>

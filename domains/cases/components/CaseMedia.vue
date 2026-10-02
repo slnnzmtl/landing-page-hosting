@@ -31,7 +31,7 @@ function frameClass(presentation?: CaseImage['presentation']) {
     return 'bg-transparent'
   }
   if (presentation === 'screenshot' || presentation === 'gallery') {
-    return 'bg-white ring-1 ring-border shadow-sm'
+    return 'bg-transparent ring-1 ring-border shadow-sm'
   }
   return 'bg-card border border-border shadow-sm'
 }

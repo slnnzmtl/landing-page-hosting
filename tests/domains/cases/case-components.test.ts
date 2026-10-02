@@ -82,6 +82,11 @@ describe('case media and layouts', () => {
     expect(img.attributes('srcset')).toContain('600w')
     expect(img.attributes('sizes')).toContain('80vw')
     expect(img.classes()).not.toContain('object-cover')
+
+    const screenshot = mount(CaseMedia, {
+      props: { image, size: 'screenshot' },
+    })
+    expect(screenshot.find('button').classes()).toContain('bg-transparent')
   })
 
   it('renders narrative text and split layouts differently', () => {
