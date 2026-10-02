@@ -13,10 +13,21 @@ import type {
   ProductSpotlight,
   ProofItem,
 } from '../../data/homepage'
-import { catalogPageHref, type Project, type ProjectImage, type ProjectLaunchCta } from '../../domains/projects/data/types'
+import {
+  catalogPageHref,
+  type Project,
+  type ProjectImage,
+  type ProjectLaunchCta,
+  type ProjectMedia,
+} from '../../domains/projects/data/types'
 import type { CaseStudy } from '../../domains/cases/data/types'
 import { casePath } from '../../domains/cases/data/types'
-import { assetUrl, publicPathForFile, type DirectusClientConfig } from './client'
+import {
+  assetUrl,
+  publicPathForFile,
+  publicPathForImageVariant,
+  type DirectusClientConfig,
+} from './client'
 import { mapCases } from './map-cases'
 import type {
   CmsApprovedClaim,
@@ -113,20 +124,57 @@ function fileImage(
   if (!fileId) return undefined
   const file = catalog.byId.get(fileId)
   const src = file ? publicPathForFile(file) : assetUrl(config, fileId)
+  const thumbWidth = thumbMarker === '-256w' ? 256 : thumbMarker === '-600w' ? 600 : undefined
   const thumb = file?.title && thumbMarker
     ? catalog.byTitle.get(thumbTitle(file.title, thumbMarker))
     : undefined
-  const srcThumb = thumb ? publicPathForFile(thumb) : undefined
+  const srcThumb = thumb
+    ? publicPathForFile(thumb)
+    : file && thumbWidth && file.type?.startsWith('image/')
+      ? publicPathForImageVariant(src, thumbWidth)
+      : undefined
   const widthHint = thumbMarker === '-256w' ? 256 : thumbMarker === '-600w' ? 600 : undefined
+  const width = file?.width || size.width
+  const height = file?.height || size.height
   return {
     src,
     srcThumb,
     srcset: srcThumb && widthHint
-      ? `${srcThumb} ${widthHint}w, ${src} ${size.width}w`
+      ? srcThumb + ' ' + widthHint + 'w, ' + src + ' ' + width + 'w'
       : undefined,
     alt,
-    width: size.width,
-    height: size.height,
+    width,
+    height,
+  }
+}
+
+function productMediaImage(
+  catalog: FileCatalog,
+  file: CmsFile,
+  alt: string,
+  caption: string | null | undefined,
+): ProjectImage {
+  const src = publicPathForFile(file)
+  const width = file.width || 1280
+  const height = file.height || 800
+  const variantWidths = [640, 960].filter(variant => variant < width)
+  const variants = variantWidths.map((variant) => {
+    const existing = file.title
+      ? catalog.byTitle.get(publicPathForImageVariant(src, variant))
+      : undefined
+    return existing
+      ? publicPathForFile(existing)
+      : publicPathForImageVariant(src, variant)
+  })
+  return {
+    src,
+    srcThumb: variants[0],
+    srcset: [...variants.map((path, index) => path + ' ' + variantWidths[index] + 'w'), src + ' ' + width + 'w'].join(', '),
+    sizes: '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 40rem',
+    alt,
+    width,
+    height,
+    caption: caption || undefined,
   }
 }
 
@@ -576,11 +624,74 @@ function mapHomepageContent(
   }
 }
 
+function productMediaFile(
+  media: NonNullable<CmsProduct['media']>[number],
+  catalog: FileCatalog,
+): CmsFile {
+  const file = typeof media.file === 'string'
+    ? catalog.byId.get(media.file)
+    : media.file
+  if (!file) {
+    throw new Error(`Product media ${media.id} is missing its file metadata`)
+  }
+  if (!file.width || !file.height) {
+    throw new Error(`Product media ${media.id} is missing image dimensions`)
+  }
+  return file
+}
+
+function mapProductMedia(
+  product: CmsProduct,
+  catalog: FileCatalog,
+): ProjectMedia[] {
+  const media = [...(product.media || [])]
+    .sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0))
+  if (!media.length) {
+    throw new Error(`Extension product "${product.slug}" requires product media`)
+  }
+  const presentations = media.map(item => item.presentation)
+  for (const role of ['comparison_before', 'comparison_after'] as const) {
+    if (presentations.filter(item => item === role).length !== 1) {
+      throw new Error(`Extension product "${product.slug}" requires exactly one ${role} image`)
+    }
+  }
+  return media.map((item) => {
+    if (!item.alt?.trim()) {
+      throw new Error(`Product media ${item.id} requires alt text`)
+    }
+    const image = productMediaImage(
+      catalog,
+      productMediaFile(item, catalog),
+      item.alt,
+      item.caption,
+    )
+    return { ...image, presentation: item.presentation }
+  })
+}
+
+function productPrice(product: CmsProduct): { amount: number, currency: string } {
+  const amount = typeof product.price_amount === 'string'
+    ? Number(product.price_amount)
+    : product.price_amount
+  const currency = product.price_currency?.trim().toUpperCase()
+  if (amount == null || !Number.isFinite(amount) || amount < 0) {
+    throw new Error(`Extension product "${product.slug}" requires a valid price`)
+  }
+  if (!currency || !/^[A-Z]{3}$/.test(currency)) {
+    throw new Error(`Extension product "${product.slug}" requires a valid ISO currency`)
+  }
+  return { amount, currency }
+}
+
 function mapCmsProduct(
   product: CmsProduct,
   config: Pick<DirectusClientConfig, 'baseUrl'>,
   catalog: FileCatalog = EMPTY_CATALOG,
 ): Project {
+  const detailTemplate = product.detail_template || 'application'
+  if (detailTemplate !== 'application' && detailTemplate !== 'extension') {
+    throw new Error(`Product "${product.slug}" has an unknown detail template`)
+  }
   const logo = fileImage(
     config,
     catalog,
@@ -589,14 +700,6 @@ function mapCmsProduct(
     { width: 512, height: 512 },
     '-256w',
   )
-  const socialImage = fileImage(
-    config,
-    catalog,
-    product.social_image,
-    `${product.name} social image`,
-    { width: 1200, height: 630 },
-  )
-
   const guide = product.guide
     ? {
         title: product.guide.title,
@@ -610,7 +713,6 @@ function mapCmsProduct(
         })),
       }
     : undefined
-
   const launchCtas = mapLaunchCtas(product.launch_ctas)
   const hasLaunch = Boolean(
     product.launch_lead
@@ -620,23 +722,10 @@ function mapCmsProduct(
     || product.trust_facts?.length
     || product.trademark,
   )
-
   const github = product.github_owner && product.github_repo
     ? { owner: product.github_owner, repo: product.github_repo }
     : undefined
-
-  const softwareApplication
-    = product.application_category
-      && product.operating_system
-      && product.license_url
-      ? {
-          applicationCategory: product.application_category,
-          operatingSystem: product.operating_system,
-          license: product.license_url,
-        }
-      : undefined
-
-  return {
+  const base = {
     slug: product.slug,
     name: product.name,
     shortDescription: product.short_description,
@@ -644,7 +733,6 @@ function mapCmsProduct(
     logo: logo
       ? { ...logo, sizes: '(max-width: 1024px) 14rem, 14rem' }
       : undefined,
-    socialImage,
     benefits: product.benefits ?? undefined,
     guide,
     links: product.evidence_links ?? undefined,
@@ -666,8 +754,66 @@ function mapCmsProduct(
           titleSuffix: product.seo_title_suffix ?? undefined,
         }
       : undefined,
-    softwareApplication,
     stackTags: product.stack_tags ?? undefined,
+  }
+
+  if (detailTemplate === 'extension') {
+    if (!product.kicker?.trim() || !product.software_requirements?.trim() || !product.media_heading?.trim()) {
+      throw new Error(`Extension product "${product.slug}" is missing required presentation fields`)
+    }
+    const price = productPrice(product)
+    const media = mapProductMedia(product, catalog)
+    const installUrl = launchCtas.find(cta => cta.kind === 'primary')?.href
+    return {
+      ...base,
+      detailTemplate: 'extension',
+      kicker: product.kicker,
+      price,
+      softwareRequirements: product.software_requirements,
+      mediaHeading: product.media_heading,
+      mediaIntro: product.media_intro ?? undefined,
+      media,
+      socialImage: fileImage(
+        config,
+        catalog,
+        product.social_image,
+        `${product.name} social image`,
+        { width: 1200, height: 630 },
+      ) || media.find(item => item.presentation === 'comparison_after') || logo,
+      softwareApplication: {
+        applicationCategory: 'BrowserApplication',
+        operatingSystem: product.software_requirements,
+        license: product.license_url ?? undefined,
+        priceAmount: price.amount,
+        priceCurrency: price.currency,
+        installUrl,
+        softwareRequirements: product.software_requirements,
+      },
+    }
+  }
+
+  const socialImage = fileImage(
+    config,
+    catalog,
+    product.social_image,
+    `${product.name} social image`,
+    { width: 1200, height: 630 },
+  )
+  const softwareApplication
+    = product.application_category
+      && product.operating_system
+      && product.license_url
+      ? {
+          applicationCategory: product.application_category,
+          operatingSystem: product.operating_system,
+          license: product.license_url,
+        }
+      : undefined
+  return {
+    ...base,
+    detailTemplate: 'application',
+    socialImage,
+    softwareApplication,
   }
 }
 

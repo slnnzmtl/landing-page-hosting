@@ -193,6 +193,26 @@ export const PRODUCT_FIELDS = [
   'seo_title',
   'seo_description',
   'seo_title_suffix',
+  'detail_template',
+  'kicker',
+  'media_heading',
+  'media_intro',
+  'price_amount',
+  'price_currency',
+  'software_requirements',
+  ...nestedFields('media', [
+    'id',
+    'sort',
+    'file.id',
+    'file.filename_download',
+    'file.title',
+    'file.type',
+    'file.width',
+    'file.height',
+    'alt',
+    'caption',
+    'presentation',
+  ]),
 ].join(',')
 
 export const BUILD_CLAIM_FIELDS = 'id,key,public_wording,status'

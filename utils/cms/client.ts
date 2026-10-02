@@ -103,3 +103,8 @@ export function publicPathForFile(file: CmsPublicFile): string {
   const name = file.filename_download || file.id
   return `/cms-files/${file.id}/${name}`
 }
+
+/** Deterministic local filename for a build-time Directus image transform. */
+export function publicPathForImageVariant(path: string, width: number): string {
+  return path.replace(/\.[a-z0-9]+$/i, `-${width}w.webp`)
+}
