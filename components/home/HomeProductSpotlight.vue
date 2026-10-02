@@ -44,12 +44,9 @@ function onProductCtaClick() {
     </div>
 
     <div class="flex flex-1 flex-col p-5 sm:p-6">
-      <h3 class="min-h-[3.5rem] text-xl font-semibold leading-tight tracking-tight">
+      <h3 class="text-xl font-semibold leading-tight tracking-tight">
         {{ product.title }}
       </h3>
-      <p class="mt-2 line-clamp-2 text-sm leading-relaxed text-foreground">
-        {{ product.lead }}
-      </p>
       <p class="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
         {{ product.supportingLine }}
       </p>
@@ -75,10 +72,10 @@ function onProductCtaClick() {
       </div>
 
       <p
-        v-if="product.tags.length"
+        v-if="product.detail_template"
         class="mt-4 line-clamp-2 text-xs leading-relaxed text-muted-foreground"
       >
-        {{ product.tags.join(' · ') }}
+        {{ product.detail_template }}
       </p>
     </div>
   </article>

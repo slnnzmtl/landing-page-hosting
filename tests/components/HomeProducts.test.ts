@@ -22,6 +22,7 @@ function product(slug: string): ProductSpotlight {
       height: 800,
     },
     cta: { label: 'View product', href: `/products/${slug}` },
+    detail_template: 'Application description',
     tags: ['Vue', 'TypeScript'],
   }
 }
@@ -64,6 +65,5 @@ describe('HomeProductSpotlight', () => {
 
     expect(wrapper.find('article').classes()).toContain('rounded-2xl')
     expect(wrapper.find('img').attributes('alt')).toBe('one screenshot')
-    expect(wrapper.text()).toContain('Vue · TypeScript')
   })
 })
