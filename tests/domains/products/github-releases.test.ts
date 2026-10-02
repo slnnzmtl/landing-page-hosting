@@ -11,7 +11,7 @@ import {
   releaseNotesToPlainText,
   writeCachedReleases,
   githubReleasesCacheKey,
-} from '~/domains/projects/utils/github-releases'
+} from '~/domains/products/utils/github-releases'
 
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {

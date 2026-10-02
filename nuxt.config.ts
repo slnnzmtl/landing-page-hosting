@@ -14,6 +14,7 @@ export default defineNuxtConfig({
   extends: [
     './domains/survey',
     './domains/service',
+    './domains/products',
     './domains/projects',
     './domains/cases',
   ],
@@ -82,6 +83,7 @@ export default defineNuxtConfig({
       crawlLinks: false,
       routes: [
         '/',
+        '/projects',
         '/experience',
         '/survey',
         ...getSurveyRoutes(),

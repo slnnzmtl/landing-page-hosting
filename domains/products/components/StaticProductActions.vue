@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { ProjectLaunch } from '../data/types'
+import type { ProductLaunch } from '../data/types'
 
 const props = defineProps<{
-  launch: ProjectLaunch
+  launch: ProductLaunch
 }>()
 
 const primaryCta = computed(() => props.launch.ctas.find(cta => cta.kind === 'primary'))

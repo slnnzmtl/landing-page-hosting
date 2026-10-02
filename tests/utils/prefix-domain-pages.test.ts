@@ -38,16 +38,26 @@ describe('prefixDomainPages', () => {
     expect(pages[1].path).toBe('/survey/:slug()')
   })
 
-  it('prefixes projects layer pages as /products', () => {
+  it('prefixes products layer pages as /products', () => {
     const pages: NuxtPage[] = [
-      { path: '/', file: '/repo/domains/projects/pages/index.vue' },
-      { path: '/:slug()', file: '/repo/domains/projects/pages/[slug].vue' },
+      { path: '/', file: '/repo/domains/products/pages/index.vue' },
+      { path: '/:slug()', file: '/repo/domains/products/pages/[slug].vue' },
     ]
 
-    prefixDomainPages(pages, 'projects', '/products')
+    prefixDomainPages(pages, 'products', '/products')
 
     expect(pages[0].path).toBe('/products')
     expect(pages[1].path).toBe('/products/:slug()')
+  })
+
+  it('prefixes the projects index as /projects', () => {
+    const pages: NuxtPage[] = [
+      { path: '/', file: '/repo/domains/projects/pages/index.vue' },
+    ]
+
+    prefixDomainPages(pages, 'projects', '/projects')
+
+    expect(pages[0].path).toBe('/projects')
   })
 
   it('prefixes cases layer pages as /work', () => {

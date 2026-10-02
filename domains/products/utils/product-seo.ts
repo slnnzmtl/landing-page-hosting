@@ -1,40 +1,40 @@
-import { projectPath, type Project } from '../data/types'
+import { productPath, type Product } from '../data/types'
 import {
   absoluteUrl,
   type PageSeo,
 } from '~/utils/seo'
 
-function socialImage(project: Project) {
-  return project.socialImage
-    || (project.detailTemplate === 'extension'
-      ? project.media.find(item => item.presentation === 'comparison_after')
+function socialImage(product: Product) {
+  return product.socialImage
+    || (product.detailTemplate === 'extension'
+      ? product.media.find(item => item.presentation === 'comparison_after')
       : undefined)
-    || project.logo
+    || product.logo
 }
 
-export interface ProjectsIndexSeoOptions {
+export interface ProductsIndexSeoOptions {
   siteName: string
   title?: string
   description: string
   collectionName?: string
 }
 
-export function projectsIndexSeo(
+export function productsIndexSeo(
   siteUrl: string,
-  projects: Project[],
-  options: ProjectsIndexSeoOptions,
+  products: Product[],
+  options: ProductsIndexSeoOptions,
 ): PageSeo {
   const siteName = options.siteName
   if (!siteName?.trim()) {
-    throw new Error('projectsIndexSeo requires options.siteName from CMS')
+    throw new Error('productsIndexSeo requires options.siteName from CMS')
   }
   if (!options.description?.trim()) {
-    throw new Error('projectsIndexSeo requires options.description from CMS')
+    throw new Error('productsIndexSeo requires options.description from CMS')
   }
   const collectionName = options.collectionName || options.title || 'Products'
   const path = '/products'
   const url = absoluteUrl(siteUrl, path)
-  const image = socialImage(projects[0])
+  const image = socialImage(products[0])
   const description = options.description
   return {
     title: `${collectionName} | ${siteName}`,
@@ -56,44 +56,44 @@ export function projectsIndexSeo(
       },
       'mainEntity': {
         '@type': 'ItemList',
-        'itemListElement': projects.map((project, index) => ({
+        'itemListElement': products.map((product, index) => ({
           '@type': 'ListItem',
           'position': index + 1,
-          'name': project.name,
-          'url': absoluteUrl(siteUrl, projectPath(project.slug)),
+          'name': product.name,
+          'url': absoluteUrl(siteUrl, productPath(product.slug)),
         })),
       },
     },
   }
 }
 
-export interface ProjectDetailSeoOptions {
+export interface ProductDetailSeoOptions {
   siteName: string
   personName: string
   productsLabel?: string
 }
 
-export function projectDetailSeo(
+export function productDetailSeo(
   siteUrl: string,
-  project: Project,
-  options: ProjectDetailSeoOptions,
+  product: Product,
+  options: ProductDetailSeoOptions,
 ): PageSeo {
   if (!options.siteName?.trim()) {
-    throw new Error('projectDetailSeo requires options.siteName from CMS')
+    throw new Error('productDetailSeo requires options.siteName from CMS')
   }
   if (!options.personName?.trim()) {
-    throw new Error('projectDetailSeo requires options.personName from CMS')
+    throw new Error('productDetailSeo requires options.personName from CMS')
   }
   const siteName = options.siteName
   const personName = options.personName
   const productsLabel = options.productsLabel || 'Products'
-  const path = projectPath(project.slug)
+  const path = productPath(product.slug)
   const url = absoluteUrl(siteUrl, path)
-  const description = project.seo?.description ?? project.shortDescription
-  const titleSuffix = project.seo?.titleSuffix ?? siteName
-  const title = `${project.seo?.title ?? project.name} | ${titleSuffix}`
-  const image = socialImage(project)
-  const software = project.softwareApplication
+  const description = product.seo?.description ?? product.shortDescription
+  const titleSuffix = product.seo?.titleSuffix ?? siteName
+  const title = `${product.seo?.title ?? product.name} | ${titleSuffix}`
+  const image = socialImage(product)
+  const software = product.softwareApplication
   const graph: Record<string, unknown>[] = [
     {
       '@type': 'BreadcrumbList',
@@ -113,7 +113,7 @@ export function projectDetailSeo(
         {
           '@type': 'ListItem',
           'position': 3,
-          'name': project.name,
+          'name': product.name,
           'item': url,
         },
       ],
@@ -123,7 +123,7 @@ export function projectDetailSeo(
   if (software) {
     graph.unshift({
       '@type': 'SoftwareApplication',
-      'name': project.name,
+      'name': product.name,
       description,
       url,
       'image': image ? absoluteUrl(siteUrl, image.src) : undefined,

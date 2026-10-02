@@ -68,6 +68,7 @@ node-compile-cache/
 .cms-assets
 /public/images/
 /public/projects/
+/public/cms-files/
 /public/favicon.ico
 /public/favicon-16x16.png
 /public/favicon-32x32.png

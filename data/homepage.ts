@@ -1,5 +1,15 @@
-/** Nested UI chrome for products (assembled from products_page_settings + spotlight_cta). */
+import type { ProjectSummary } from '~/domains/projects/data/types'
+
+/** CMS-controlled UI chrome for Projects and Products. */
 export interface PageCopy {
+  projects_index: {
+    title: string
+    description: string
+    seo_description: string
+    back_label: string
+    back_href: string
+    item_cta: string
+  }
   products_index: {
     title: string
     description: string
@@ -45,23 +55,12 @@ export interface HeroFocus {
   items: HeroFocusItem[]
 }
 
-export interface FeaturedCase {
-  slug: string
-  title: string
-  featured?: boolean
-  problem: string
-  role: string
-  contribution: string
-  outcome: string
-  stack: string[]
-  /** Primary CTA — case page `/work/:slug` or evidence link. */
-  href?: string
-  hrefLabel?: string
-}
-
 export interface ExperiencePreviewItem {
   id: string
   organization: string
+  title: string
+  dateRange: string
+  summary?: string
   icon?: string
   iconAlt?: string
 }
@@ -114,8 +113,8 @@ export interface HomepageContent {
   proof: ProofItem[]
   featuredWorkHeading: string
   featuredWorkIntro: string
-  flagshipLabel: string
-  featuredCases: FeaturedCase[]
+  featuredProjects: ProjectSummary[]
+  projectsCta: HomepageLink
   experiencePreview: ExperiencePreview
   products: ProductsSection
   /** Primary site nav from Directus `site_settings.menu`. */
@@ -132,15 +131,15 @@ export interface HomepageContent {
   seoDescription?: string
   /** Optional homepage Open Graph image from `site_settings.og_image`. */
   ogImage?: { src: string, alt: string, width: number, height: number }
-  /** Products chrome from Directus `products_page_settings` + spotlight CTA. */
+  /** CMS page chrome for Projects and Products. */
   pageCopy: PageCopy
 }
 
 export type HomepageHrefKind = 'native' | 'route'
 
 export type ConversionEventName
-  = 'flagship-case-open'
-    | 'case-open'
+  = 'project-open'
+    | 'case-study-open'
     | 'product-open'
     | 'contact'
 
@@ -166,14 +165,14 @@ export function isContactHref(href: string): boolean {
 /** Map homepage CTAs to the four Umami events. Hash-only nav anchors return null. */
 export function conversionEventName(
   href: string,
-  options?: { featured?: boolean, product?: boolean, contact?: boolean },
+  options?: { project?: boolean, caseStudy?: boolean, product?: boolean, contact?: boolean },
 ): ConversionEventName | null {
   if (options?.contact || isContactHref(href)) return 'contact'
   if (options?.product) return 'product-open'
-  if (options?.featured) return 'flagship-case-open'
-  if (href === '#flagship-case') return null
+  if (options?.caseStudy) return 'case-study-open'
+  if (options?.project) return 'project-open'
   if (/^https?:/i.test(href) || homepageHrefKind(href) === 'route') {
-    return 'case-open'
+    return 'project-open'
   }
   return null
 }

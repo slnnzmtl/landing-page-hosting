@@ -41,8 +41,8 @@ export const HOMEPAGE_SETTINGS_FIELDS = [
   'proof_heading',
   'featured_work_heading',
   'featured_work_intro',
-  'flagship_label',
   'featured_projects.projects_id.slug',
+  ...nestedFields('featured_projects_cta', BUTTON_FIELDS),
   'experience_preview_heading',
   'experience_preview.experience_entries_id.key',
   ...nestedFields('experience_preview_cta', BUTTON_FIELDS),
@@ -81,6 +81,16 @@ export const PRODUCTS_PAGE_FIELDS = [
   'benefits_heading_default',
   'trust_heading',
   'download_warning_title',
+].join(',')
+
+export const PROJECTS_PAGE_FIELDS = [
+  'status',
+  'title',
+  'description',
+  'seo_description',
+  'back_label',
+  'back_href',
+  'item_cta',
 ].join(',')
 
 export const FILE_FIELDS = 'id,filename_download,title,type,width,height'

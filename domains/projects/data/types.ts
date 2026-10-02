@@ -1,142 +1,24 @@
-export interface ProjectImage {
-  src: string
-  alt: string
-  width: number
-  height: number
-  caption?: string
-  /** Optional smaller source for grid/hero; full `src` stays for lightbox. */
-  srcThumb?: string
-  srcset?: string
-  sizes?: string
-}
+export type ProjectTrack = 'enterprise' | 'independent' | 'open_source'
 
-export interface ProjectLink {
-  label: string
-  href: string
-}
-
-export interface ProjectLaunchCta {
-  label: string
-  href: string
-  kind: 'primary' | 'secondary'
-  /** Resolve href from the latest GitHub macOS universal asset when a release is available */
-  macosDownload?: boolean
-}
-
-export interface ProjectTrustFact {
-  label: string
-  value: string
-  href?: string
-}
-
-export interface ProjectLaunch {
-  lead: string
-  supportingLine: string
-  ctas: ProjectLaunchCta[]
-  /** Shown before macOS app download (ad hoc signing, Gatekeeper, etc.) */
-  macosDownloadWarning?: string
-  /** Evergreen trust copy; version and release date are filled from GitHub when linked */
-  trustFacts: ProjectTrustFact[]
-  trademark?: string
-}
-
-export interface ProjectBenefit {
-  title: string
-  description: string
-}
-
-export interface ProjectGuideStep {
-  title: string
-  body: string
-  /** Optional screenshot shown under this walkthrough step. */
-  image?: ProjectImage
-}
-
-export interface ProjectGuide {
-  title: string
-  warning?: string
-  steps: ProjectGuideStep[]
-}
-
-export interface GithubRepoRef {
-  owner: string
-  repo: string
-}
-
-export interface ProjectSeo {
-  title: string
-  description: string
-  /** Overrides the default site suffix in the document title, e.g. Daniel Kazansky */
-  titleSuffix?: string
-}
-
-export interface ProjectSoftwareApplication {
-  applicationCategory: string
-  operatingSystem: string
-  license?: string
-  priceAmount?: number
-  priceCurrency?: string
-  installUrl?: string
-  softwareRequirements?: string
-}
-
-export type ProductDetailTemplate = 'application' | 'extension'
-
-export type ProductMediaPresentation
-  = 'comparison_before'
-    | 'comparison_after'
-    | 'gallery'
-    | 'hero'
-
-export interface ProjectMedia extends ProjectImage {
-  presentation: ProductMediaPresentation
-}
-
-export interface ProductBase {
+export interface ProjectSummary {
   slug: string
   name: string
   shortDescription: string
-  detailTemplate: ProductDetailTemplate
-  description?: string
-  logo?: ProjectImage
-  socialImage?: ProjectImage
-  benefits?: ProjectBenefit[]
-  guide?: ProjectGuide
-  links?: ProjectLink[]
-  launch?: ProjectLaunch
-  gallery?: ProjectImage[]
-  github?: GithubRepoRef
-  seo?: ProjectSeo
-  softwareApplication?: ProjectSoftwareApplication
-  stackTags?: string[]
+  role?: string
+  track?: ProjectTrack | string
+  stackTags: string[]
+  href: string
+  hrefLabel: string
+  hasCaseStudy: boolean
 }
 
-export interface ApplicationProduct extends ProductBase {
-  detailTemplate: 'application'
+export function projectSummaryCategory(project: Pick<ProjectSummary, 'track' | 'hasCaseStudy'>): string {
+  if (project.hasCaseStudy) return 'Case study'
+  if (project.track === 'open_source') return 'Open-source platform'
+  if (project.track === 'enterprise') return 'Enterprise project'
+  return 'Independent project'
 }
 
-export interface ExtensionProduct extends ProductBase {
-  detailTemplate: 'extension'
-  kicker: string
-  price: {
-    amount: number
-    currency: string
-  }
-  softwareRequirements: string
-  mediaHeading: string
-  mediaIntro?: string
-  media: ProjectMedia[]
-}
-
-export type Project = ApplicationProduct | ExtensionProduct
-
-export function projectPath(slug: string): string {
-  return `/products/${slug}`
-}
-
-/** Map leftover catalog page URLs after /projects → /products. Never use on media titles. */
-export function catalogPageHref(href: string): string {
-  if (href === '/projects') return '/products'
-  if (href.startsWith('/projects/')) return `/products/${href.slice('/projects/'.length)}`
-  return href
+export function isExternalProjectHref(href: string): boolean {
+  return /^https?:\/\//i.test(href)
 }

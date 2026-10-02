@@ -20,7 +20,8 @@ A Nuxt 3 + Vue 3 multi-domain app for landing pages, public product pages, JSON-
 | Domain | Routes | Purpose |
 |--------|--------|---------|
 | **Root** | `/` | Portfolio / landing homepage |
-| **projects** | `/products`, `/products/:slug` | Public selected products (data-driven; layer folder stays `domains/projects`) |
+| **products** | `/products`, `/products/:slug` | Public selected products (data-driven; layer folder is `domains/products`) |
+| **projects** | `/projects` | Published project summaries; case details remain under `/work/:slug` |
 | **cases** | `/work/:slug` | Directus-backed project case studies (`case_enabled`) |
 | **survey** | `/survey`, `/survey/:slug` | JSON-driven surveys with webhook submit |
 | **service** | `/service/:page` | Service landing pages |
@@ -45,9 +46,10 @@ Each domain lives under `domains/<name>/` as a Nuxt layer. Page routes are prefi
 ├─ composables/                   # Root composables (usePortfolio, …)
 ├─ data/                          # Homepage/experience view types + helpers
 ├─ domains/
+│  ├─ products/
 │  ├─ projects/
 │  │  ├─ pages/                   # index, [slug] → /products/*
-│  │  ├─ data/                    # Project types + projectPath
+│  │  ├─ data/                    # Product types + productPath
 │  │  └─ components/              # Gallery + GitHub releases
 │  ├─ cases/
 │  │  ├─ pages/                   # [slug] → /work/*
@@ -128,9 +130,9 @@ App runs at `http://localhost:3000` by default.
 - `pnpm test:ui` — Vitest UI
 - `pnpm lint` / `pnpm lint:fix` — ESLint
 
-## Products catalog (`domains/projects`)
+## Products catalog (`domains/products`)
 
-Nuxt can drop a layer page when another layer already owns the same route name (`index` vs root, `[slug]` vs survey). The projects layer re-registers `/products` and `/products/:slug` in `pages:extend` (folder name stays `projects`; public URLs are `/products`).
+Nuxt can drop a layer page when another layer already owns the same route name (`index` vs root, `[slug]` vs survey). The products layer re-registers `/products` and `/products/:slug` in `pages:extend`.
 
 ### Add another selected product
 

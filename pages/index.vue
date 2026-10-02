@@ -46,16 +46,16 @@ usePageSeo(homepageSeo(siteUrl, home), home.siteName)
         </ul>
       </section>
 
-      <HomeSelectedWork
+      <HomeFeaturedProjects
         :heading="home.featuredWorkHeading"
         :intro="home.featuredWorkIntro"
-        :flagship-label="home.flagshipLabel"
-        :cases="home.featuredCases"
+        :projects="home.featuredProjects"
+        :cta="home.projectsCta"
       />
 
-      <HomeProducts :products="home.products" />
-
       <HomeExperiencePreview :preview="home.experiencePreview" />
+
+      <HomeProducts :products="home.products" />
 
       <HomeContact :contact="home.contact" />
     </div>

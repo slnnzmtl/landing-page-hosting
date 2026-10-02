@@ -3,12 +3,12 @@ import AppPageHeader from '~/components/AppPageHeader.vue'
 import { useHomepageUi } from '~/composables/useHomepageUi'
 import MediaGallery from '~/components/media/MediaGallery.vue'
 import GithubReleases from '../components/GithubReleases.vue'
-import ProjectLaunchActions from '../components/ProjectLaunchActions.vue'
-import ProjectTrustPanel from '../components/ProjectTrustPanel.vue'
-import ProjectHowItWorks from '../components/ProjectHowItWorks.vue'
+import ProductLaunchActions from '../components/ProductLaunchActions.vue'
+import ProductTrustPanel from '../components/ProductTrustPanel.vue'
+import ProductHowItWorks from '../components/ProductHowItWorks.vue'
 import ExtensionProductDetail from '../components/ExtensionProductDetail.vue'
 import { resolveSiteUrl } from '~/utils/seo'
-import { projectDetailSeo } from '../utils/project-seo'
+import { productDetailSeo } from '../utils/product-seo'
 
 const { outboundAttrs } = useHomepageUi()
 
@@ -30,7 +30,7 @@ const pageCopy = home.pageCopy
 const detail = pageCopy.product_detail
 const siteUrl = resolveSiteUrl(useRuntimeConfig().public.siteUrl as string)
 usePageSeo(
-  projectDetailSeo(siteUrl, project, {
+  productDetailSeo(siteUrl, project, {
     siteName: home.siteName,
     personName: home.person.name,
     productsLabel: pageCopy.products_index.title,
@@ -115,7 +115,7 @@ const benefitsHeading = computed(() => (
             </p>
           </div>
         </template>
-        <ProjectLaunchActions
+        <ProductLaunchActions
           v-if="project.launch && project.github"
           :launch="project.launch"
           :github-owner="project.github.owner"
@@ -138,7 +138,7 @@ const benefitsHeading = computed(() => (
         </div>
       </AppPageHeader>
 
-      <ProjectHowItWorks
+      <ProductHowItWorks
         v-if="project.guide"
         :guide="project.guide"
       />
@@ -219,7 +219,7 @@ const benefitsHeading = computed(() => (
         />
       </section>
 
-      <ProjectTrustPanel
+      <ProductTrustPanel
         v-if="project.launch && project.github"
         :trust-facts="project.launch.trustFacts"
         :github-owner="project.github.owner"

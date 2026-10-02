@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { useDownloadWarningDialog } from '~/domains/projects/composables/useDownloadWarningDialog'
+import { useDownloadWarningDialog } from '~/domains/products/composables/useDownloadWarningDialog'
 
 function clickEvent() {
   return {

@@ -86,6 +86,7 @@ export interface CmsHomepageSettings {
   featured_work_intro: string
   flagship_label: string
   featured_projects: CmsM2mProjectRow[]
+  featured_projects_cta?: CmsButton | null
   experience_preview_heading: string
   experience_preview: CmsM2mExperienceRow[]
   experience_preview_cta?: CmsButton | null
@@ -125,6 +126,17 @@ export interface CmsProductsPageSettings {
   benefits_heading_default: string
   trust_heading: string
   download_warning_title: string
+}
+
+/** /projects index chrome — projects_page_settings singleton. */
+export interface CmsProjectsPageSettings {
+  status: DirectusStatus
+  title: string
+  description: string
+  seo_description: string
+  back_label: string
+  back_href: string
+  item_cta: string
 }
 
 export interface CmsFile {
@@ -308,6 +320,7 @@ export interface CmsPortfolioRaw {
   homepageSettings: CmsHomepageSettings
   experiencePage: CmsExperiencePageSettings
   productsPage: CmsProductsPageSettings
+  projectsPage: CmsProjectsPageSettings
   experience: CmsExperienceEntry[]
   projects: CmsProject[]
   products: CmsProduct[]

@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { ProjectLaunch } from '../data/types'
+import type { ProductLaunch } from '../data/types'
 import { useMacosReleaseDownload } from '../composables/useMacosReleaseDownload'
 import { useDownloadWarningDialog } from '../composables/useDownloadWarningDialog'
 import { trackConversion } from '~/utils/track-conversion'
 import MacosDownloadWarningDialog from './MacosDownloadWarningDialog.vue'
 
 const props = defineProps<{
-  launch: ProjectLaunch
+  launch: ProductLaunch
   githubOwner: string
   githubRepo: string
   downloadWarningTitle: string

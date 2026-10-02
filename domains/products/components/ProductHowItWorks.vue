@@ -1,25 +1,25 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import type { ProjectGuide, ProjectImage } from '../data/types'
+import type { ProductGuide, ProductImage } from '../data/types'
 import MediaLightbox from '~/components/media/MediaLightbox.vue'
 
 const props = defineProps<{
-  guide: ProjectGuide
+  guide: ProductGuide
 }>()
 
 const walkthroughImages = computed(() => (
   props.guide.steps
     .map(step => step.image)
-    .filter((image): image is ProjectImage => Boolean(image))
+    .filter((image): image is ProductImage => Boolean(image))
 ))
 
 const activeIndex = ref<number | null>(null)
 
-function imageIndex(image: ProjectImage) {
+function imageIndex(image: ProductImage) {
   return walkthroughImages.value.findIndex(item => item.src === image.src)
 }
 
-function open(image: ProjectImage) {
+function open(image: ProductImage) {
   const index = imageIndex(image)
   if (index >= 0) activeIndex.value = index
 }

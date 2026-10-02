@@ -24,6 +24,7 @@ tests/
 ├─ data/
 │  ├─ experience.test.ts
 │  └─ homepage.test.ts
+├─ domains/products/
 ├─ domains/projects/
 │  ├─ rekordbox-product.test.ts
 │  ├─ github-releases.test.ts
