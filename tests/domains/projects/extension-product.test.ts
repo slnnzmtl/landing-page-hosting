@@ -12,6 +12,7 @@ const extensionProduct: CmsProduct = {
   slug: 'soundcloud-ui-toolkit',
   name: 'SoundCloud UI Toolkit',
   detail_template: 'extension',
+  logo: 'extension-icon',
   kicker: 'Chrome extension',
   short_description: 'Customize SoundCloud to fit your workflow.',
   description: 'A free extension for layout, queue, appearance, and rounding controls.',
@@ -86,6 +87,14 @@ const extensionPortfolio = {
   files: [
     ...(cmsPortfolioFixture.files || []),
     {
+      id: 'extension-icon',
+      filename_download: 'icon-128.png',
+      title: '/projects/soundcloud-ui-toolkit/soundcloud-ui-toolkit-icon-128.png',
+      type: 'image/png',
+      width: 128,
+      height: 128,
+    },
+    {
       id: 'extension-before',
       filename_download: 'before.png',
       title: '/projects/soundcloud-ui-toolkit/before.png',
@@ -126,6 +135,8 @@ describe('extension product mapping', () => {
     ])
     expect(product.media[0]?.srcset).toContain('-640w.webp 640w')
     expect(product.socialImage?.src).toContain('after.png')
+    expect(product.logo?.src).toContain('soundcloud-ui-toolkit-icon-128.png')
+    expect(product.logo?.srcThumb).toBeUndefined()
     expect(product.launch?.ctas.map(cta => cta.label)).toEqual(['Add to Chrome — Free'])
     expect(product.softwareApplication).toMatchObject({
       applicationCategory: 'BrowserApplication',

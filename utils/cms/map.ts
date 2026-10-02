@@ -125,13 +125,14 @@ function fileImage(
   const file = catalog.byId.get(fileId)
   const src = file ? publicPathForFile(file) : assetUrl(config, fileId)
   const thumbWidth = thumbMarker === '-256w' ? 256 : thumbMarker === '-600w' ? 600 : undefined
-  const thumb = file?.title && thumbMarker
+  const canUseThumb = Boolean(file && thumbWidth && file.width && file.width > thumbWidth)
+  const thumb = canUseThumb && file?.title && thumbMarker
     ? catalog.byTitle.get(thumbTitle(file.title, thumbMarker))
     : undefined
   const srcThumb = thumb
     ? publicPathForFile(thumb)
-    : file && thumbWidth && file.type?.startsWith('image/')
-      ? publicPathForImageVariant(src, thumbWidth)
+    : canUseThumb && file?.type?.startsWith('image/')
+      ? publicPathForImageVariant(src, thumbWidth!)
       : undefined
   const widthHint = thumbMarker === '-256w' ? 256 : thumbMarker === '-600w' ? 600 : undefined
   const width = file?.width || size.width
