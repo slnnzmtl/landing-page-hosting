@@ -13,11 +13,9 @@ withDefaults(defineProps<{
   section: CaseSection
   claims?: CaseClaim[]
   links?: CaseLink[]
-  stackTags?: string[]
 }>(), {
   claims: () => [],
   links: () => [],
-  stackTags: () => [],
 })
 </script>
 
@@ -55,7 +53,6 @@ withDefaults(defineProps<{
       :section="section"
       :claims="claims"
       :links="links"
-      :stack-tags="stackTags"
     />
     <LimitationsCallout
       v-else-if="section.kind === 'limitations'"

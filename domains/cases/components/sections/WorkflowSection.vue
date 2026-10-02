@@ -47,10 +47,10 @@ function itemKey(item: CaseSectionItem, index: number) {
       <li
         v-for="(item, index) in section.items"
         :key="itemKey(item, index)"
-        class="relative rounded-xl border border-border/60 bg-card/50 p-3.5"
+        class="relative border-l border-border/70 py-1 pl-3 first:border-l-0 first:pl-0 sm:border-l sm:first:border-l-0"
       >
         <span
-          class="mb-2 inline-flex h-7 w-7 items-center justify-center rounded-lg bg-primary/15 text-primary"
+          class="mb-2 inline-flex h-7 w-7 items-center justify-center rounded-lg bg-primary/12 text-primary"
           aria-hidden="true"
         >
           <component
@@ -75,11 +75,6 @@ function itemKey(item: CaseSectionItem, index: number) {
         >
           {{ item.summary || item.detail }}
         </p>
-        <div
-          v-if="index < section.items.length - 1"
-          class="pointer-events-none absolute -right-2.5 top-1/2 hidden h-px w-5 bg-border sm:block"
-          aria-hidden="true"
-        />
       </li>
     </ol>
 

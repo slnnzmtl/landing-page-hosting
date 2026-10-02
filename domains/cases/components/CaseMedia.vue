@@ -46,7 +46,7 @@ function imageClass() {
     return 'mx-auto h-auto max-h-[42rem] w-full max-w-full object-contain'
   }
   if (props.size === 'wide') {
-    return 'mx-auto h-auto max-h-[40rem] w-full max-w-full object-contain'
+    return 'mx-auto h-auto w-full max-w-full object-contain'
   }
   if (props.size === 'screenshot' || props.image.presentation === 'screenshot' || props.image.presentation === 'gallery') {
     return 'mx-auto h-auto max-h-[32rem] w-auto max-w-full object-contain'

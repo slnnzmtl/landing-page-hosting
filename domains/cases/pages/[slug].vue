@@ -11,7 +11,7 @@ import {
   type OpenCaseLightbox,
 } from '../utils/lightbox'
 import type { CaseImage } from '../data/types'
-import { casePageContainer, caseSectionGap, caseSectionSurface } from '../utils/case-ui'
+import { casePageContainer, caseSectionGap } from '../utils/case-ui'
 import { resolveSiteUrl } from '~/utils/seo'
 
 useHashScroll()
@@ -68,10 +68,6 @@ provide(openCaseLightboxKey, openLightbox)
 const hasEvidenceSection = computed(() =>
   caseStudy.sections.some(section => section.kind === 'evidence'),
 )
-
-function sectionSurfaceClass(index: number) {
-  return index % 2 === 1 ? caseSectionSurface : ''
-}
 </script>
 
 <template>
@@ -80,23 +76,23 @@ function sectionSurfaceClass(index: number) {
       class="relative z-10"
       :class="casePageContainer"
     >
-      <div :class="caseSectionGap">
+      <div class="flex min-w-0 flex-col gap-12 lg:gap-16">
         <CaseHero
           :case-study="caseStudy"
           :homepage="home"
         />
 
-        <CaseSectionNav :sections="caseStudy.sections" />
+        <div class="min-w-0">
+          <CaseSectionNav :sections="caseStudy.sections" />
+        </div>
 
         <div :class="caseSectionGap">
           <CaseSectionRenderer
-            v-for="(section, index) in caseStudy.sections"
+            v-for="section in caseStudy.sections"
             :key="section.id"
             :section="section"
             :claims="section.kind === 'evidence' ? caseStudy.claims : []"
             :links="section.kind === 'evidence' ? caseStudy.evidenceLinks : []"
-            :stack-tags="section.kind === 'evidence' ? caseStudy.stackTags : []"
-            :class="sectionSurfaceClass(index)"
           />
         </div>
 
@@ -106,7 +102,6 @@ function sectionSurfaceClass(index: number) {
           :claims="caseStudy.claims"
           :links="caseStudy.evidenceLinks"
           :stack-tags="caseStudy.stackTags"
-          :class="caseSectionSurface"
         />
 
         <HomeContact

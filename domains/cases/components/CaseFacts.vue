@@ -28,16 +28,16 @@ const facts = computed(() => {
 <template>
   <div
     v-if="facts.length || caseStudy.stackTags.length"
-    class="flex flex-wrap items-center gap-x-6 gap-y-3"
+    class="border-y border-border/60 py-4"
   >
     <dl
       v-if="facts.length"
-      class="flex flex-wrap items-center gap-x-6 gap-y-2"
+      class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
     >
       <div
         v-for="fact in facts"
         :key="fact.label"
-        class="flex min-w-0 items-baseline gap-2"
+        class="flex min-w-0 flex-col gap-1"
       >
         <dt class="text-xs font-semibold uppercase tracking-wide text-primary">
           {{ fact.label }}
@@ -50,7 +50,7 @@ const facts = computed(() => {
 
     <ul
       v-if="caseStudy.stackTags.length"
-      class="flex flex-wrap gap-2"
+      class="mt-4 flex flex-wrap gap-2 border-t border-border/40 pt-4 sm:mt-0 sm:border-t-0 sm:pt-0"
       aria-label="Stack"
     >
       <li
