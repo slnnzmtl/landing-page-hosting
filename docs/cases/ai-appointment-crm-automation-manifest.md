@@ -53,4 +53,6 @@ The existing hidden section media row is intentionally represented as hidden by 
 
 - The available Directus reader cannot currently project public claim fields through the project claim relation; this must be fixed or reported as an access blocker.
 - The redeploy Flow is inactive and its collection list does not include `project_sections`, `project_section_media`, or media file updates.
+- The public case page returned HTTP 200 on 2026-10-02, with `Last-Modified: 2026-10-02 14:40:29 UTC`; it still rendered the pre-refactor section headings, so the current deployment does not contain the proposed composition.
+- The deployed revision is not exposed by the public response. The inspected implementation revision is `fa61938` on `feat/refine-case-study-layout`, and a fresh CMS-backed generate has not been run in this environment.
 - The Flow must not be enabled as part of DDD-211. Any credential-bearing request configuration must remain out of this manifest and all logs.
