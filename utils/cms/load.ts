@@ -4,6 +4,7 @@ import { basename, dirname, join } from 'node:path'
 import {
   directusGet,
   publicPathForFile,
+  publicPathForImageVariant,
   resolveDirectusConfig,
   type DirectusClientConfig,
 } from './client'
@@ -161,20 +162,34 @@ async function materializeCmsFiles(
   files: CmsFile[],
 ): Promise<void> {
   const root = join(process.cwd(), 'public')
-  for (const file of files) {
-    const pub = publicPathForFile(file)
-    if (COMMITTED_PUBLIC_FILES.has(basename(pub))) continue
+
+  async function materialize(file: CmsFile, pub: string, query = ''): Promise<void> {
+    if (COMMITTED_PUBLIC_FILES.has(basename(pub))) return
     const dest = join(root, pub.replace(/^\//, ''))
-    if (existsSync(dest)) continue
+    if (existsSync(dest)) return
     await mkdir(dirname(dest), { recursive: true })
-    const res = await fetch(`${config.baseUrl}/assets/${file.id}`, {
-      headers: { Authorization: `Bearer ${config.token}` },
+    const res = await fetch(config.baseUrl + '/assets/' + file.id + query, {
+      headers: { Authorization: 'Bearer ' + config.token },
     })
     if (!res.ok) {
       const body = await res.text()
       throw new Error(`Directus ${res.status} /assets/${file.id} (${pub}): ${body}`)
     }
     await writeFile(dest, Buffer.from(await res.arrayBuffer()))
+  }
+
+  for (const file of files) {
+    const pub = publicPathForFile(file)
+    await materialize(file, pub)
+    const isImage = file.type?.startsWith('image/')
+      || /\.(?:avif|gif|jpe?g|png|webp)$/i.test(file.filename_download)
+    if (!isImage || !file.width || /-\d+w\.[a-z0-9]+$/i.test(pub)) continue
+    const widths = [256, 600, 640, 960].filter(width => width < file.width!)
+    await Promise.all(widths.map(width => materialize(
+      file,
+      publicPathForImageVariant(pub, width),
+      '?width=' + width + '&format=webp',
+    )))
   }
 }
 

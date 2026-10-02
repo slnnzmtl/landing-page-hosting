@@ -5,7 +5,11 @@ import {
 } from '~/utils/seo'
 
 function socialImage(project: Project) {
-  return project.socialImage || project.logo
+  return project.socialImage
+    || (project.detailTemplate === 'extension'
+      ? project.media.find(item => item.presentation === 'comparison_after')
+      : undefined)
+    || project.logo
 }
 
 export interface ProjectsIndexSeoOptions {
@@ -127,6 +131,20 @@ export function projectDetailSeo(
       'operatingSystem': software.operatingSystem,
       'license': software.license,
       'isAccessibleForFree': true,
+      ...(software.installUrl ? { installUrl: software.installUrl } : {}),
+      ...(software.softwareRequirements
+        ? { softwareRequirements: software.softwareRequirements }
+        : {}),
+      ...(software.priceAmount != null && software.priceCurrency
+        ? {
+            offers: {
+              '@type': 'Offer',
+              'price': software.priceAmount,
+              'priceCurrency': software.priceCurrency,
+              ...(software.installUrl ? { url: software.installUrl } : {}),
+            },
+          }
+        : {}),
     })
   }
 

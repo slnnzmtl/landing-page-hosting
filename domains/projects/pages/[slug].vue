@@ -6,6 +6,7 @@ import GithubReleases from '../components/GithubReleases.vue'
 import ProjectLaunchActions from '../components/ProjectLaunchActions.vue'
 import ProjectTrustPanel from '../components/ProjectTrustPanel.vue'
 import ProjectHowItWorks from '../components/ProjectHowItWorks.vue'
+import ExtensionProductDetail from '../components/ExtensionProductDetail.vue'
 import { resolveSiteUrl } from '~/utils/seo'
 import { projectDetailSeo } from '../utils/project-seo'
 
@@ -50,7 +51,15 @@ const benefitsHeading = computed(() => (
 </script>
 
 <template>
-  <article class="relative min-h-screen w-full min-w-0 text-foreground">
+  <ExtensionProductDetail
+    v-if="project.detailTemplate === 'extension'"
+    :project="project"
+    :detail="detail"
+  />
+  <article
+    v-else
+    class="relative min-h-screen w-full min-w-0 text-foreground"
+  >
     <div class="relative z-10 mx-auto flex w-full min-w-0 max-w-6xl flex-col gap-16 px-6 py-12 pb-28 sm:px-6 sm:py-20 lg:px-12 xl:pb-20">
       <AppPageHeader
         :kicker="detail.kicker"

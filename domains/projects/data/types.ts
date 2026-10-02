@@ -73,13 +73,30 @@ export interface ProjectSeo {
 export interface ProjectSoftwareApplication {
   applicationCategory: string
   operatingSystem: string
-  license: string
+  license?: string
+  priceAmount?: number
+  priceCurrency?: string
+  installUrl?: string
+  softwareRequirements?: string
 }
 
-export interface Project {
+export type ProductDetailTemplate = 'application' | 'extension'
+
+export type ProductMediaPresentation
+  = 'comparison_before'
+    | 'comparison_after'
+    | 'gallery'
+    | 'hero'
+
+export interface ProjectMedia extends ProjectImage {
+  presentation: ProductMediaPresentation
+}
+
+export interface ProductBase {
   slug: string
   name: string
   shortDescription: string
+  detailTemplate: ProductDetailTemplate
   description?: string
   logo?: ProjectImage
   socialImage?: ProjectImage
@@ -93,6 +110,25 @@ export interface Project {
   softwareApplication?: ProjectSoftwareApplication
   stackTags?: string[]
 }
+
+export interface ApplicationProduct extends ProductBase {
+  detailTemplate: 'application'
+}
+
+export interface ExtensionProduct extends ProductBase {
+  detailTemplate: 'extension'
+  kicker: string
+  price: {
+    amount: number
+    currency: string
+  }
+  softwareRequirements: string
+  mediaHeading: string
+  mediaIntro?: string
+  media: ProjectMedia[]
+}
+
+export type Project = ApplicationProduct | ExtensionProduct
 
 export function projectPath(slug: string): string {
   return `/products/${slug}`

@@ -9,6 +9,12 @@ export type DirectusStatus = 'draft' | 'published' | 'archived'
 
 export type CmsButtonType = 'primary' | 'secondary' | 'tertiary' | 'link'
 export type CmsButtonHrefSource = 'static' | 'github_macos_release'
+export type CmsProductDetailTemplate = 'application' | 'extension'
+export type CmsProductMediaPresentation
+  = 'comparison_before'
+    | 'comparison_after'
+    | 'gallery'
+    | 'hero'
 
 export interface CmsLink {
   label: string
@@ -129,6 +135,15 @@ export interface CmsFile {
   type?: string | null
   width?: number | null
   height?: number | null
+}
+
+export interface CmsProductMedia {
+  id: number | string
+  sort?: number | null
+  file: CmsFile | string
+  alt: string
+  caption?: string | null
+  presentation: CmsProductMediaPresentation
 }
 
 export interface CmsExperienceOutcomeRef {
@@ -278,6 +293,14 @@ export interface CmsProduct {
   seo_title?: string | null
   seo_description?: string | null
   seo_title_suffix?: string | null
+  detail_template?: CmsProductDetailTemplate | null
+  kicker?: string | null
+  media_heading?: string | null
+  media_intro?: string | null
+  price_amount?: number | string | null
+  price_currency?: string | null
+  software_requirements?: string | null
+  media?: CmsProductMedia[] | null
 }
 
 export interface CmsPortfolioRaw {
