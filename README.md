@@ -149,9 +149,10 @@ Published Directus `projects` with `case_enabled=true` generate `/work/:slug` at
 ### Add another case study
 
 1. Publish a `projects` row with `case_enabled=true`, non-empty `case_lead`, and at least one published `project_sections` row.
-2. Attach media with alt text; set file `title` to the public path when materializing into `public/`.
-3. Optionally link approved claims via `case_claims`.
-4. `nuxt generate` discovers the slug via `fetchCaseSlugs`. No new Vue page file is required.
+2. Attach media with positive stored dimensions, meaningful alt text, a one-sentence caption, and a valid presentation (`diagram`, `screenshot`, `gallery`, or `code`). Set file `title` to a safe versioned public path when materializing into `public/`.
+3. Use the supported kind/layout compositions: `narrative/text`, `workflow/cards`, `architecture/wide`, `evolution/cards`, `decisions/text`, `gallery/split`, `evidence/text`, and `limitations/text`. Rendering is selected by `kind`; `layout` documents the intended authoring composition and must remain one of the supported values.
+4. Keep claim evidence private. Link only published `approved_claims` rows through `case_claims`; never expose `evidence_origin`, `evidence_note`, `confidentiality_notes`, or `private_evidence` to the build reader.
+5. `nuxt generate` discovers the slug via `fetchCaseSlugs`. No new Vue page file is required.
 
 ## Survey Module
 

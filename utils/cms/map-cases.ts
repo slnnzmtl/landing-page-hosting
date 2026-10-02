@@ -13,7 +13,7 @@ import {
   type CaseMediaPresentation,
 } from '../../domains/cases/data/types'
 import type { DirectusClientConfig } from './client'
-import { assetUrl, publicPathForFile } from './client'
+import { publicPathForFile } from './client'
 import type {
   CmsFile,
   CmsProject,
@@ -70,9 +70,14 @@ function resolveCaseImage(
   presentation?: CaseMediaPresentation,
 ): CaseImage {
   const file = catalog.byId.get(fileId)
-  const src = file ? publicPathForFile(file) : assetUrl(config, fileId)
-  const width = file?.width && file.width > 0 ? file.width : 1200
-  const height = file?.height && file.height > 0 ? file.height : 800
+  if (!file?.width || file.width <= 0 || !file.height || file.height <= 0) {
+    throw new Error(
+      `Case media file "${fileId}" requires positive width and height metadata`,
+    )
+  }
+  const src = publicPathForFile(file)
+  const width = file.width
+  const height = file.height
   return {
     src,
     alt,

@@ -73,7 +73,7 @@ tests/
 
 ### Cases domain
 
-**Case CMS mapping** — section kind registry, published-section filtering, approved-claim filtering, fail-closed validation, case SEO/JSON-LD, and grouped sticky nav labels (`caseNavGroups`).
+**Case CMS mapping** — published-only case/section/claim filtering, unique anchors, positive media dimensions, required media metadata, fail-closed validation, case SEO/JSON-LD, and grouped sticky nav labels (`caseNavGroups`).
 
 ### Homepage / experience / CMS mappers
 

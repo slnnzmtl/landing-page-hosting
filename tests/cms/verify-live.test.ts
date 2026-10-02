@@ -7,16 +7,18 @@
  * not a golden-copy diff against TypeScript fixtures. Directus is the
  * authoring source of truth. Uses the same fetch+map path as generate.
  */
-import { readFileSync, existsSync } from 'node:fs'
-import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { resolveDirectusConfig } from '~/utils/cms/client'
 import { loadPortfolio, resetPortfolioCache } from '~/utils/cms/load'
 
 function loadEnvFile() {
-  const envPath = join(process.cwd(), '.env')
-  if (!existsSync(envPath)) return
-  const text = readFileSync(envPath, 'utf8')
+  const fs = process.getBuiltinModule('node:fs') as {
+    existsSync(path: string): boolean
+    readFileSync(path: string, encoding: 'utf8'): string
+  }
+  const envPath = `${process.cwd()}/.env`
+  if (!fs.existsSync(envPath)) return
+  const text = fs.readFileSync(envPath, 'utf8')
   for (const line of text.split('\n')) {
     if (!line || line.startsWith('#') || !line.includes('=')) continue
     const i = line.indexOf('=')
@@ -91,12 +93,30 @@ describeLive('live Directus portfolio contract', () => {
       expect(product.logo).toBeTruthy()
     }
 
-    const appointmentCase = cases.find(item => item.slug === 'ai-appointment-crm-automation')
-    if (appointmentCase) {
-      expect(caseSlugSet.has(appointmentCase.slug)).toBe(true)
-      expect(appointmentCase.sections.length).toBeGreaterThanOrEqual(8)
-      expect(appointmentCase.caseLeadParagraphs.length).toBeGreaterThan(0)
-      expect(appointmentCase.heroMedia).toBeUndefined()
+    for (const caseStudy of cases) {
+      expect(caseSlugSet.has(caseStudy.slug)).toBe(true)
+      expect(caseStudy.caseLeadParagraphs.length).toBeGreaterThan(0)
+      expect(caseStudy.sections.length).toBeGreaterThan(0)
+
+      const anchors = caseStudy.sections.map(section => section.anchor)
+      expect(new Set(anchors).size).toBe(anchors.length)
+
+      for (const section of caseStudy.sections) {
+        expect(section.heading.trim()).toBeTruthy()
+        for (const image of section.media) {
+          expect(image.alt.trim()).toBeTruthy()
+          expect(image.caption?.trim()).toBeTruthy()
+          expect(image.width).toBeGreaterThan(0)
+          expect(image.height).toBeGreaterThan(0)
+          expect(image.presentation).toBeTruthy()
+        }
+      }
+
+      if (caseStudy.heroMedia) {
+        expect(caseStudy.heroMedia.alt.trim()).toBeTruthy()
+        expect(caseStudy.heroMedia.width).toBeGreaterThan(0)
+        expect(caseStudy.heroMedia.height).toBeGreaterThan(0)
+      }
     }
 
     for (const item of homepage.featuredCases) {
