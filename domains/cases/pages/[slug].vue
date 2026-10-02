@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import CaseHero from '../components/CaseHero.vue'
-import CaseSectionNav from '../components/CaseSectionNav.vue'
 import CaseClaims from '../components/CaseClaims.vue'
 import HomeContact from '~/components/home/HomeContact.vue'
 import MediaLightbox from '~/components/media/MediaLightbox.vue'
@@ -64,10 +63,6 @@ function showNext() {
 }
 
 provide(openCaseLightboxKey, openLightbox)
-
-const hasEvidenceSection = computed(() =>
-  caseStudy.sections.some(section => section.kind === 'evidence'),
-)
 </script>
 
 <template>
@@ -82,22 +77,15 @@ const hasEvidenceSection = computed(() =>
           :homepage="home"
         />
 
-        <div class="min-w-0">
-          <CaseSectionNav :sections="caseStudy.sections" />
-        </div>
-
         <div :class="caseSectionGap">
           <CaseSectionRenderer
             v-for="section in caseStudy.sections"
             :key="section.id"
             :section="section"
-            :claims="section.kind === 'evidence' ? caseStudy.claims : []"
-            :links="section.kind === 'evidence' ? caseStudy.evidenceLinks : []"
           />
         </div>
 
         <CaseClaims
-          v-if="!hasEvidenceSection"
           :heading="home.proofHeading"
           :claims="caseStudy.claims"
           :links="caseStudy.evidenceLinks"

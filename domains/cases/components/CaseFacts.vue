@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import type { CaseStudy } from '../data/types'
 import { STAGE_LABEL_DISPLAY } from '../data/types'
-import { caseStackTag } from '../utils/case-ui'
 
 const props = defineProps<{
-  caseStudy: Pick<CaseStudy, 'role' | 'stageLabel' | 'stackTags'>
+  caseStudy: Pick<CaseStudy, 'role' | 'stageLabel'>
 }>()
 
 const stageDisplay = computed(() =>
@@ -27,7 +26,7 @@ const facts = computed(() => {
 
 <template>
   <div
-    v-if="facts.length || caseStudy.stackTags.length"
+    v-if="facts.length"
     class="border-y border-border/60 py-4"
   >
     <dl
@@ -47,19 +46,5 @@ const facts = computed(() => {
         </dd>
       </div>
     </dl>
-
-    <ul
-      v-if="caseStudy.stackTags.length"
-      class="mt-4 flex flex-wrap gap-2 border-t border-border/40 pt-4 sm:mt-0 sm:border-t-0 sm:pt-0"
-      aria-label="Stack"
-    >
-      <li
-        v-for="tag in caseStudy.stackTags"
-        :key="tag"
-        :class="caseStackTag"
-      >
-        {{ tag }}
-      </li>
-    </ul>
   </div>
 </template>

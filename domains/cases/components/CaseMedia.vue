@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { CaseImage } from '../data/types'
 import { caseCaptionText } from '../utils/case-ui'
 import { useHomepageUi } from '~/composables/useHomepageUi'
@@ -10,12 +11,9 @@ const props = withDefaults(defineProps<{
   priority?: boolean
   /** Override default size treatment for hero breakout. */
   size?: 'default' | 'hero' | 'wide' | 'screenshot'
-  /** CSS-crop screenshots to a shorter interaction window. */
-  crop?: boolean
 }>(), {
   priority: false,
   size: 'default',
-  crop: false,
 })
 
 const emit = defineEmits<{
@@ -25,7 +23,7 @@ const emit = defineEmits<{
 const { linkFocus } = useHomepageUi()
 
 const isDiagram = computed(() =>
-  props.image.presentation === 'diagram' || props.size === 'hero',
+  props.image.presentation === 'diagram',
 )
 
 function frameClass(presentation?: CaseImage['presentation']) {
@@ -39,23 +37,26 @@ function frameClass(presentation?: CaseImage['presentation']) {
 }
 
 function imageClass() {
-  if (props.crop) {
-    return 'h-[20rem] w-full object-cover object-bottom sm:h-[22rem]'
-  }
   if (props.size === 'hero') {
-    return 'mx-auto h-auto max-h-[42rem] w-full max-w-full object-contain'
+    return 'mx-auto h-auto max-h-[42rem] w-auto max-w-full object-contain'
   }
   if (props.size === 'wide') {
-    return 'mx-auto h-auto w-full max-w-full object-contain'
+    return 'mx-auto h-auto max-h-[42rem] w-auto max-w-full object-contain'
   }
   if (props.size === 'screenshot' || props.image.presentation === 'screenshot' || props.image.presentation === 'gallery') {
     return 'mx-auto h-auto max-h-[32rem] w-auto max-w-full object-contain'
   }
   if (isDiagram.value) {
-    return 'mx-auto h-auto max-h-[36rem] w-full max-w-full object-contain'
+    return 'mx-auto h-auto max-h-[36rem] w-auto max-w-full object-contain'
   }
   return 'mx-auto h-auto max-h-96 w-auto max-w-full object-contain'
 }
+
+const sizes = computed(() => props.image.sizes || (
+  props.size === 'screenshot'
+    ? '(max-width: 768px) 100vw, 50vw'
+    : '(max-width: 768px) 100vw, 80vw'
+))
 </script>
 
 <template>
@@ -76,11 +77,12 @@ function imageClass() {
         :alt="image.alt"
         :width="image.width"
         :height="image.height"
+        :srcset="image.srcset"
+        :sizes="sizes"
         :loading="priority ? 'eager' : 'lazy'"
         :fetchpriority="priority ? 'high' : undefined"
         decoding="async"
         :class="imageClass()"
-        :style="crop ? undefined : { aspectRatio: `${image.width} / ${image.height}` }"
       />
       <span
         class="pointer-events-none absolute inset-0 flex items-end justify-end bg-gradient-to-t from-black/50 via-transparent to-transparent p-3 opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100"

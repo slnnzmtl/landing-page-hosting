@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import { nextTick, ref, watch } from 'vue'
 import { opensInNewTab } from '~/data/homepage'
 import { useHomepageUi } from '~/composables/useHomepageUi'
 import { isNavItemActive, parseAppLink, splitSiteNav } from '~/utils/app-link'
 import { activeSection, scrollHomeToTop, scrollToAnchor } from '~/utils/silent-hash'
+import CaseMobileNav from '~/domains/cases/components/CaseMobileNav.vue'
 
 const router = useRouter()
 const { linkFocus, outboundAttrs } = useHomepageUi()
@@ -10,6 +12,11 @@ const { data: portfolio } = await usePortfolio()
 
 const routePath = computed(() => router.currentRoute.value.path)
 const routeHash = computed(() => router.currentRoute.value.hash)
+const isCaseRoute = computed(() => routePath.value.startsWith('/work/'))
+const currentCase = computed(() => {
+  const slug = routePath.value.replace(/^\/work\//, '').split('/')[0]
+  return portfolio.value?.cases.find(item => item.slug === slug)
+})
 
 watch(routePath, () => {
   closeMenu()
@@ -37,6 +44,8 @@ const groupedNav = computed(() => {
 })
 
 const menuOpen = ref(false)
+const menuButton = ref<HTMLButtonElement | null>(null)
+const menuPanel = ref<HTMLElement | null>(null)
 const burgerHiddenByScroll = ref(false)
 const burgerRevealed = computed(() => menuOpen.value || !burgerHiddenByScroll.value)
 const menuId = 'site-nav-panel'
@@ -45,6 +54,13 @@ const revealNearTopPx = 24
 
 let lastScrollY = 0
 let scrollTicking = false
+let previousMenuOverflow = ''
+let previousMenuFocus: HTMLElement | null = null
+
+function focusableMenuElements(): HTMLElement[] {
+  if (!menuPanel.value) return []
+  return [...menuPanel.value.querySelectorAll<HTMLElement>('a[href], button:not([disabled])')]
+}
 
 function syncBurgerVisibility() {
   if (!import.meta.client) return
@@ -70,12 +86,31 @@ function onScroll() {
   })
 }
 
-function toggleMenu() {
-  menuOpen.value = !menuOpen.value
+async function openMenu() {
+  previousMenuFocus = document.activeElement instanceof HTMLElement
+    ? document.activeElement
+    : null
+  previousMenuOverflow = document.body.style.overflow
+  document.body.style.overflow = 'hidden'
+  menuOpen.value = true
+  await nextTick()
+  focusableMenuElements()[0]?.focus()
 }
 
-function closeMenu() {
+function closeMenu(restoreFocus = true) {
   menuOpen.value = false
+  if (import.meta.client) document.body.style.overflow = previousMenuOverflow
+  if (restoreFocus) {
+    nextTick(() => {
+      (previousMenuFocus || menuButton.value)?.focus()
+      previousMenuFocus = null
+    })
+  }
+}
+
+function toggleMenu() {
+  if (menuOpen.value) closeMenu()
+  else void openMenu()
 }
 
 async function onNavClick(item: NavItem, event: MouseEvent) {
@@ -106,18 +141,27 @@ async function onNavClick(item: NavItem, event: MouseEvent) {
   }
 }
 
-watch(menuOpen, (open) => {
-  if (!import.meta.client) return
-  if (open) document.body.style.overflow = 'hidden'
-})
-
 function onMenuAfterLeave() {
   if (!import.meta.client) return
-  document.body.style.overflow = ''
+  document.body.style.overflow = previousMenuOverflow
 }
 
 function onKeydown(event: KeyboardEvent) {
+  if (!menuOpen.value) return
   if (event.key === 'Escape') closeMenu()
+  if (event.key !== 'Tab') return
+  const nodes = focusableMenuElements()
+  if (!nodes.length) return
+  const first = nodes[0]!
+  const last = nodes[nodes.length - 1]!
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault()
+    last.focus()
+  }
+  else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault()
+    first.focus()
+  }
 }
 
 onMounted(() => {
@@ -129,7 +173,7 @@ onUnmounted(() => {
   if (!import.meta.client) return
   window.removeEventListener('keydown', onKeydown)
   window.removeEventListener('scroll', onScroll)
-  document.body.style.overflow = ''
+  document.body.style.overflow = previousMenuOverflow
 })
 
 const sidebarLinkFocus = [linkFocus, 'focus-visible:ring-offset-background'].join(' ')
@@ -162,8 +206,18 @@ function linkClass(item: NavItem, variant: 'overlay' | 'rail') {
 
 <template>
   <!-- Mobile and tablet: burger + overlay panel (contents: do not occupy a grid track) -->
-  <div class="contents xl:hidden">
+  <div
+    v-if="isCaseRoute && currentCase"
+    class="w-full xl:hidden"
+  >
+    <CaseMobileNav :sections="currentCase.sections" />
+  </div>
+  <div
+    v-else
+    class="contents xl:hidden"
+  >
     <button
+      ref="menuButton"
       type="button"
       class="fixed bottom-8 left-1/2 z-50 inline-flex h-16 w-16 -translate-x-1/2 items-center justify-center rounded-full border border-border/60 bg-card text-foreground shadow-lg backdrop-blur-sm transition-[transform,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
       :class="[
@@ -204,6 +258,7 @@ function linkClass(item: NavItem, variant: 'overlay' | 'rail') {
         <nav
           v-if="menuOpen"
           :id="menuId"
+          ref="menuPanel"
           class="fixed inset-0 z-40 flex flex-col items-center justify-center gap-2 bg-black/50 px-6 backdrop-blur-xl xl:hidden"
           aria-label="Site"
         >

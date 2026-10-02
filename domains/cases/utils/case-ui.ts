@@ -20,7 +20,7 @@ export const caseLeadText = 'max-w-[62ch] space-y-4 text-lg leading-7 text-foreg
 export const caseCardText = 'text-sm leading-6 text-foreground/85'
 
 /** Image captions only. */
-export const caseCaptionText = 'text-xs leading-5 text-foreground/75'
+export const caseCaptionText = 'text-sm leading-6 text-foreground/80'
 
 export const caseEyebrow
   = 'text-xs font-semibold uppercase tracking-wide text-primary'

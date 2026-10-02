@@ -26,6 +26,8 @@ export type CaseMediaPresentation = 'diagram' | 'screenshot' | 'gallery' | 'code
 
 export interface CaseImage {
   src: string
+  srcset?: string
+  sizes?: string
   alt: string
   width: number
   height: number
@@ -102,42 +104,3 @@ export const CASE_SECTION_KINDS: readonly CaseSectionKind[] = [
   'evidence',
   'limitations',
 ] as const
-
-export interface CaseNavGroup {
-  id: string
-  kinds: readonly CaseSectionKind[]
-}
-
-/** Sticky in-page nav groups. Display labels come from the first CMS section in the group. */
-export const CASE_NAV_GROUPS: readonly CaseNavGroup[] = [
-  { id: 'overview', kinds: ['narrative'] },
-  { id: 'workflow', kinds: ['workflow'] },
-  { id: 'architecture', kinds: ['architecture'] },
-  { id: 'engineering', kinds: ['evolution', 'decisions'] },
-  { id: 'evidence', kinds: ['gallery', 'evidence', 'limitations'] },
-] as const
-
-export interface CaseNavGroupLink {
-  id: string
-  label: string
-  /** First published section anchor in this group. */
-  anchor: string
-  /** All section anchors covered by this group (for active-state matching). */
-  anchors: string[]
-}
-
-/** Build sticky nav links from published sections; omit empty groups. */
-export function caseNavGroups(sections: CaseSection[]): CaseNavGroupLink[] {
-  return CASE_NAV_GROUPS.flatMap((group) => {
-    const matched = sections.filter(section => group.kinds.includes(section.kind))
-    if (!matched.length) return []
-    const anchors = matched.map(section => section.anchor)
-    const first = matched[0]!
-    return [{
-      id: group.id,
-      label: first.eyebrow?.trim() || first.heading,
-      anchor: anchors[0]!,
-      anchors,
-    }]
-  })
-}

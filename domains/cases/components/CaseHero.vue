@@ -9,10 +9,8 @@ import { openCaseLightboxKey } from '../utils/lightbox'
 import {
   caseLeadText,
   casePrimaryCta,
-  caseSecondaryCta,
 } from '../utils/case-ui'
 import { useHomepageUi } from '~/composables/useHomepageUi'
-import { homepageHrefKind, opensInNewTab } from '~/data/homepage'
 
 const props = defineProps<{
   caseStudy: CaseStudy
@@ -20,13 +18,7 @@ const props = defineProps<{
 }>()
 
 const openLightbox = inject(openCaseLightboxKey)
-const { linkFocus, outboundAttrs } = useHomepageUi()
-
-const primarySource = computed(() => props.caseStudy.evidenceLinks[0])
-
-const primaryIsNative = computed(() =>
-  primarySource.value ? homepageHrefKind(primarySource.value.href) === 'native' : false,
-)
+const { linkFocus } = useHomepageUi()
 
 const backLabel = computed(() => props.homepage.featuredWorkHeading)
 
@@ -35,11 +27,7 @@ const contactNav = computed(() =>
 )
 
 const hasFacts = computed(() =>
-  Boolean(
-    props.caseStudy.role?.trim()
-    || props.caseStudy.stageLabel
-    || props.caseStudy.stackTags.length,
-  ),
+  Boolean(props.caseStudy.role?.trim() || props.caseStudy.stageLabel),
 )
 
 function openHero() {
@@ -84,28 +72,9 @@ function scrollToContact(event: MouseEvent) {
 
         <div class="flex flex-wrap items-center gap-3">
           <a
-            v-if="primarySource && primaryIsNative"
-            :href="primarySource.href"
-            v-bind="outboundAttrs(primarySource.href)"
-            :class="[casePrimaryCta, linkFocus]"
-          >
-            {{ primarySource.label }}
-            <span
-              v-if="opensInNewTab(primarySource.href)"
-              class="sr-only"
-            >(opens in a new tab)</span>
-          </a>
-          <NuxtLink
-            v-else-if="primarySource"
-            :to="primarySource.href"
-            :class="[casePrimaryCta, linkFocus]"
-          >
-            {{ primarySource.label }}
-          </NuxtLink>
-          <a
             v-if="contactNav"
             href="#contact"
-            :class="[caseSecondaryCta, linkFocus]"
+            :class="[casePrimaryCta, linkFocus]"
             @click="scrollToContact"
           >
             {{ contactNav.label }}

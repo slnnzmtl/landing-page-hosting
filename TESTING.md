@@ -73,7 +73,7 @@ tests/
 
 ### Cases domain
 
-**Case CMS mapping** — published-only case/section/claim filtering, unique anchors, positive media dimensions, required media metadata, fail-closed validation, case SEO/JSON-LD, and grouped sticky nav labels (`caseNavGroups`).
+**Case CMS mapping** — published-only case/section/claim filtering, unique anchors, positive media dimensions, generated media source variants, required media metadata, fail-closed validation, and case SEO/JSON-LD. Focused component tests cover one-time resources, natural media sizing, supported layout branches, and empty optional blocks.
 
 ### Homepage / experience / CMS mappers
 

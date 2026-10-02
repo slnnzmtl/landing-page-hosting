@@ -3,7 +3,7 @@ import { mapPortfolio } from '~/utils/cms/map'
 import { mapCaseStudy, plainTextParagraphs } from '~/utils/cms/map-cases'
 import { PRIVATE_FIELDS, PROJECT_FIELDS, FILE_FIELDS } from '~/utils/cms/fields'
 import { caseDetailSeo } from '~/domains/cases/utils/case-seo'
-import { CASE_SECTION_KINDS, caseEvidenceLinkLabel, caseNavGroups } from '~/domains/cases/data/types'
+import { CASE_SECTION_KINDS, caseEvidenceLinkLabel } from '~/domains/cases/data/types'
 import { cmsPortfolioFixture } from '~/tests/fixtures/cms-portfolio'
 import type { CmsProject } from '~/utils/cms/types'
 
@@ -51,6 +51,7 @@ describe('case CMS projection', () => {
     expect(caseStudy.heroMedia?.height).toBe(900)
     expect(caseStudy.heroMedia?.alt).toMatch(/Architecture diagram/)
     expect(caseStudy.heroMedia?.caption).toMatch(/Telegram, LangGraph/)
+    expect(caseStudy.heroMedia?.srcset).toContain('600w')
     expect(caseStudy.engagementLabel).toMatch(/Independent product/)
     const gallery = caseStudy.sections.find(s => s.kind === 'gallery')!
     expect(gallery.media).toHaveLength(2)
@@ -200,37 +201,6 @@ describe('case SEO', () => {
         : node['@type'] === 'CreativeWork',
     )).toBe(true)
     expect(graph.some(node => node['@type'] === 'SoftwareSourceCode')).toBe(true)
-  })
-})
-
-describe('case grouped navigation', () => {
-  it('groups published sections into five sticky labels', () => {
-    const mapped = mapPortfolio(cmsPortfolioFixture, BASE)
-    const groups = caseNavGroups(mapped.cases[0]!.sections)
-    expect(groups.map(g => g.label)).toEqual([
-      'Context',
-      'Operator workflow',
-      'Architecture',
-      'How it evolved',
-      'Screenshots',
-    ])
-    expect(groups.find(g => g.id === 'overview')?.anchor).toBe('context')
-    expect(groups.find(g => g.id === 'engineering')).toEqual({
-      id: 'engineering',
-      label: 'How it evolved',
-      anchor: 'evolution',
-      anchors: ['evolution', 'decisions'],
-    })
-    expect(groups.find(g => g.id === 'evidence')?.anchors).toEqual([
-      'gallery',
-      'evidence',
-    ])
-  })
-
-  it('omits groups with no published sections', () => {
-    const mapped = mapPortfolio(cmsPortfolioFixture, BASE)
-    const narrativeOnly = mapped.cases[0]!.sections.filter(s => s.kind === 'narrative')
-    expect(caseNavGroups(narrativeOnly).map(g => g.id)).toEqual(['overview'])
   })
 })
 

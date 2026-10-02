@@ -150,9 +150,11 @@ Published Directus `projects` with `case_enabled=true` generate `/work/:slug` at
 
 1. Publish a `projects` row with `case_enabled=true`, non-empty `case_lead`, and at least one published `project_sections` row.
 2. Attach media with positive stored dimensions, meaningful alt text, a one-sentence caption, and a valid presentation (`diagram`, `screenshot`, `gallery`, or `code`). Set file `title` to a safe versioned public path when materializing into `public/`.
-3. Use the supported kind/layout compositions: `narrative/text`, `workflow/cards`, `architecture/wide`, `evolution/cards`, `decisions/text`, `gallery/split`, `evidence/text`, and `limitations/text`. Rendering is selected by `kind`; `layout` documents the intended authoring composition and must remain one of the supported values.
+3. Use the supported kind/layout compositions: `narrative/text`, `narrative/split`, `workflow/cards`, `architecture/wide`, `evolution/cards`, `decisions/text`, `decisions/cards`, `gallery/split`, `gallery/wide`, `evidence/text`, and `limitations/text`. Supported pairs change the structure: narrative text/split, decisions text, and gallery split/wide. Other accepted legacy combinations retain their kind renderer and safe default layout.
 4. Keep claim evidence private. Link only published `approved_claims` rows through `case_claims`; never expose `evidence_origin`, `evidence_note`, `confidentiality_notes`, or `private_evidence` to the build reader.
 5. `nuxt generate` discovers the slug via `fetchCaseSlugs`. No new Vue page file is required.
+
+On case routes, the desktop sidebar remains unchanged. Mobile and tablet layouts use an in-flow “On this case” menu so it cannot cover article content. Media keeps natural proportions, uses only variants materialized by the CMS loader, and remains keyboard/lightbox accessible. Claims, stack tags, and evidence links render once in the final Resources area.
 
 ## Survey Module
 
