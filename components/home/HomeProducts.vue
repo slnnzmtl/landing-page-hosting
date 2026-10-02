@@ -1,10 +1,14 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { ProductsSection } from '~/data/homepage'
 import HomeProductSpotlight from './HomeProductSpotlight.vue'
+import HomeProductPlaceholder from './HomeProductPlaceholder.vue'
 
-defineProps<{
+const props = defineProps<{
   products: ProductsSection
 }>()
+
+const placeholderCount = computed(() => Math.max(0, 3 - props.products.items.length))
 </script>
 
 <template>
@@ -42,6 +46,12 @@ defineProps<{
         :key="item.slug"
       >
         <HomeProductSpotlight :product="item" />
+      </li>
+      <li
+        v-for="index in placeholderCount"
+        :key="`product-placeholder-${index}`"
+      >
+        <HomeProductPlaceholder />
       </li>
     </ul>
   </section>

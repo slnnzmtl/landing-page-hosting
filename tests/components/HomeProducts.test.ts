@@ -53,6 +53,21 @@ describe('HomeProducts', () => {
     )
     expect(wrapper.text()).toContain('Products')
   })
+
+  it('fills the grid with an in-progress card when fewer than three products exist', () => {
+    const wrapper = mount(HomeProducts, {
+      props: { products: section([product('one'), product('two')]) },
+      global: {
+        stubs: {
+          NuxtLink: nuxtLinkStub,
+        },
+      },
+    })
+
+    expect(wrapper.findAll('article')).toHaveLength(3)
+    expect(wrapper.findAll('.product-placeholder')).toHaveLength(1)
+    expect(wrapper.text()).toContain('In progress')
+  })
 })
 
 describe('HomeProductSpotlight', () => {
