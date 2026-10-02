@@ -96,6 +96,8 @@ export interface ProductsSection {
   heading: string
   description: string
   items: ProductSpotlight[]
+  totalCount: number
+  allProductsCta: HomepageLink
 }
 
 export interface HomepageContent {

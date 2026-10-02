@@ -11,6 +11,7 @@ import type {
   HomepageLink,
   PageCopy,
   ProductSpotlight,
+  ProductSpotlightImage,
   ProofItem,
 } from '../../data/homepage'
 import {
@@ -376,41 +377,105 @@ function mapFeaturedCases(
   })
 }
 
-function mapProductSpotlights(
+const HOMEPAGE_PRODUCT_LIMIT = 3
+
+function homepageProductCandidates(
   productSpotlightSlugs: string[],
   products: CmsProduct[],
-  catalog: FileCatalog = EMPTY_CATALOG,
-  spotlightCtaLabel: string,
-): ProductSpotlight[] {
-  const ordered = orderByKeys(
-    products,
-    productSpotlightSlugs,
-    p => p.slug,
-  )
-  return ordered.map((product) => {
-    const guideImage = product.guide?.steps?.find(step => step.image)?.image
-    if (!guideImage) {
-      throw new Error(
-        `Product spotlight "${product.slug}" requires a guide step image`,
-      )
-    }
+): CmsProduct[] {
+  const bySlug = new Map(products.map(product => [product.slug, product]))
+  const prioritized = productSpotlightSlugs
+    .map(slug => bySlug.get(slug))
+    .filter((product): product is CmsProduct => Boolean(product))
+  const prioritizedSlugs = new Set(prioritized.map(product => product.slug))
+  const remaining = [...products]
+    .sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0))
+    .filter(product => !prioritizedSlugs.has(product.slug))
+  return [...prioritized, ...remaining].slice(0, HOMEPAGE_PRODUCT_LIMIT)
+}
+
+function imageForProductSpotlight(
+  product: CmsProduct,
+  config: Pick<DirectusClientConfig, 'baseUrl'>,
+  catalog: FileCatalog,
+): ProductSpotlightImage {
+  const guideImage = product.guide?.steps?.find(step => step.image)?.image
+  if (guideImage) {
     const rewritten = rewriteGuideImage(catalog, guideImage)
     const thumb = rewritten.srcThumb
     // Homepage uses the 600w file only — CMS `sizes` would pick 2240w on DPR>1.
+    return {
+      src: thumb || rewritten.src,
+      srcThumb: thumb,
+      alt: rewritten.alt,
+      width: thumb ? 600 : rewritten.width,
+      height: thumb
+        ? Math.max(1, Math.round(rewritten.height * (600 / rewritten.width)))
+        : rewritten.height,
+    }
+  }
+
+  const media = product.media?.find(item => item.presentation === 'comparison_after')
+    || product.media?.find(item => item.presentation === 'hero')
+    || product.media?.find(item => item.presentation === 'gallery')
+  if (media) {
+    if (!media.alt?.trim()) {
+      throw new Error(`Product spotlight "${product.slug}" requires image alt text`)
+    }
+    const image = productMediaImage(
+      catalog,
+      productMediaFile(media, catalog),
+      media.alt,
+      media.caption,
+    )
+    return {
+      src: image.src,
+      srcThumb: image.srcThumb,
+      srcset: image.srcset,
+      sizes: image.sizes,
+      alt: image.alt,
+      width: image.width,
+      height: image.height,
+    }
+  }
+
+  const logo = fileImage(
+    config,
+    catalog,
+    product.logo,
+    `${product.name} logo`,
+    { width: 512, height: 512 },
+    '-256w',
+  )
+  if (logo) {
+    return {
+      src: logo.src,
+      srcThumb: logo.srcThumb,
+      srcset: logo.srcset,
+      sizes: logo.sizes,
+      alt: logo.alt,
+      width: logo.width,
+      height: logo.height,
+    }
+  }
+
+  throw new Error(`Product spotlight "${product.slug}" requires a usable image`)
+}
+
+function mapProductSpotlights(
+  productSpotlightSlugs: string[],
+  products: CmsProduct[],
+  config: Pick<DirectusClientConfig, 'baseUrl'>,
+  catalog: FileCatalog = EMPTY_CATALOG,
+  spotlightCtaLabel: string,
+): ProductSpotlight[] {
+  return homepageProductCandidates(productSpotlightSlugs, products).map((product) => {
     return {
       slug: product.slug,
       title: product.name,
       lead: product.launch_lead || product.short_description,
       supportingLine: product.launch_supporting_line || '',
-      image: {
-        src: thumb || rewritten.src,
-        srcThumb: thumb,
-        alt: rewritten.alt,
-        width: thumb ? 600 : rewritten.width,
-        height: thumb
-          ? Math.max(1, Math.round(rewritten.height * (600 / rewritten.width)))
-          : rewritten.height,
-      },
+      image: imageForProductSpotlight(product, config, catalog),
       cta: {
         label: spotlightCtaLabel,
         href: `/products/${product.slug}`,
@@ -512,9 +577,6 @@ function mapHomepageContent(
   if (!experiencePreviewIds.length) {
     throw new Error('homepage_settings.experience_preview is required')
   }
-  if (!productSpotlightSlugs.length) {
-    throw new Error('homepage_settings.product_spotlights is required')
-  }
   if (!proofClaimKeys.length) {
     throw new Error('homepage_settings.proof_claims is required')
   }
@@ -600,9 +662,15 @@ function mapHomepageContent(
       items: mapProductSpotlights(
         productSpotlightSlugs,
         products,
+        config,
         catalog,
         pageCopy.products_index.spotlight_cta,
       ),
+      totalCount: products.length,
+      allProductsCta: {
+        label: 'View all products',
+        href: '/products',
+      },
     },
     navItems,
     contact: {

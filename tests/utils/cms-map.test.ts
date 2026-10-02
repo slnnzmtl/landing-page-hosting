@@ -303,26 +303,124 @@ describe('CMS portfolio mappers', () => {
     expect(image?.width).toBe(600)
   })
 
-  it('fails closed when a product spotlight has no guide image', () => {
+  it('falls back to the product logo when a spotlight has no guide image', () => {
     const product = cmsPortfolioFixture.products[0]
     expect(product).toBeTruthy()
-    expect(() =>
-      mapPortfolio(
-        {
-          ...cmsPortfolioFixture,
-          products: [
-            {
-              ...product!,
-              guide: {
-                title: product!.guide?.title || 'Guide',
-                steps: [{ title: 'Step', body: 'Body' }],
-              },
+    const result = mapPortfolio(
+      {
+        ...cmsPortfolioFixture,
+        products: [
+          {
+            ...product!,
+            guide: {
+              title: product!.guide?.title || 'Guide',
+              steps: [{ title: 'Step', body: 'Body' }],
             },
-          ],
+          },
+        ],
+      },
+      BASE,
+    )
+    expect(result.homepage.products.items[0]?.image.src).toContain(
+      'sample-converter-logo.webp',
+    )
+  })
+
+  it('prioritizes configured products, fills remaining slots, and caps the homepage at three', () => {
+    const product = cmsPortfolioFixture.products[0]
+    expect(product).toBeTruthy()
+    const products = [0, 1, 2, 3].map(index => ({
+      ...product!,
+      id: `product-${index}`,
+      slug: `sample-converter-${index}`,
+      sort: index,
+    }))
+    const result = mapPortfolio(
+      {
+        ...cmsPortfolioFixture,
+        products,
+        homepageSettings: {
+          ...cmsPortfolioFixture.homepageSettings,
+          product_spotlights: [{ products_id: { slug: 'sample-converter-3' } }],
         },
-        BASE,
-      ),
-    ).toThrow(/requires a guide step image/)
+      },
+      BASE,
+    )
+    expect(result.homepage.products.items.map(item => item.slug)).toEqual([
+      'sample-converter-3',
+      'sample-converter-0',
+      'sample-converter-1',
+    ])
+    expect(result.homepage.products.totalCount).toBe(4)
+    expect(result.homepage.products.allProductsCta).toEqual({
+      label: 'View all products',
+      href: '/products',
+    })
+  })
+
+  it('uses extension comparison media when no guide screenshot exists', () => {
+    const product = cmsPortfolioFixture.products[0]
+    expect(product).toBeTruthy()
+    const extension = {
+      ...product!,
+      id: 'product-extension',
+      slug: 'sample-extension',
+      detail_template: 'extension' as const,
+      guide: null,
+      logo: null,
+      kicker: 'Browser extension',
+      media_heading: 'See the difference',
+      price_amount: '0.00',
+      price_currency: 'USD',
+      software_requirements: 'Chrome 121+',
+      media: [
+        {
+          id: 1,
+          sort: 0,
+          file: 'extension-after',
+          alt: 'Customized extension interface',
+          presentation: 'comparison_after' as const,
+        },
+        {
+          id: 2,
+          sort: 1,
+          file: 'extension-before',
+          alt: 'Default extension interface',
+          presentation: 'comparison_before' as const,
+        },
+      ],
+    }
+    const result = mapPortfolio(
+      {
+        ...cmsPortfolioFixture,
+        products: [extension],
+        homepageSettings: {
+          ...cmsPortfolioFixture.homepageSettings,
+          product_spotlights: [],
+        },
+        files: [
+          ...(cmsPortfolioFixture.files || []),
+          {
+            id: 'extension-after',
+            filename_download: 'after.png',
+            title: '/products/sample-extension/after.png',
+            type: 'image/png',
+            width: 1280,
+            height: 800,
+          },
+          {
+            id: 'extension-before',
+            filename_download: 'before.png',
+            title: '/products/sample-extension/before.png',
+            type: 'image/png',
+            width: 1280,
+            height: 800,
+          },
+        ],
+      },
+      BASE,
+    )
+    expect(result.homepage.products.items[0]?.image.src).toContain('after.png')
   })
 
   it('never leaks private Directus fields into the mapped payload', () => {

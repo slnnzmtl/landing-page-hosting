@@ -98,6 +98,11 @@ describe('homepage content model (CMS-mapped)', () => {
     expect(spotlight.image.src).toMatch(/-600w\.webp/)
     expect(spotlight.image.width).toBe(600)
     expect(spotlight.cta.href).toBe('/products/sample-converter')
+    expect(published.products.totalCount).toBe(1)
+    expect(published.products.allProductsCta).toEqual({
+      label: 'View all products',
+      href: '/products',
+    })
   })
 
   it('seeds primary nav from site_settings.menu', () => {
