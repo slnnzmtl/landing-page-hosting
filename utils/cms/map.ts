@@ -462,6 +462,15 @@ function imageForProductSpotlight(
   throw new Error(`Product spotlight "${product.slug}" requires a usable image`)
 }
 
+function mapDetailTemplate(product: CmsProduct): string {
+  const library = {
+    application: 'Application',
+    extension: 'Chrome extension',
+  }
+
+  return library[product.detail_template as keyof typeof library] || product.detail_template || ''
+}
+
 function mapProductSpotlights(
   productSpotlightSlugs: string[],
   products: CmsProduct[],
@@ -481,6 +490,7 @@ function mapProductSpotlights(
         href: `/products/${product.slug}`,
       },
       tags: (product.stack_tags || []).slice(0, 5),
+      detail_template: mapDetailTemplate(product),
     }
   })
 }

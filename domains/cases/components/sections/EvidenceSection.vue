@@ -33,10 +33,10 @@ const claimProse = computed(() =>
 <template>
   <CaseSectionFrame :section="section">
     <div class="space-y-5">
-    <p
-      v-if="claimProse"
-      :class="[caseReadingWidth, 'text-lg font-medium leading-7 text-pretty text-foreground sm:text-xl']"
-    >
+      <p
+        v-if="claimProse"
+        :class="[caseReadingWidth, 'text-lg font-medium leading-7 text-pretty text-foreground sm:text-xl']"
+      >
         {{ claimProse }}
       </p>
 

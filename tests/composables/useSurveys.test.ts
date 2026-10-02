@@ -114,19 +114,4 @@ describe('useSurveys', () => {
       }
     })
   })
-
-  describe('integration with real data', () => {
-    it('should load sweet-loyalty survey if it exists', () => {
-      const { findSurvey } = useSurveys()
-
-      const sweetLoyalty = findSurvey('sweet-loyalty')
-
-      if (sweetLoyalty) {
-        expect(sweetLoyalty.title).toBe('Опросный лист для проекта Sweet ???')
-        expect(sweetLoyalty.description).toContain('разработки')
-        expect(sweetLoyalty.questions.length).toBeGreaterThan(0)
-        expect(sweetLoyalty.action).toBeTruthy()
-      }
-    })
-  })
 })

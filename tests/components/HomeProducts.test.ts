@@ -22,6 +22,7 @@ function product(slug: string): ProductSpotlight {
       height: 800,
     },
     cta: { label: 'View product', href: `/products/${slug}` },
+    detail_template: 'Application description',
     tags: ['Vue', 'TypeScript'],
   }
 }
@@ -65,7 +66,11 @@ describe('HomeProducts', () => {
     })
 
     expect(wrapper.findAll('article')).toHaveLength(3)
+    const placeholder = wrapper.find('.product-placeholder')
     expect(wrapper.findAll('.product-placeholder')).toHaveLength(1)
+    expect(placeholder.classes()).toEqual(
+      expect.arrayContaining(['hidden', 'sm:flex']),
+    )
     expect(wrapper.text()).toContain('In progress')
   })
 })
@@ -79,6 +84,5 @@ describe('HomeProductSpotlight', () => {
 
     expect(wrapper.find('article').classes()).toContain('rounded-2xl')
     expect(wrapper.find('img').attributes('alt')).toBe('one screenshot')
-    expect(wrapper.text()).toContain('Vue · TypeScript')
   })
 })

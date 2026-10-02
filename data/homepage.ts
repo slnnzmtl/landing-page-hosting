@@ -90,6 +90,7 @@ export interface ProductSpotlight {
   image: ProductSpotlightImage
   cta: HomepageLink
   tags: string[]
+  detail_template: string
 }
 
 export interface ProductsSection {
