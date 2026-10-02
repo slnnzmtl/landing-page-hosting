@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { CaseClaim, CaseLink, CaseSection } from '../../data/types'
+import type { CaseSection } from '../../data/types'
 import NarrativeSection from './NarrativeSection.vue'
 import WorkflowSection from './WorkflowSection.vue'
 import ArchitectureSection from './ArchitectureSection.vue'
@@ -9,16 +9,9 @@ import CaseGallery from './CaseGallery.vue'
 import EvidenceSection from './EvidenceSection.vue'
 import LimitationsCallout from './LimitationsCallout.vue'
 
-withDefaults(defineProps<{
+defineProps<{
   section: CaseSection
-  claims?: CaseClaim[]
-  links?: CaseLink[]
-  stackTags?: string[]
-}>(), {
-  claims: () => [],
-  links: () => [],
-  stackTags: () => [],
-})
+}>()
 </script>
 
 <template>
@@ -53,9 +46,6 @@ withDefaults(defineProps<{
     <EvidenceSection
       v-else-if="section.kind === 'evidence'"
       :section="section"
-      :claims="claims"
-      :links="links"
-      :stack-tags="stackTags"
     />
     <LimitationsCallout
       v-else-if="section.kind === 'limitations'"

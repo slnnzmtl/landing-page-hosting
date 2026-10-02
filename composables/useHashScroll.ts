@@ -23,7 +23,8 @@ export function useHashScroll() {
     const scroll = () => {
       const target = document.getElementById(id)
       if (!target) return false
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      target.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' })
       pauseSilentAnchorSync()
       return true
     }

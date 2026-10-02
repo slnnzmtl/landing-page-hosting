@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { CaseSection, CaseSectionItem } from '../../data/types'
 import CaseSectionFrame from './CaseSectionFrame.vue'
 import CaseParagraphs from '../CaseParagraphs.vue'
@@ -10,6 +11,7 @@ const props = defineProps<{
 
 /** When items use exactly two distinct labels, render as a comparison table. */
 const comparisonColumns = computed(() => {
+  if (props.section.layout === 'text') return null
   const labels = [
     ...new Set(
       props.section.items
@@ -29,6 +31,8 @@ function itemCopy(item: CaseSectionItem) {
 }
 
 const flatItems = computed(() => props.section.items)
+
+const isTextLayout = computed(() => props.section.layout === 'text')
 </script>
 
 <template>
@@ -39,8 +43,38 @@ const flatItems = computed(() => props.section.items)
       :class-name="`${caseReadingWidth} space-y-4 ${caseBodyText}`"
     />
 
+    <ol
+      v-if="isTextLayout"
+      class="max-w-[70ch] space-y-5"
+    >
+      <li
+        v-for="(item, index) in flatItems"
+        :key="item.title || item.label || index"
+        class="space-y-1 border-t border-border/70 pt-4"
+      >
+        <p
+          v-if="item.label"
+          class="text-xs font-semibold uppercase tracking-wide text-primary"
+        >
+          {{ item.label }}
+        </p>
+        <h3
+          v-if="item.title"
+          class="text-lg font-semibold text-foreground"
+        >
+          {{ item.title }}
+        </h3>
+        <p
+          v-if="item.summary || item.detail"
+          :class="caseCardText"
+        >
+          {{ item.summary || item.detail }}
+        </p>
+      </li>
+    </ol>
+
     <div
-      v-if="comparisonColumns"
+      v-else-if="comparisonColumns"
       class="grid gap-8 sm:grid-cols-2 sm:gap-10"
     >
       <div

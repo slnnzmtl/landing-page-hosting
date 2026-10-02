@@ -1,26 +1,15 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { CaseSection } from '../../data/types'
 import CaseSectionFrame from './CaseSectionFrame.vue'
 import CaseParagraphs from '../CaseParagraphs.vue'
-import { caseBodyText, caseCardText, caseReadingWidth } from '../../utils/case-ui'
+import { caseBodyText, caseCardText } from '../../utils/case-ui'
 
 const props = defineProps<{
   section: CaseSection
 }>()
 
-const problemParagraphs = computed(() => {
-  if (props.section.items.length) {
-    return props.section.bodyParagraphs.slice(0, 1)
-  }
-  return props.section.bodyParagraphs
-})
-
-const extraParagraphs = computed(() => {
-  if (!props.section.items.length) return []
-  return props.section.bodyParagraphs.slice(1)
-})
-
-const painPoints = computed(() => props.section.items)
+const isSplit = computed(() => props.section.layout === 'split')
 </script>
 
 <template>
@@ -29,23 +18,24 @@ const painPoints = computed(() => props.section.items)
     header-wide
   >
     <div
-      v-if="painPoints.length"
-      class="grid gap-x-8 gap-y-5 lg:grid-cols-2 lg:gap-x-12"
+      v-if="section.bodyParagraphs.length || section.items.length"
+      :class="[
+        'grid gap-x-8 gap-y-6',
+        isSplit ? 'lg:grid-cols-2 lg:gap-x-12' : 'max-w-[70ch]',
+      ]"
     >
-      <div class="min-w-0 space-y-3">
-        <CaseParagraphs
-          :paragraphs="problemParagraphs"
-          :class-name="`space-y-3 ${caseBodyText}`"
-        />
-        <CaseParagraphs
-          v-if="extraParagraphs.length"
-          :paragraphs="extraParagraphs"
-          :class-name="`space-y-3 ${caseBodyText}`"
-        />
-      </div>
-      <ul class="min-w-0 space-y-3">
+      <CaseParagraphs
+        v-if="section.bodyParagraphs.length"
+        :paragraphs="section.bodyParagraphs"
+        :class-name="`space-y-3 ${caseBodyText}`"
+      />
+      <ul
+        v-if="section.items.length"
+        class="min-w-0 space-y-3"
+        :class="isSplit ? '' : 'border-t border-border/50 pt-5'"
+      >
         <li
-          v-for="(item, index) in painPoints"
+          v-for="(item, index) in section.items"
           :key="item.title || item.label || index"
           class="flex gap-3"
         >
@@ -70,11 +60,5 @@ const painPoints = computed(() => props.section.items)
         </li>
       </ul>
     </div>
-
-    <CaseParagraphs
-      v-else-if="section.bodyParagraphs.length"
-      :paragraphs="section.bodyParagraphs"
-      :class-name="`${caseReadingWidth} space-y-4 ${caseBodyText}`"
-    />
   </CaseSectionFrame>
 </template>

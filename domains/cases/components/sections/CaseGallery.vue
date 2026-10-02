@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { inject } from 'vue'
 import type { CaseImage, CaseSection } from '../../data/types'
 import CaseSectionFrame from './CaseSectionFrame.vue'
 import CaseParagraphs from '../CaseParagraphs.vue'
@@ -17,9 +18,6 @@ function open(index: number) {
   if (!openLightbox || props.media.length === 0) return
   openLightbox(props.media, index)
 }
-
-const primary = computed(() => props.media[0])
-const secondary = computed(() => props.media.slice(1))
 </script>
 
 <template>
@@ -32,24 +30,19 @@ const secondary = computed(() => props.media.slice(1))
 
     <div
       v-if="media.length"
-      class="grid gap-5 lg:grid-cols-3 lg:items-start"
+      :class="[
+        section.layout === 'split'
+          ? 'grid gap-6 sm:grid-cols-2 sm:items-start'
+          : 'flex w-full flex-col gap-6',
+      ]"
     >
       <CaseMedia
-        v-if="primary"
-        :image="primary"
-        size="screenshot"
-        crop
-        class-name="space-y-2 lg:col-span-2"
-        @open="open(0)"
-      />
-      <CaseMedia
-        v-for="(image, index) in secondary"
-        :key="`${section.id}-media-${index + 1}`"
+        v-for="(image, index) in media"
+        :key="`${section.id}-media-${index}`"
         :image="image"
         size="screenshot"
-        crop
-        class-name="space-y-2 lg:col-span-1"
-        @open="open(index + 1)"
+        class-name="w-full space-y-2"
+        @open="open(index)"
       />
     </div>
   </CaseSectionFrame>

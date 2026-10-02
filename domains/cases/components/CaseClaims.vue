@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { CaseClaim, CaseLink } from '../data/types'
-import { caseBodyText, casePrimaryCta, caseStackTag } from '../utils/case-ui'
+import { caseBodyText, caseStackTag } from '../utils/case-ui'
 import { useHomepageUi } from '~/composables/useHomepageUi'
 import { homepageHrefKind, opensInNewTab } from '~/data/homepage'
 
@@ -13,17 +14,14 @@ const props = defineProps<{
 
 const { linkFocus, outboundAttrs } = useHomepageUi()
 
-const primary = computed(() => props.links?.[0])
-const primaryIsNative = computed(() =>
-  primary.value ? homepageHrefKind(primary.value.href) === 'native' : false,
-)
+const claims = computed(() => props.claims
+  .map(claim => ({ ...claim, publicWording: claim.publicWording.trim() }))
+  .filter(claim => Boolean(claim.publicWording)))
 
-const claimProse = computed(() =>
-  props.claims.map(claim => claim.publicWording.trim()).filter(Boolean).join(' '),
-)
+const links = computed(() => props.links?.filter(link => link.label.trim() && link.href) || [])
 
 const show = computed(() =>
-  Boolean(claimProse.value || primary.value || props.stackTags?.length),
+  Boolean(claims.value.length || links.value.length || props.stackTags?.length),
 )
 </script>
 
@@ -40,51 +38,63 @@ const show = computed(() =>
       {{ heading }}
     </h2>
 
-    <p
-      v-if="claimProse"
-      :class="['max-w-[70ch]', caseBodyText]"
+    <div
+      v-if="claims.length"
+      class="max-w-[70ch] space-y-3"
     >
-      {{ claimProse }}
-    </p>
+      <p
+        v-for="claim in claims"
+        :key="claim.id"
+        :class="caseBodyText"
+      >
+        {{ claim.publicWording }}
+      </p>
+    </div>
 
-    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+    <div
+      v-if="stackTags?.length || links.length"
+      class="space-y-3 border-t border-border/50 pt-5"
+    >
+      <p class="text-xs font-semibold uppercase tracking-wide text-primary">
+        Resources
+      </p>
       <ul
-        v-if="stackTags?.length"
         class="flex flex-wrap gap-2"
-        aria-label="Repository stack"
+        aria-label="Case resources"
       >
         <li
           v-for="tag in stackTags"
-          :key="tag"
+          :key="`stack-${tag}`"
           :class="caseStackTag"
         >
           {{ tag }}
         </li>
+        <li
+          v-for="link in links"
+          :key="link.href"
+        >
+          <a
+            v-if="homepageHrefKind(link.href) === 'native'"
+            :href="link.href"
+            v-bind="outboundAttrs(link.href)"
+            :class="[caseStackTag, linkFocus]"
+          >
+            {{ link.label }}
+            <span
+              v-if="opensInNewTab(link.href)"
+              class="sr-only"
+            >(opens in a new tab)</span>
+          </a>
+          <NuxtLink
+            v-else
+            :to="link.href"
+            :class="[caseStackTag, linkFocus]"
+          >
+            {{ link.label }}
+          </NuxtLink>
+        </li>
       </ul>
-
-      <a
-        v-if="primary && primaryIsNative"
-        :href="primary.href"
-        v-bind="outboundAttrs(primary.href)"
-        :class="[casePrimaryCta, linkFocus, 'shrink-0']"
-      >
-        {{ primary.label }}
-        <span
-          v-if="opensInNewTab(primary.href)"
-          aria-hidden="true"
-        >↗</span>
-        <span
-          v-if="opensInNewTab(primary.href)"
-          class="sr-only"
-        >(opens in a new tab)</span>
-      </a>
-      <NuxtLink
-        v-else-if="primary"
-        :to="primary.href"
-        :class="[casePrimaryCta, linkFocus, 'shrink-0']"
-      >
-        {{ primary.label }}
-      </NuxtLink>
+      <!-- Keep every resource in the same CMS order; links follow stack tags. -->
     </div>
   </section>
 </template>
