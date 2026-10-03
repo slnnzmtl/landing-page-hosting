@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppPageHeader from '~/components/AppPageHeader.vue'
+import AppCard from '~/components/AppCard.vue'
 import { resolveSiteUrl } from '~/utils/seo'
 import { productPath } from '../data/types'
 import { productsIndexSeo } from '../utils/product-seo'
@@ -35,49 +36,51 @@ usePageSeo(
           v-for="product in products"
           :key="product.slug"
         >
-          <NuxtLink
-            :to="productPath(product.slug)"
-            class="group flex h-full gap-4 rounded-2xl border border-border bg-card p-6 shadow-sm transition hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          <AppCard
+            :href="productPath(product.slug)"
+            :aria-label="`${product.name}: ${pageCopy.products_index.item_cta}`"
           >
-            <div
-              v-if="product.logo"
-              class=" flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-[hsl(64,0%,1.43%)] shrink-0"
-            >
-              <img
-                :src="product.logo.src"
-                :alt="product.logo.alt"
-                :width="product.logo.width"
-                :height="product.logo.height"
-                class="h-12 w-12"
-                decoding="async"
-              />
+            <div class="flex h-full gap-4 p-6">
+              <div
+                v-if="product.logo"
+                class="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-[hsl(64,0%,1.43%)]"
+              >
+                <img
+                  :src="product.logo.src"
+                  :alt="product.logo.alt"
+                  :width="product.logo.width"
+                  :height="product.logo.height"
+                  class="h-12 w-12"
+                  decoding="async"
+                />
+              </div>
+              <div class="flex flex-col">
+                <h2 class="text-xl font-semibold text-primary">
+                  {{ product.name }}
+                </h2>
+                <p class="mt-2 flex-1 text-sm text-muted-foreground">
+                  {{ product.shortDescription }}
+                </p>
+                <span class="mt-5 inline-flex items-center gap-2 text-sm font-medium text-primary">
+                  {{ pageCopy.products_index.item_cta }}
+                  <svg
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    class="h-4 w-4"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M7 5l6 5-6 5"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </span>
+              </div>
             </div>
-            <div class="flex flex-col">
-              <h2 class="text-xl font-semibold text-primary">
-                {{ product.name }}
-              </h2>
-              <p class="mt-2 flex-1 text-sm text-muted-foreground">
-                {{ product.shortDescription }}
-              </p>
-              <span class="mt-5 inline-flex items-center gap-2 text-sm font-medium text-primary transition-transform group-hover:translate-x-0.5">
-                {{ pageCopy.products_index.item_cta }}
-                <svg
-                  viewBox="0 0 20 20"
-                  fill="none"
-                  class="h-4 w-4"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M7 5l6 5-6 5"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </span>
-            </div>
-          </NuxtLink>
+          </AppCard>
         </li>
       </ul>
     </div>

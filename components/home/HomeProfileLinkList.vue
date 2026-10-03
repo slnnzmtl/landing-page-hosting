@@ -14,7 +14,7 @@ const props = withDefaults(
   },
 )
 
-const { linkFocus, outboundAttrs, profileLinkAria } = useHomepageUi()
+const { interactiveTransition, linkFocus, outboundAttrs, profileLinkAria } = useHomepageUi()
 
 function itemKey(label: string) {
   return props.keyPrefix ? `${props.keyPrefix}${label}` : label
@@ -31,7 +31,7 @@ function itemKey(label: string) {
         :href="link.href"
         v-bind="outboundAttrs(link.href)"
         :aria-label="profileLinkAria(link.label)"
-        :class="['font-medium text-primary underline-offset-4 hover:underline', linkFocus]"
+        :class="['font-medium text-primary underline-offset-4 hover:underline', interactiveTransition, linkFocus]"
       >
         {{ link.label }}
       </a>

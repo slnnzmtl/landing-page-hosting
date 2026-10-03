@@ -2,12 +2,13 @@
 import type { ExperiencePreview } from '~/data/homepage'
 import { experienceRolePath } from '~/data/experience'
 import { useHomepageUi } from '~/composables/useHomepageUi'
+import AppCard from '~/components/AppCard.vue'
 
 defineProps<{
   preview: ExperiencePreview
 }>()
 
-const { linkFocus } = useHomepageUi()
+const { interactiveTransition, linkFocus } = useHomepageUi()
 </script>
 
 <template>
@@ -27,6 +28,7 @@ const { linkFocus } = useHomepageUi()
         :to="preview.cta.href"
         :class="[
           'text-sm font-medium text-primary underline-offset-4 hover:underline',
+          interactiveTransition,
           linkFocus,
         ]"
       >
@@ -40,40 +42,45 @@ const { linkFocus } = useHomepageUi()
         :key="item.id"
         class="min-w-0"
       >
-        <NuxtLink
-          :to="experienceRolePath(item.id)"
-          :class="[
-            'flex h-full flex-col rounded-2xl border border-border bg-card p-4 shadow-sm transition hover:border-primary/50',
-            linkFocus,
-          ]"
+        <AppCard
+          :href="experienceRolePath(item.id)"
+          :aria-label="`${item.organization}: ${item.title}`"
         >
-          <div class="flex items-start gap-3">
-            <div
-              v-if="item.icon"
-              class="h-8 w-8 shrink-0 overflow-hidden rounded-lg border border-border bg-white"
+          <div class="flex h-full flex-col p-4">
+            <div class="flex items-start gap-3">
+              <div
+                v-if="item.icon"
+                class="h-8 w-8 shrink-0 overflow-hidden rounded-lg border border-border bg-white"
+              >
+                <img
+                  :src="item.icon"
+                  :alt="item.iconAlt || item.organization"
+                  width="48"
+                  height="48"
+                  class="h-full w-full object-cover"
+                  loading="lazy"
+                />
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-foreground">
+                  {{ item.organization }}
+                </p>
+                <p class="mt-1 text-sm text-primary">
+                  {{ item.title }}
+                </p>
+              </div>
+            </div>
+            <p class="mt-3 text-xs text-muted-foreground">
+              {{ item.dateRange }}
+            </p>
+            <p
+              v-if="item.summary"
+              class="mt-3 line-clamp-3 text-sm leading-relaxed text-muted-foreground"
             >
-              <img
-                :src="item.icon"
-                :alt="item.iconAlt || item.organization"
-                width="48"
-                height="48"
-                class="h-full w-full object-cover"
-                loading="lazy"
-              />
-            </div>
-            <div>
-              <p class="text-sm font-semibold text-foreground">{{ item.organization }}</p>
-              <p class="mt-1 text-sm text-primary">{{ item.title }}</p>
-            </div>
+              {{ item.summary }}
+            </p>
           </div>
-          <p class="mt-3 text-xs text-muted-foreground">{{ item.dateRange }}</p>
-          <p
-            v-if="item.summary"
-            class="mt-3 line-clamp-3 text-sm leading-relaxed text-muted-foreground"
-          >
-            {{ item.summary }}
-          </p>
-        </NuxtLink>
+        </AppCard>
       </li>
     </ol>
   </section>

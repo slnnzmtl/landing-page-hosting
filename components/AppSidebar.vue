@@ -7,7 +7,7 @@ import { activeSection, scrollHomeToTop, scrollToAnchor } from '~/utils/silent-h
 import CaseMobileNav from '~/domains/cases/components/CaseMobileNav.vue'
 
 const router = useRouter()
-const { linkFocus, outboundAttrs } = useHomepageUi()
+const { interactiveTransition, linkFocus, outboundAttrs } = useHomepageUi()
 const { data: portfolio } = await usePortfolio()
 
 const routePath = computed(() => router.currentRoute.value.path)
@@ -189,13 +189,15 @@ function linkClass(item: NavItem, variant: 'overlay' | 'rail') {
   const active = isActive(item)
   if (variant === 'overlay') {
     return [
-      'rounded-xl px-3 py-2 text-lg font-medium transition-colors',
+      'rounded-xl px-3 py-2 text-lg font-medium',
+      interactiveTransition,
       sidebarLinkFocus,
       active ? 'text-foreground' : 'text-white/70 hover:text-foreground',
     ]
   }
   return [
-    'relative px-0 py-1.5 text-sm font-medium tracking-wide transition-colors',
+    'relative px-0 py-1.5 text-sm font-medium tracking-wide',
+    interactiveTransition,
     sidebarLinkFocus,
     active
       ? 'text-foreground before:absolute before:-left-3 before:top-1/2 before:h-3.5 before:w-px before:-translate-y-1/2 before:bg-foreground'

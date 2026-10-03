@@ -1,17 +1,14 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { homepageHrefKind, type ProductSpotlight } from '~/data/homepage'
-import { useHomepageUi } from '~/composables/useHomepageUi'
+import type { ProductSpotlight } from '~/data/homepage'
 import { trackHomepageHref } from '~/composables/useHomepageConversion'
+import AppCard from '~/components/AppCard.vue'
 
 const props = defineProps<{
   product: ProductSpotlight
 }>()
 
-const { linkFocus, outboundAttrs } = useHomepageUi()
-
 const ctaHref = computed(() => props.product.cta.href)
-const isRouteCta = computed(() => homepageHrefKind(ctaHref.value) === 'route')
 const imageClass = computed(() => (
   props.product.image.width / props.product.image.height < 1.2
     ? 'object-contain p-8'
@@ -19,8 +16,7 @@ const imageClass = computed(() => (
 ))
 
 const ctaClass = [
-  'inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90',
-  linkFocus,
+  'inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground',
 ].join(' ')
 
 function onProductCtaClick() {
@@ -29,7 +25,11 @@ function onProductCtaClick() {
 </script>
 
 <template>
-  <article class="group flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+  <AppCard
+    :href="ctaHref"
+    :aria-label="`${product.title}: ${product.cta.label}`"
+    @click="onProductCtaClick"
+  >
     <div class="aspect-[16/10] border-b border-border bg-muted/40 p-3 sm:p-4">
       <img
         :src="product.image.srcThumb || product.image.src"
@@ -52,23 +52,9 @@ function onProductCtaClick() {
       </p>
 
       <div class="mt-auto pt-5">
-        <NuxtLink
-          v-if="isRouteCta"
-          :to="ctaHref"
-          :class="ctaClass"
-          @click="onProductCtaClick"
-        >
+        <span :class="ctaClass">
           {{ product.cta.label }}
-        </NuxtLink>
-        <a
-          v-else
-          :href="ctaHref"
-          v-bind="outboundAttrs(ctaHref)"
-          :class="ctaClass"
-          @click="onProductCtaClick"
-        >
-          {{ product.cta.label }}
-        </a>
+        </span>
       </div>
 
       <p
@@ -78,5 +64,5 @@ function onProductCtaClick() {
         {{ product.detail_template }}
       </p>
     </div>
-  </article>
+  </AppCard>
 </template>

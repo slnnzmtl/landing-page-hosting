@@ -10,7 +10,7 @@ import ExtensionProductDetail from '../components/ExtensionProductDetail.vue'
 import { resolveSiteUrl } from '~/utils/seo'
 import { productDetailSeo } from '../utils/product-seo'
 
-const { outboundAttrs } = useHomepageUi()
+const { interactiveTransition, outboundAttrs } = useHomepageUi()
 
 const route = useRoute()
 const slug = String(route.params.slug || '')
@@ -131,7 +131,7 @@ const benefitsHeading = computed(() => (
             :key="link.href"
             :href="link.href"
             v-bind="outboundAttrs(link.href)"
-            class="rounded-full border border-border px-5 py-2.5 text-sm font-medium transition hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            :class="['rounded-full border border-border px-5 py-2.5 text-sm font-medium hover:border-primary hover:text-primary', interactiveTransition, 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2']"
           >
             {{ link.label }}
           </a>

@@ -1,23 +1,25 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { parseAppLink } from '~/utils/app-link'
+import { useHomepageUi } from '~/composables/useHomepageUi'
 
 const props = defineProps<{
   to: string
 }>()
 
 const location = computed(() => parseAppLink(props.to))
+const { interactiveTransition } = useHomepageUi()
 </script>
 
 <template>
   <NuxtLink
     :to="location"
-    class="group inline-flex items-center gap-1 text-sm font-medium text-muted-foreground transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+    :class="['group inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground', interactiveTransition, 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2']"
   >
     <svg
       viewBox="0 0 20 20"
       fill="none"
-      class="-ml-0.5 h-3.5 w-3.5 transition-transform group-hover:-translate-x-0.5"
+      :class="['-ml-0.5 h-3.5 w-3.5', interactiveTransition, 'group-hover:-translate-x-0.5']"
       aria-hidden="true"
     >
       <path

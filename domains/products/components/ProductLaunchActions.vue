@@ -4,6 +4,7 @@ import { useMacosReleaseDownload } from '../composables/useMacosReleaseDownload'
 import { useDownloadWarningDialog } from '../composables/useDownloadWarningDialog'
 import { trackConversion } from '~/utils/track-conversion'
 import MacosDownloadWarningDialog from './MacosDownloadWarningDialog.vue'
+import { useHomepageUi } from '~/composables/useHomepageUi'
 
 const props = defineProps<{
   launch: ProductLaunch
@@ -32,14 +33,17 @@ function trackRekordboxDownload() {
 const { isOpen, interceptClick, close, confirm } = useDownloadWarningDialog({
   onProceed: trackRekordboxDownload,
 })
+const { interactiveTransition } = useHomepageUi()
 
 const primaryClass = [
-  'inline-flex w-full items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 sm:w-auto',
+  'inline-flex w-full items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 sm:w-auto',
+  interactiveTransition,
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
 ].join(' ')
 
 const linkClass = [
   'w-full text-center text-sm font-medium text-primary underline-offset-4 hover:underline sm:w-auto sm:text-left',
+  interactiveTransition,
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
 ].join(' ')
 </script>

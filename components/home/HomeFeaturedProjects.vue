@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ProjectSummary } from '~/domains/projects/data/types'
+import { useHomepageUi } from '~/composables/useHomepageUi'
 import { trackConversion } from '~/utils/track-conversion'
 
 defineProps<{
@@ -12,6 +13,8 @@ defineProps<{
 function onProjectsCtaClick() {
   trackConversion('project-open')
 }
+
+const { interactiveTransition } = useHomepageUi()
 </script>
 
 <template>
@@ -34,7 +37,11 @@ function onProjectsCtaClick() {
       </div>
       <NuxtLink
         :to="cta.href"
-        class="text-sm font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        :class="[
+          'text-sm font-medium text-primary underline-offset-4 hover:underline',
+          interactiveTransition,
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+        ]"
         @click="onProjectsCtaClick"
       >
         {{ cta.label }}
