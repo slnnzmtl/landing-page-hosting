@@ -77,10 +77,9 @@ export interface CmsM2mButtonRow {
 export interface CmsHomepageSettings {
   status: DirectusStatus
   value_proposition?: string | null
+  credibility_line?: string | null
   primary_ctas?: CmsM2mButtonRow[] | null
   profile_links?: CmsM2mButtonRow[] | null
-  hero_focus_heading: string
-  hero_focus_items: Array<{ title: string, summary: string }>
   proof_heading: string
   featured_work_heading: string
   featured_work_intro: string

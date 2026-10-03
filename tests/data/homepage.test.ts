@@ -38,10 +38,6 @@ describe('homepage content model (CMS-mapped)', () => {
 
   it('passes through hero focus and homepage chrome headings', () => {
     expect(published).not.toHaveProperty('capabilities')
-    expect(published.heroFocus).toEqual({
-      heading: cmsPortfolioFixture.homepageSettings.hero_focus_heading,
-      items: cmsPortfolioFixture.homepageSettings.hero_focus_items,
-    })
     expect(published.proofHeading).toBe(cmsPortfolioFixture.homepageSettings.proof_heading)
     expect(published.featuredWorkHeading).toBe(
       cmsPortfolioFixture.homepageSettings.featured_work_heading,

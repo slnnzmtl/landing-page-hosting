@@ -16,11 +16,9 @@ usePageSeo(homepageSeo(siteUrl, home), home.siteName)
       <HomeHero
         :person="home.person"
         :value-proposition="home.valueProposition"
+        :credibility-line="home.credibilityLine"
         :primary-ctas="home.primaryCtas"
-        :hero-focus="home.heroFocus"
       />
-
-      <HomeSelectedOutcomes :heading="home.proofHeading" :items="home.proof" />
 
       <HomeFeaturedProjects
         :heading="home.featuredWorkHeading"
@@ -28,6 +26,8 @@ usePageSeo(homepageSeo(siteUrl, home), home.siteName)
         :projects="home.featuredProjects"
         :cta="home.projectsCta"
       />
+
+      <HomeSelectedOutcomes :heading="home.proofHeading" :items="home.proof" />
 
       <HomeExperiencePreview :preview="home.experiencePreview" />
 
