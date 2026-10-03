@@ -67,17 +67,7 @@ export const cmsPortfolioFixture: CmsPortfolioRaw = {
         },
       },
     ],
-    hero_focus_heading: 'Current focus',
-    hero_focus_items: [
-      {
-        title: 'Agent workflows',
-        summary: 'Tool-using agents with persistence and approval gates.',
-      },
-      {
-        title: 'APIs / CRM / data',
-        summary: 'Connecting models to live APIs and operational systems.',
-      },
-    ],
+    credibility_line: '5+ years across digital products',
     proof_heading: 'Selected outcomes',
     featured_work_heading: 'Featured work',
     featured_work_intro: 'One representative case from recent delivery.',

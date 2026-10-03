@@ -631,12 +631,6 @@ function mapHomepageContent(
   if (!homepageSettings.featured_work_heading?.trim()) {
     throw new Error('homepage_settings.featured_work_heading is required')
   }
-  if (!homepageSettings.hero_focus_heading?.trim()) {
-    throw new Error('homepage_settings.hero_focus_heading is required')
-  }
-  if (!homepageSettings.hero_focus_items?.length) {
-    throw new Error('homepage_settings.hero_focus_items is required')
-  }
 
   const pageCopy = mapPageCopy(projectsPage, productsPage, homepageSettings.spotlight_cta)
   const claimsByRef = indexClaimsByRef(claims)
@@ -681,12 +675,9 @@ function mapHomepageContent(
       role: site.person_role,
     },
     valueProposition: homepageSettings.value_proposition,
+    credibilityLine: homepageSettings.credibility_line ?? '',
     primaryCtas,
     profileLinks,
-    heroFocus: {
-      heading: homepageSettings.hero_focus_heading,
-      items: homepageSettings.hero_focus_items,
-    },
     proofHeading: homepageSettings.proof_heading,
     proof,
     featuredWorkHeading: homepageSettings.featured_work_heading,

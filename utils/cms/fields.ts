@@ -34,10 +34,9 @@ function nestedFields(prefix: string, fields: readonly string[]): string[] {
 export const HOMEPAGE_SETTINGS_FIELDS = [
   'status',
   'value_proposition',
+  'credibility_line',
   ...nestedFields('primary_ctas.buttons_id', BUTTON_FIELDS),
   ...nestedFields('profile_links.buttons_id', BUTTON_FIELDS),
-  'hero_focus_heading',
-  'hero_focus_items',
   'proof_heading',
   'featured_work_heading',
   'featured_work_intro',
