@@ -38,7 +38,7 @@ function section(overrides: Partial<CaseSection> = {}): CaseSection {
 }
 
 describe('case composition', () => {
-  it('renders every claim and all resources in one block', () => {
+  it('renders claims, resource tags, and repository links separately', () => {
     const wrapper = mount(CaseClaims, {
       props: {
         heading: 'Selected outcomes',
@@ -48,7 +48,7 @@ describe('case composition', () => {
         ],
         stackTags: ['Vue', 'Directus'],
         links: [
-          { label: 'Repository', href: 'https://github.com/example/case' },
+          { label: 'Inspect repository', href: 'https://github.com/example/case' },
           { label: 'Role details', href: 'https://example.com/role' },
         ],
       },
@@ -59,8 +59,10 @@ describe('case composition', () => {
     expect(wrapper.findAll('li')).toHaveLength(4)
     expect(wrapper.text()).toContain('First verified claim.')
     expect(wrapper.text()).toContain('Second verified claim.')
-    expect(wrapper.text()).toContain('Repository')
+    expect(wrapper.text()).toContain('Inspect repository')
     expect(wrapper.text()).toContain('Role details')
+    expect(wrapper.find('[aria-label="Case repository links"]').exists()).toBe(true)
+    expect(wrapper.find('[aria-label="Case repository links"] a').classes()).toContain('px-6')
   })
 
   it('does not render an empty claims/resources section', () => {

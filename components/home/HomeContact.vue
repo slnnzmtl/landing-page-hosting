@@ -25,7 +25,7 @@ const props = withDefaults(defineProps<{
 const displayHeading = computed(() => props.heading || props.contact.heading)
 const displaySummary = computed(() => props.summary || props.contact.summary)
 
-const { linkFocus, outboundAttrs } = useHomepageUi()
+const { interactiveTransition, linkFocus, outboundAttrs } = useHomepageUi()
 
 function onContactClick(href: string) {
   trackHomepageHref(href, { contact: true })
@@ -65,7 +65,7 @@ function onContactClick(href: string) {
         v-if="contact.links[0]"
         :href="contact.links[0].href"
         v-bind="outboundAttrs(contact.links[0].href)"
-        :class="['inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90', linkFocus]"
+        :class="['inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90', interactiveTransition, linkFocus]"
         @click="onContactClick(contact.links[0].href)"
       >
         {{ primaryLabel }}
@@ -75,7 +75,7 @@ function onContactClick(href: string) {
         :key="link.href"
         :href="link.href"
         v-bind="outboundAttrs(link.href)"
-        :class="['text-sm font-medium text-foreground hover:text-primary', linkFocus]"
+        :class="['text-sm font-medium text-foreground hover:text-primary', interactiveTransition, linkFocus]"
         @click="onContactClick(link.href)"
       >
         {{ link.label }} ↗
@@ -97,7 +97,7 @@ function onContactClick(href: string) {
         <a
           :href="link.href"
           v-bind="outboundAttrs(link.href)"
-          :class="['text-base font-medium text-foreground hover:text-primary', linkFocus]"
+          :class="['text-base font-medium text-foreground hover:text-primary', interactiveTransition, linkFocus]"
           @click="onContactClick(link.href)"
         >
           {{ link.title }}

@@ -128,6 +128,9 @@ export function homepageExperiencePreview(
     return {
       id: role.id,
       organization: role.organization,
+      title: role.title,
+      dateRange: formatExperienceRange(role),
+      summary: role.homepageSummary,
       icon: role.icon,
       iconAlt: role.iconAlt,
     }

@@ -1,6 +1,6 @@
 import { opensInNewTab } from '~/data/homepage'
 
-/** Split an in-app href like `/experience#role-id` or `/#featured-work`. */
+/** Split an in-app href like `/experience#role-id` or `/#featured-projects`. */
 export function parseAppLink(to: string): { path: string, hash: string } {
   const hashIndex = to.indexOf('#')
   if (hashIndex === -1) {

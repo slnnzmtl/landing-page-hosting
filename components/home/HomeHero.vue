@@ -13,7 +13,7 @@ defineProps<{
 
 const route = useRoute()
 const router = useRouter()
-const { linkFocus } = useHomepageUi()
+const { interactiveTransition, linkFocus } = useHomepageUi()
 
 async function onPrimaryCtaClick(href: string, event: MouseEvent) {
   trackHomepageHref(href)
@@ -30,6 +30,7 @@ async function onPrimaryCtaClick(href: string, event: MouseEvent) {
 function ctaClass(index: number) {
   const base = [
     'inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-medium transition',
+    interactiveTransition,
     linkFocus,
   ]
   if (index === 0) {

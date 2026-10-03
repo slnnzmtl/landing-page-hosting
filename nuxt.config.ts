@@ -14,6 +14,7 @@ export default defineNuxtConfig({
   extends: [
     './domains/survey',
     './domains/service',
+    './domains/products',
     './domains/projects',
     './domains/cases',
   ],
@@ -82,6 +83,7 @@ export default defineNuxtConfig({
       crawlLinks: false,
       routes: [
         '/',
+        '/projects',
         '/experience',
         '/survey',
         ...getSurveyRoutes(),
@@ -105,7 +107,7 @@ export default defineNuxtConfig({
         ])
         const routes = [
           ...productSlugs.map(slug => `/products/${slug}`),
-          ...caseSlugs.map(slug => `/work/${slug}`),
+          ...caseSlugs.map(slug => `/projects/${slug}`),
         ]
         nitroConfig.prerender = nitroConfig.prerender || {}
         const existing = nitroConfig.prerender.routes || []

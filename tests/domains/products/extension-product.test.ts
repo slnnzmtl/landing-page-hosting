@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { mapPortfolio } from '~/utils/cms/map'
-import { projectDetailSeo } from '~/domains/projects/utils/project-seo'
+import { productDetailSeo } from '~/domains/products/utils/product-seo'
 import { cmsPortfolioFixture } from '~/tests/fixtures/cms-portfolio'
 import type { CmsProduct } from '~/utils/cms/types'
 
@@ -160,7 +160,7 @@ describe('extension product mapping', () => {
 
   it('emits BrowserApplication offers and extension requirements', () => {
     const product = mapPortfolio(extensionPortfolio, BASE).products[0]!
-    const page = projectDetailSeo('https://example.test', product, {
+    const page = productDetailSeo('https://example.test', product, {
       siteName: 'Example.dev',
       personName: 'Ada Example',
     })

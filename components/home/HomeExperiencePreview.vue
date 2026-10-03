@@ -2,12 +2,13 @@
 import type { ExperiencePreview } from '~/data/homepage'
 import { experienceRolePath } from '~/data/experience'
 import { useHomepageUi } from '~/composables/useHomepageUi'
+import AppCard from '~/components/AppCard.vue'
 
 defineProps<{
   preview: ExperiencePreview
 }>()
 
-const { linkFocus } = useHomepageUi()
+const { interactiveTransition, linkFocus } = useHomepageUi()
 </script>
 
 <template>
@@ -27,6 +28,7 @@ const { linkFocus } = useHomepageUi()
         :to="preview.cta.href"
         :class="[
           'text-sm font-medium text-primary underline-offset-4 hover:underline',
+          interactiveTransition,
           linkFocus,
         ]"
       >
@@ -34,45 +36,52 @@ const { linkFocus } = useHomepageUi()
       </NuxtLink>
     </div>
 
-    <ol class="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-stretch">
-      <template
-        v-for="(item, index) in preview.items"
+    <ol class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <li
+        v-for="item in preview.items"
         :key="item.id"
+        class="min-w-0"
       >
-        <li class="min-w-0 flex-1">
-          <NuxtLink
-            :to="experienceRolePath(item.id)"
-            :class="[
-              'flex h-full items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3 shadow-sm transition hover:border-primary/50',
-              linkFocus,
-            ]"
-          >
-            <div
-              v-if="item.icon"
-              class="h-8 w-8 shrink-0 overflow-hidden rounded-lg border border-border bg-white"
-            >
-              <img
-                :src="item.icon"
-                :alt="item.iconAlt || item.organization"
-                width="48"
-                height="48"
-                class="h-full w-full object-cover"
-                loading="lazy"
-              />
-            </div>
-            <span class="text-sm font-medium text-foreground">
-              {{ item.organization }}
-            </span>
-          </NuxtLink>
-        </li>
-        <li
-          v-if="index < preview.items.length - 1"
-          class="hidden items-center text-muted-foreground sm:flex"
-          aria-hidden="true"
+        <AppCard
+          :href="experienceRolePath(item.id)"
+          :aria-label="`${item.organization}: ${item.title}`"
         >
-          →
-        </li>
-      </template>
+          <div class="flex h-full flex-col p-4">
+            <div class="flex items-start gap-3">
+              <div
+                v-if="item.icon"
+                class="h-8 w-8 shrink-0 overflow-hidden rounded-lg border border-border bg-white"
+              >
+                <img
+                  :src="item.icon"
+                  :alt="item.iconAlt || item.organization"
+                  width="48"
+                  height="48"
+                  class="h-full w-full object-cover"
+                  loading="lazy"
+                />
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-foreground">
+                  {{ item.organization }}
+                </p>
+                <p class="mt-1 text-sm text-primary">
+                  {{ item.title }}
+                </p>
+              </div>
+            </div>
+            <p class="mt-3 text-xs text-muted-foreground">
+              {{ item.dateRange }}
+            </p>
+            <p
+              v-if="item.summary"
+              class="mt-3 line-clamp-3 text-sm leading-relaxed text-muted-foreground"
+            >
+              {{ item.summary }}
+            </p>
+          </div>
+        </AppCard>
+      </li>
     </ol>
   </section>
 </template>

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { ProjectTrustFact } from '../data/types'
+import type { ProductTrustFact } from '../data/types'
 import { useMacosReleaseDownload } from '../composables/useMacosReleaseDownload'
 
 const props = defineProps<{
-  trustFacts: ProjectTrustFact[]
+  trustFacts: ProductTrustFact[]
   githubOwner: string
   githubRepo: string
   heading: string

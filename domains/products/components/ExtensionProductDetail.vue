@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppPageHeader from '~/components/AppPageHeader.vue'
 import MediaGallery from '~/components/media/MediaGallery.vue'
-import ProjectHowItWorks from './ProjectHowItWorks.vue'
+import ProductHowItWorks from './ProductHowItWorks.vue'
 import StaticProductActions from './StaticProductActions.vue'
 import ExtensionMediaShowcase from './ExtensionMediaShowcase.vue'
 import type { ExtensionProduct } from '../data/types'
@@ -114,7 +114,7 @@ function money(project: ExtensionProduct): string {
         </ul>
       </section>
 
-      <ProjectHowItWorks
+      <ProductHowItWorks
         v-if="project.guide"
         :guide="project.guide"
       />

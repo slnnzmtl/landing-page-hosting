@@ -47,7 +47,7 @@ function scrollToContact(event: MouseEvent) {
 
 <template>
   <header class="w-full space-y-7 lg:space-y-8">
-    <AppBackLink to="/#featured-work">
+    <AppBackLink to="/#featured-projects">
       {{ backLabel }}
     </AppBackLink>
 

@@ -40,7 +40,7 @@ export interface HomepageSeoInput {
   }
   valueProposition: string
   profileLinks: Array<{ href: string }>
-  featuredCases: Array<{ title: string, href: string }>
+  featuredProjects: Array<{ name: string, href: string }>
   products: { items: Array<{ title: string, cta: { href: string } }> }
   siteName?: string
   seoTitle?: string
@@ -59,12 +59,12 @@ function homepageCreativeWorks(
   const works: Array<{ '@type': 'CreativeWork', 'name': string, 'url': string }> = []
   const seen = new Set<string>()
 
-  for (const item of home.featuredCases) {
+  for (const item of home.featuredProjects) {
     if (!isPublicCreativeWorkHref(item.href)) continue
     const url = absoluteUrl(siteUrl, item.href)
     if (seen.has(url)) continue
     seen.add(url)
-    works.push({ '@type': 'CreativeWork', 'name': item.title, 'url': url })
+    works.push({ '@type': 'CreativeWork', 'name': item.name, 'url': url })
   }
 
   for (const product of home.products.items) {
@@ -253,9 +253,10 @@ export function sitemapPaths(
   const paths = [
     '/',
     '/experience',
+    '/projects',
     '/products',
     ...productSlugs.map(slug => `/products/${slug}`),
-    ...caseSlugs.map(slug => `/work/${slug}`),
+    ...caseSlugs.map(slug => `/projects/${slug}`),
   ]
   return [...new Set(paths)]
 }
@@ -282,6 +283,8 @@ export function buildRobotsTxt(siteUrl: string): string {
     'Allow: /',
     'Allow: /products',
     'Allow: /products/',
+    'Allow: /projects',
+    'Allow: /projects/',
     'Disallow: /finance',
     'Disallow: /survey',
     'Disallow: /service',

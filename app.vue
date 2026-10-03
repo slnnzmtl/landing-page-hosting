@@ -5,13 +5,6 @@ const showSiteChrome = computed(() => {
   const path = route.path
   return !path.startsWith('/survey') && !path.startsWith('/service')
 })
-
-const isCaseRoute = computed(() => route.path.startsWith('/work/'))
-
-/** Lower star density on long case-study reading pages. */
-const starDensityFactor = computed(() =>
-  route.path.startsWith('/work') ? 0.28 : 1,
-)
 </script>
 
 <template>
@@ -26,13 +19,12 @@ const starDensityFactor = computed(() =>
       Skip to main content
     </a>
     <StarBackdrop
-      v-if="showSiteChrome && !isCaseRoute"
-      :density-factor="starDensityFactor"
+      v-if="showSiteChrome"
     />
     <AppSidebar v-if="showSiteChrome" />
     <main
       id="main-content"
-      class="app row-start-1 min-w-0 w-full bg-transparent"
+      class="app row-start-1 min-w-0 mx-auto max-w-[1260px] bg-transparent"
       :class="showSiteChrome ? 'col-start-1 xl:col-start-2' : 'col-start-1'"
       tabindex="-1"
     >

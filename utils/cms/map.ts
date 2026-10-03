@@ -6,7 +6,6 @@ import type {
 import { homepageExperiencePreview } from '../../data/experience'
 import type {
   ContactLink,
-  FeaturedCase,
   HomepageContent,
   HomepageLink,
   PageCopy,
@@ -14,13 +13,13 @@ import type {
   ProductSpotlightImage,
   ProofItem,
 } from '../../data/homepage'
-import {
-  catalogPageHref,
-  type Project,
-  type ProjectImage,
-  type ProjectLaunchCta,
-  type ProjectMedia,
-} from '../../domains/projects/data/types'
+import type {
+  Product,
+  ProductImage,
+  ProductLaunchCta,
+  ProductMedia,
+} from '../../domains/products/data/types'
+import type { ProjectSummary } from '../../domains/projects/data/types'
 import type { CaseStudy } from '../../domains/cases/data/types'
 import { casePath } from '../../domains/cases/data/types'
 import {
@@ -42,6 +41,7 @@ import type {
   CmsPortfolioRaw,
   CmsProduct,
   CmsProductsPageSettings,
+  CmsProjectsPageSettings,
   CmsProject,
   CmsSiteSettings,
 } from './types'
@@ -49,7 +49,8 @@ import type {
 export interface PortfolioContent {
   homepage: HomepageContent
   experience: ExperienceRole[]
-  products: Project[]
+  projects: ProjectSummary[]
+  products: Product[]
   cases: CaseStudy[]
   experiencePage: CmsExperiencePageSettings
   productSlugs: string[]
@@ -121,7 +122,7 @@ function fileImage(
   alt: string,
   size: { width: number, height: number },
   thumbMarker?: string,
-): ProjectImage | undefined {
+): ProductImage | undefined {
   if (!fileId) return undefined
   const file = catalog.byId.get(fileId)
   const src = file ? publicPathForFile(file) : assetUrl(config, fileId)
@@ -155,7 +156,7 @@ function productMediaImage(
   file: CmsFile,
   alt: string,
   caption: string | null | undefined,
-): ProjectImage {
+): ProductImage {
   const src = publicPathForFile(file)
   const width = file.width || 1280
   const height = file.height || 800
@@ -183,7 +184,7 @@ function productMediaImage(
 function rewriteGuideImage(
   catalog: FileCatalog,
   image: NonNullable<NonNullable<CmsProduct['guide']>['steps'][number]['image']>,
-): ProjectImage {
+): ProductImage {
   return {
     src: rewritePublicPath(catalog, image.src) || image.src,
     srcThumb: rewritePublicPath(catalog, image.srcThumb) || image.srcThumb,
@@ -232,12 +233,12 @@ function mapButtonRows(rows: CmsM2mButtonRow[] | null | undefined): HomepageLink
     .map(mapButtonLink)
 }
 
-function mapLaunchCtas(rows: CmsM2mButtonRow[] | null | undefined): ProjectLaunchCta[] {
+function mapLaunchCtas(rows: CmsM2mButtonRow[] | null | undefined): ProductLaunchCta[] {
   return (rows || [])
     .map(row => row.buttons_id)
     .filter(isPublishedButton)
     .map((button) => {
-      const kind: ProjectLaunchCta['kind'] = button.type === 'primary' ? 'primary' : 'secondary'
+      const kind: ProductLaunchCta['kind'] = button.type === 'primary' ? 'primary' : 'secondary'
       return {
         label: button.label,
         href: button.href,
@@ -343,38 +344,59 @@ function mapExperienceRoles(
   })
 }
 
-function mapFeaturedCases(
-  featuredProjectSlugs: string[],
-  projects: CmsProject[],
-): FeaturedCase[] {
-  const ordered = orderByKeys(projects, featuredProjectSlugs, p => p.slug)
-  return ordered.map((project, index) => {
-    const link = project.evidence_links?.[0]
-    const caseEnabled = Boolean(project.case_enabled)
-    const base = {
-      slug: project.slug,
-      title: project.name,
-      featured: index === 0,
-      problem: project.problem || project.short_description || '',
-      role: project.role || '',
-      contribution: project.contribution || '',
-      outcome: project.outcome || '',
-      stack: project.stack_tags || [],
-    }
-    if (caseEnabled) {
-      return {
-        ...base,
-        href: casePath(project.slug),
-        hrefLabel: 'View case',
-      }
-    }
-    return {
-      ...base,
-      ...(link
-        ? { href: link.href, hrefLabel: link.label || 'View case' }
-        : {}),
-    }
+function publicEvidenceLink(project: CmsProject, fallbackLabel: string): { href: string, label: string } | null {
+  const link = project.evidence_links?.find((candidate) => {
+    const href = candidate.href?.trim()
+    return Boolean(href && (/^https?:\/\//i.test(href) || href.startsWith('/')))
   })
+  if (!link?.href?.trim()) return null
+  return { href: link.href.trim(), label: link.label?.trim() || fallbackLabel }
+}
+
+function projectDestination(project: CmsProject, fallbackLabel: string): { href: string, hrefLabel: string } {
+  if (project.case_enabled) {
+    return { href: casePath(project.slug), hrefLabel: 'View case' }
+  }
+  const link = publicEvidenceLink(project, fallbackLabel)
+  if (!link) {
+    throw new Error(`Published project "${project.slug}" requires a public destination`)
+  }
+  return { href: link.href, hrefLabel: link.label }
+}
+
+export function mapProjectSummaries(
+  projects: CmsProject[],
+  fallbackLabel = 'View project',
+): ProjectSummary[] {
+  return [...projects]
+    .sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0))
+    .map((project) => {
+      if (!project.name?.trim() || !project.short_description?.trim()) {
+        throw new Error(`Published project "${project.slug}" requires name and short_description`)
+      }
+      const destination = projectDestination(project, fallbackLabel)
+      return {
+        slug: project.slug,
+        name: project.name,
+        shortDescription: project.short_description,
+        role: project.role?.trim() || undefined,
+        track: project.track || undefined,
+        stackTags: project.stack_tags || [],
+        hasCaseStudy: Boolean(project.case_enabled),
+        ...destination,
+      }
+    })
+}
+
+function mapFeaturedProjects(
+  featuredProjectSlugs: string[],
+  projects: ProjectSummary[],
+): ProjectSummary[] {
+  const ordered = orderByKeys(projects, featuredProjectSlugs, project => project.slug)
+  if (ordered.length !== featuredProjectSlugs.length) {
+    throw new Error('homepage_settings.featured_projects contains an unpublished or missing project')
+  }
+  return ordered
 }
 
 const HOMEPAGE_PRODUCT_LIMIT = 3
@@ -521,23 +543,32 @@ export function homepageProofKeys(home: CmsHomepageSettings): string[] {
 }
 
 function mapPageCopy(
+  projectsPage: CmsProjectsPageSettings,
   productsPage: CmsProductsPageSettings,
   spotlightCta: string,
 ): PageCopy {
   return {
+    projects_index: {
+      title: projectsPage.title,
+      description: projectsPage.description,
+      seo_description: projectsPage.seo_description,
+      back_label: projectsPage.back_label,
+      back_href: projectsPage.back_href,
+      item_cta: projectsPage.item_cta,
+    },
     products_index: {
       title: productsPage.title,
       description: productsPage.description,
       seo_description: productsPage.seo_description,
       back_label: productsPage.back_label,
-      back_href: catalogPageHref(productsPage.back_href),
+      back_href: productsPage.back_href,
       item_cta: productsPage.item_cta,
       spotlight_cta: spotlightCta,
     },
     product_detail: {
       kicker: productsPage.kicker,
       back_label: productsPage.detail_back_label,
-      back_href: catalogPageHref(productsPage.detail_back_href),
+      back_href: productsPage.detail_back_href,
       benefits_heading_with_stack: productsPage.benefits_heading_with_stack,
       benefits_heading_default: productsPage.benefits_heading_default,
       trust_heading: productsPage.trust_heading,
@@ -549,8 +580,9 @@ function mapPageCopy(
 function mapHomepageContent(
   site: CmsSiteSettings,
   homepageSettings: CmsHomepageSettings,
+  projectsPage: CmsProjectsPageSettings,
   productsPage: CmsProductsPageSettings,
-  projects: CmsProject[],
+  projects: ProjectSummary[],
   products: CmsProduct[],
   experience: ExperienceRole[],
   claims: CmsApprovedClaim[],
@@ -575,6 +607,9 @@ function mapHomepageContent(
   if (!isPublishedButton(homepageSettings.experience_preview_cta)) {
     throw new Error('homepage_settings.experience_preview_cta is required')
   }
+  if (!isPublishedButton(homepageSettings.featured_projects_cta)) {
+    throw new Error('homepage_settings.featured_projects_cta is required')
+  }
 
   const featuredProjectSlugs = homepageFeaturedSlugs(homepageSettings)
   const experiencePreviewIds = homepageExperienceKeys(homepageSettings)
@@ -596,9 +631,6 @@ function mapHomepageContent(
   if (!homepageSettings.featured_work_heading?.trim()) {
     throw new Error('homepage_settings.featured_work_heading is required')
   }
-  if (!homepageSettings.flagship_label?.trim()) {
-    throw new Error('homepage_settings.flagship_label is required')
-  }
   if (!homepageSettings.hero_focus_heading?.trim()) {
     throw new Error('homepage_settings.hero_focus_heading is required')
   }
@@ -606,7 +638,7 @@ function mapHomepageContent(
     throw new Error('homepage_settings.hero_focus_items is required')
   }
 
-  const pageCopy = mapPageCopy(productsPage, homepageSettings.spotlight_cta)
+  const pageCopy = mapPageCopy(projectsPage, productsPage, homepageSettings.spotlight_cta)
   const claimsByRef = indexClaimsByRef(claims)
 
   const proof: ProofItem[] = proofClaimKeys.map((id) => {
@@ -625,7 +657,7 @@ function mapHomepageContent(
   }
   const navItems = site.menu.map(item => ({
     label: item.label,
-    href: catalogPageHref(item.href),
+    href: item.href,
   }))
 
   const primaryCtas = mapButtonRows(homepageSettings.primary_ctas)
@@ -659,8 +691,8 @@ function mapHomepageContent(
     proof,
     featuredWorkHeading: homepageSettings.featured_work_heading,
     featuredWorkIntro: homepageSettings.featured_work_intro,
-    flagshipLabel: homepageSettings.flagship_label,
-    featuredCases: mapFeaturedCases(featuredProjectSlugs, projects),
+    featuredProjects: mapFeaturedProjects(featuredProjectSlugs, projects),
+    projectsCta: mapButtonLink(homepageSettings.featured_projects_cta),
     experiencePreview: {
       heading: homepageSettings.experience_preview_heading,
       items: previewItems,
@@ -722,7 +754,7 @@ function productMediaFile(
 function mapProductMedia(
   product: CmsProduct,
   catalog: FileCatalog,
-): ProjectMedia[] {
+): ProductMedia[] {
   const media = [...(product.media || [])]
     .sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0))
   if (!media.length) {
@@ -766,7 +798,7 @@ function mapCmsProduct(
   product: CmsProduct,
   config: Pick<DirectusClientConfig, 'baseUrl'>,
   catalog: FileCatalog = EMPTY_CATALOG,
-): Project {
+): Product {
   const detailTemplate = product.detail_template || 'application'
   if (detailTemplate !== 'application' && detailTemplate !== 'extension') {
     throw new Error(`Product "${product.slug}" has an unknown detail template`)
@@ -900,7 +932,7 @@ function mapCmsProducts(
   products: CmsProduct[],
   config: Pick<DirectusClientConfig, 'baseUrl'>,
   catalog: FileCatalog = EMPTY_CATALOG,
-): Project[] {
+): Product[] {
   return [...products]
     .sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0))
     .map(product => mapCmsProduct(product, config, catalog))
@@ -919,14 +951,17 @@ export function mapPortfolio(
   requirePublished(raw.site.status, 'site_settings')
   requirePublished(raw.homepageSettings.status, 'homepage_settings')
   requirePublished(raw.experiencePage.status, 'experience_page_settings')
+  requirePublished(raw.projectsPage.status, 'projects_page_settings')
   requirePublished(raw.productsPage.status, 'products_page_settings')
   const catalog = buildFileCatalog(raw.files)
   const experience = mapExperienceRoles(raw.experience, raw.claims, config, catalog)
+  const projects = mapProjectSummaries(raw.projects, raw.projectsPage.item_cta)
   const homepage = mapHomepageContent(
     raw.site,
     raw.homepageSettings,
+    raw.projectsPage,
     raw.productsPage,
-    raw.projects,
+    projects,
     raw.products,
     experience,
     raw.claims,
@@ -939,6 +974,7 @@ export function mapPortfolio(
   return {
     homepage,
     experience,
+    projects,
     products,
     cases,
     experiencePage: raw.experiencePage,

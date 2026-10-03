@@ -9,6 +9,11 @@ const nuxtLinkStub = {
   template: '<a :href="to"><slot /></a>',
 }
 
+const appCardStub = {
+  props: ['href', 'ariaLabel'],
+  template: '<article><slot /></article>',
+}
+
 function product(slug: string): ProductSpotlight {
   return {
     slug,
@@ -43,6 +48,7 @@ describe('HomeProducts', () => {
       props: { products: section([product('one'), product('two'), product('three')]) },
       global: {
         stubs: {
+          AppCard: appCardStub,
           NuxtLink: nuxtLinkStub,
         },
       },
@@ -60,15 +66,16 @@ describe('HomeProducts', () => {
       props: { products: section([product('one'), product('two')]) },
       global: {
         stubs: {
+          AppCard: appCardStub,
           NuxtLink: nuxtLinkStub,
         },
       },
     })
 
     expect(wrapper.findAll('article')).toHaveLength(3)
-    const placeholder = wrapper.find('.product-placeholder')
+    const placeholderCard = wrapper.findAll('article').find(card => card.text().includes('In progress'))
     expect(wrapper.findAll('.product-placeholder')).toHaveLength(1)
-    expect(placeholder.classes()).toEqual(
+    expect(placeholderCard?.classes()).toEqual(
       expect.arrayContaining(['hidden', 'sm:flex']),
     )
     expect(wrapper.text()).toContain('In progress')
@@ -79,10 +86,9 @@ describe('HomeProductSpotlight', () => {
   it('keeps the product card compact and preserves the product route CTA', () => {
     const wrapper = mount(HomeProductSpotlight, {
       props: { product: product('one') },
-      global: { stubs: { NuxtLink: nuxtLinkStub } },
+      global: { stubs: { AppCard: appCardStub, NuxtLink: nuxtLinkStub } },
     })
 
-    expect(wrapper.find('article').classes()).toContain('rounded-2xl')
     expect(wrapper.find('img').attributes('alt')).toBe('one screenshot')
   })
 })

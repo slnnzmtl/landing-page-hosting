@@ -46,7 +46,6 @@ describe('homepage content model (CMS-mapped)', () => {
     expect(published.featuredWorkHeading).toBe(
       cmsPortfolioFixture.homepageSettings.featured_work_heading,
     )
-    expect(published.flagshipLabel).toBe(cmsPortfolioFixture.homepageSettings.flagship_label)
   })
 
   it('builds proof chips from ordered CMS claim keys including tenure', () => {
@@ -65,28 +64,24 @@ describe('homepage content model (CMS-mapped)', () => {
     expect(published).not.toHaveProperty('workSections')
   })
 
-  it('orders featured cases from homepage M2M slugs', () => {
-    expect(published.featuredCases.map(item => item.slug)).toEqual([
+  it('orders featured projects from homepage M2M slugs', () => {
+    expect(published.featuredProjects.map(item => item.slug)).toEqual([
       'sample-flagship-case',
       'sample-secondary-case',
     ])
-    expect(published.featuredCases[0].featured).toBe(true)
-    expect(published.featuredCases.filter(item => item.featured)).toHaveLength(1)
-    for (const item of published.featuredCases) {
-      expect(item.problem.length).toBeGreaterThan(0)
-      expect(item.role.length).toBeGreaterThan(0)
-      expect(item.contribution.length).toBeGreaterThan(0)
-      expect(item.outcome.length).toBeGreaterThan(0)
-      expect(item.stack.length).toBeGreaterThan(0)
+    for (const item of published.featuredProjects) {
+      expect(item.shortDescription.length).toBeGreaterThan(0)
+      expect(item.href.length).toBeGreaterThan(0)
+      expect(item.stackTags.length).toBeGreaterThan(0)
     }
   })
 
-  it('links case-enabled flagship to /work/:slug only', () => {
-    const flagship = published.featuredCases[0]
-    expect(flagship.href).toBe('/work/sample-flagship-case')
+  it('resolves case and evidence destinations', () => {
+    const flagship = published.featuredProjects[0]
+    expect(flagship.href).toBe('/projects/sample-flagship-case')
     expect(flagship.hrefLabel).toBe('View case')
 
-    const secondary = published.featuredCases[1]
+    const secondary = published.featuredProjects[1]
     expect(secondary.href).toBe('/experience#acme-senior-engineer')
   })
 
@@ -150,14 +145,13 @@ describe('homepage href helpers', () => {
     expect(opensInNewTab('/products')).toBe(false)
   })
 
-  it('maps conversion events for flagship, case, product, and contact', () => {
+  it('maps conversion events for projects, products, and contact', () => {
     expect(conversionEventName('mailto:ada@example.test')).toBe('contact')
     expect(conversionEventName('https://t.me/ada-example')).toBe('contact')
     expect(conversionEventName('#contact')).toBe('contact')
     expect(conversionEventName('https://github.com/example-org', { contact: true })).toBe('contact')
-    expect(conversionEventName('#flagship-case')).toBe(null)
-    expect(conversionEventName('https://github.com/x', { featured: true })).toBe('flagship-case-open')
-    expect(conversionEventName('/experience#acme', {})).toBe('case-open')
+    expect(conversionEventName('https://github.com/x', { project: true })).toBe('project-open')
+    expect(conversionEventName('/projects/acme', { caseStudy: true })).toBe('case-study-open')
     expect(conversionEventName('/products/sample-converter', { product: true })).toBe('product-open')
   })
 
@@ -169,11 +163,11 @@ describe('homepage href helpers', () => {
     }
     window.addEventListener(CONVERSION_EVENT, handler)
     trackConversion('contact')
-    trackConversion('case-open', { slug: 'sample-flagship-case' })
+    trackConversion('case-study-open', { slug: 'sample-flagship-case' })
     window.removeEventListener(CONVERSION_EVENT, handler)
     expect(seen).toEqual([
       { name: 'contact', props: undefined },
-      { name: 'case-open', props: { slug: 'sample-flagship-case' } },
+      { name: 'case-study-open', props: { slug: 'sample-flagship-case' } },
     ])
     expect(JSON.stringify(seen)).not.toMatch(/mailto:|@example\.test|ada@/i)
   })

@@ -178,9 +178,6 @@ describe('CMS portfolio mappers', () => {
     expect(mapped.homepage.featuredWorkHeading).toBe(
       cmsPortfolioFixture.homepageSettings.featured_work_heading,
     )
-    expect(mapped.homepage.flagshipLabel).toBe(
-      cmsPortfolioFixture.homepageSettings.flagship_label,
-    )
   })
 
   it('seeds sidebar nav from site_settings.menu', () => {
@@ -192,7 +189,7 @@ describe('CMS portfolio mappers', () => {
     )
   })
 
-  it('rewrites leftover /projects catalog hrefs from CMS copy without touching media paths', () => {
+  it('preserves CMS routes while leaving product media paths untouched', () => {
     const result = mapPortfolio(
       {
         ...cmsPortfolioFixture,
@@ -213,9 +210,9 @@ describe('CMS portfolio mappers', () => {
     )
     expect(result.homepage.navItems.map(item => `${item.label}:${item.href}`)).toEqual([
       'Work:/',
-      'Products:/products',
+      'Products:/projects',
     ])
-    expect(result.homepage.pageCopy.product_detail.back_href).toBe('/products')
+    expect(result.homepage.pageCopy.product_detail.back_href).toBe('/projects')
     expect(result.homepage.products.items[0]?.image.src).toContain(
       '/projects/sample-converter/',
     )
@@ -252,8 +249,15 @@ describe('CMS portfolio mappers', () => {
     })
   })
 
-  it('marks only the first featured case as flagship', () => {
-    expect(mapped.homepage.featuredCases.map(c => c.featured)).toEqual([true, false])
+  it('maps the ordered featured project summary contract', () => {
+    expect(mapped.homepage.featuredProjects.map(project => project.slug)).toEqual([
+      'sample-flagship-case',
+      'sample-secondary-case',
+    ])
+    expect(mapped.homepage.projectsCta).toEqual({
+      label: 'View all projects',
+      href: '/projects',
+    })
   })
 
   it('keeps case-page href when evidence_links are missing', () => {
@@ -270,16 +274,16 @@ describe('CMS portfolio mappers', () => {
       },
       BASE,
     )
-    const featured = result.homepage.featuredCases[0]
+    const featured = result.homepage.featuredProjects[0]
     expect(featured?.slug).toBe(project!.slug)
-    expect(featured?.href).toBe('/work/sample-flagship-case')
+    expect(featured?.href).toBe('/projects/sample-flagship-case')
     expect(featured?.hrefLabel).toBe('View case')
   })
 
-  it('omits featured-case href when case is disabled and evidence_links are missing', () => {
+  it('fails closed when a published project has no public destination', () => {
     const project = cmsPortfolioFixture.projects[1]
     expect(project).toBeTruthy()
-    const result = mapPortfolio(
+    expect(() => mapPortfolio(
       {
         ...cmsPortfolioFixture,
         projects: [{ ...project!, evidence_links: null }],
@@ -289,11 +293,7 @@ describe('CMS portfolio mappers', () => {
         },
       },
       BASE,
-    )
-    const featured = result.homepage.featuredCases[0]
-    expect(featured?.slug).toBe(project!.slug)
-    expect(featured?.href).toBeUndefined()
-    expect(featured?.hrefLabel).toBeUndefined()
+    )).toThrow(/requires a public destination/)
   })
 
   it('uses guide screenshot for product spotlight image', () => {

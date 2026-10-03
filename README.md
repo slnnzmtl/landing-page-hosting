@@ -20,8 +20,9 @@ A Nuxt 3 + Vue 3 multi-domain app for landing pages, public product pages, JSON-
 | Domain | Routes | Purpose |
 |--------|--------|---------|
 | **Root** | `/` | Portfolio / landing homepage |
-| **projects** | `/products`, `/products/:slug` | Public selected products (data-driven; layer folder stays `domains/projects`) |
-| **cases** | `/work/:slug` | Directus-backed project case studies (`case_enabled`) |
+| **products** | `/products`, `/products/:slug` | Public selected products (data-driven; layer folder is `domains/products`) |
+| **projects** | `/projects` | Published project summaries and case details under `/projects/:slug` |
+| **cases** | `/projects/:slug` | Directus-backed project case studies (`case_enabled`) |
 | **survey** | `/survey`, `/survey/:slug` | JSON-driven surveys with webhook submit |
 | **service** | `/service/:page` | Service landing pages |
 
@@ -45,12 +46,13 @@ Each domain lives under `domains/<name>/` as a Nuxt layer. Page routes are prefi
 ├─ composables/                   # Root composables (usePortfolio, …)
 ├─ data/                          # Homepage/experience view types + helpers
 ├─ domains/
+│  ├─ products/
 │  ├─ projects/
 │  │  ├─ pages/                   # index, [slug] → /products/*
-│  │  ├─ data/                    # Project types + projectPath
+│  │  ├─ data/                    # Product types + productPath
 │  │  └─ components/              # Gallery + GitHub releases
 │  ├─ cases/
-│  │  ├─ pages/                   # [slug] → /work/*
+│  │  ├─ pages/                   # [slug] → /projects/*
 │  │  ├─ data/                    # CaseStudy types + casePath
 │  │  └─ components/              # Hero, sections, claims
 │  ├─ survey/
@@ -98,7 +100,7 @@ DIRECTUS_TOKEN=
 
 `DIRECTUS_URL` and `DIRECTUS_TOKEN` are **server-only** (never `NUXT_PUBLIC_*`). Use a Directus **static token** (Settings → Access Tokens) for a build-reader role with read access to published `site_settings`, `homepage_settings`, `experience_page_settings`, `experience_entries`, `projects`, `products`, `approved_claims`, and `files` (plus the `homepage_settings_*` junction collections) — not a session JWT (those expire and return `INVALID_CREDENTIALS`). Put the token in the host `.env` (gitignored); Docker Compose passes it as a BuildKit secret so it is not baked into image layers. A missing token or failed published-content fetch **fails `nuxt generate`**; the currently deployed container stays up until a successful rebuild. `pnpm install` / `nuxt prepare` do not call Directus. Directus is the only authoring source for homepage, experience, and product copy — do not dual-author in TypeScript. CMS edits appear only after the next successful generate (see rebuild below).
 
-`homepage_settings` must include chrome strings `proof_heading`, `featured_work_heading`, and `flagship_label` (in addition to composition fields). Grant the build-reader role read access to those fields.
+`homepage_settings` must include chrome strings `proof_heading` and `featured_work_heading` (in addition to composition fields). Grant the build-reader role read access to those fields.
 
 Verify the live Directus contract (published singletons, M2M links resolve, `mapPortfolio` succeeds):
 
@@ -128,9 +130,9 @@ App runs at `http://localhost:3000` by default.
 - `pnpm test:ui` — Vitest UI
 - `pnpm lint` / `pnpm lint:fix` — ESLint
 
-## Products catalog (`domains/projects`)
+## Products catalog (`domains/products`)
 
-Nuxt can drop a layer page when another layer already owns the same route name (`index` vs root, `[slug]` vs survey). The projects layer re-registers `/products` and `/products/:slug` in `pages:extend` (folder name stays `projects`; public URLs are `/products`).
+Nuxt can drop a layer page when another layer already owns the same route name (`index` vs root, `[slug]` vs survey). The products layer re-registers `/products` and `/products/:slug` in `pages:extend`.
 
 ### Add another selected product
 
@@ -144,7 +146,7 @@ First product: **Simple Rekordbox Converter** at `/products/rekordbox-playlist-c
 
 ## Case studies (`domains/cases`)
 
-Published Directus `projects` with `case_enabled=true` generate `/work/:slug` at build time. There is no `/work` index — the homepage Selected Work section is the entry point. Case copy, sections, media, and approved claims come from Directus; Nuxt maps section `kind` values to Vue components and never renders CMS HTML.
+Published Directus `projects` with `case_enabled=true` generate `/projects/:slug` at build time. The `/projects` index lists published project summaries. Case copy, sections, media, and approved claims come from Directus; Nuxt maps section `kind` values to Vue components and never renders CMS HTML.
 
 ### Add another case study
 
@@ -205,7 +207,7 @@ Surveys are JSON files in `domains/survey/data/`. Each file is eagerly loaded by
 
 Configured for Nuxt static generation. Prerender uses an explicit route list (`crawlLinks: false`) from:
 
-- `/`, `/experience`, `/survey`, `/products`, `/sitemap.xml`, `/robots.txt`, plus `getSurveyRoutes()`, `getServiceRoutes()`, CMS product slugs (`fetchProductSlugs`), and case-enabled project slugs (`fetchCaseSlugs` → `/work/:slug`) from Directus at generate time
+- `/`, `/experience`, `/survey`, `/products`, `/projects`, `/sitemap.xml`, `/robots.txt`, plus `getSurveyRoutes()`, `getServiceRoutes()`, CMS product slugs (`fetchProductSlugs`), and case-enabled project slugs (`fetchCaseSlugs` → `/projects/:slug`) from Directus at generate time
 
 Local preview:
 

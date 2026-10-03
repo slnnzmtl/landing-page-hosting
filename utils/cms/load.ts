@@ -1,6 +1,3 @@
-import { existsSync } from 'node:fs'
-import { mkdir, writeFile } from 'node:fs/promises'
-import { basename, dirname, join } from 'node:path'
 import {
   directusGet,
   publicPathForFile,
@@ -15,6 +12,7 @@ import {
   FILE_FIELDS,
   HOMEPAGE_SETTINGS_FIELDS,
   PRODUCT_FIELDS,
+  PROJECTS_PAGE_FIELDS,
   PRODUCTS_PAGE_FIELDS,
   PROJECT_FIELDS,
   SITE_FIELDS,
@@ -32,6 +30,7 @@ import type {
   CmsPortfolioRaw,
   CmsProduct,
   CmsProductsPageSettings,
+  CmsProjectsPageSettings,
   CmsProject,
   CmsSiteSettings,
   CmsFile,
@@ -73,6 +72,7 @@ async function fetchPortfolioRaw(
     homepageSettings,
     experiencePage,
     productsPage,
+    projectsPage,
     experience,
     projects,
     products,
@@ -93,6 +93,10 @@ async function fetchPortfolioRaw(
     directusGet<CmsProductsPageSettings>(
       config,
       `/items/products_page_settings?fields=${PRODUCTS_PAGE_FIELDS}`,
+    ),
+    directusGet<CmsProjectsPageSettings>(
+      config,
+      `/items/projects_page_settings?fields=${PROJECTS_PAGE_FIELDS}`,
     ),
     directusGet<CmsExperienceEntry[]>(
       config,
@@ -142,6 +146,7 @@ async function fetchPortfolioRaw(
     homepageSettings,
     experiencePage,
     productsPage,
+    projectsPage,
     experience,
     projects,
     products,
@@ -161,13 +166,16 @@ async function materializeCmsFiles(
   config: DirectusClientConfig,
   files: CmsFile[],
 ): Promise<void> {
-  const root = join(process.cwd(), 'public')
+  const fs = process.getBuiltinModule('node:fs') as typeof import('node:fs')
+  const fsp = process.getBuiltinModule('node:fs/promises') as typeof import('node:fs/promises')
+  const path = process.getBuiltinModule('node:path') as typeof import('node:path')
+  const root = path.join(process.cwd(), 'public')
 
   async function materialize(file: CmsFile, pub: string, query = ''): Promise<void> {
-    if (COMMITTED_PUBLIC_FILES.has(basename(pub))) return
-    const dest = join(root, pub.replace(/^\//, ''))
-    if (existsSync(dest)) return
-    await mkdir(dirname(dest), { recursive: true })
+    if (COMMITTED_PUBLIC_FILES.has(path.basename(pub))) return
+    const dest = path.join(root, pub.replace(/^\//, ''))
+    if (fs.existsSync(dest)) return
+    await fsp.mkdir(path.dirname(dest), { recursive: true })
     const res = await fetch(config.baseUrl + '/assets/' + file.id + query, {
       headers: { Authorization: 'Bearer ' + config.token },
     })
@@ -175,7 +183,7 @@ async function materializeCmsFiles(
       const body = await res.text()
       throw new Error(`Directus ${res.status} /assets/${file.id} (${pub}): ${body}`)
     }
-    await writeFile(dest, Buffer.from(await res.arrayBuffer()))
+    await fsp.writeFile(dest, Buffer.from(await res.arrayBuffer()))
   }
 
   for (const file of files) {

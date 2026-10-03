@@ -1,6 +1,6 @@
 /** Public URL for a case-enabled Directus project. */
 export function casePath(slug: string): string {
-  return `/work/${slug}`
+  return `/projects/${slug}`
 }
 
 /** Pass through CMS evidence-link labels. Empty labels are dropped by the mapper. */

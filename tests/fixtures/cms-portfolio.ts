@@ -81,11 +81,17 @@ export const cmsPortfolioFixture: CmsPortfolioRaw = {
     proof_heading: 'Selected outcomes',
     featured_work_heading: 'Featured work',
     featured_work_intro: 'One representative case from recent delivery.',
-    flagship_label: 'Flagship case',
     featured_projects: [
       { projects_id: { slug: 'sample-flagship-case' } },
       { projects_id: { slug: 'sample-secondary-case' } },
     ],
+    featured_projects_cta: {
+      status: 'published',
+      label: 'View all projects',
+      href: '/projects',
+      type: 'link',
+      href_source: 'static',
+    },
     experience_preview_heading: 'Recent roles',
     experience_preview: [
       { experience_entries_id: { key: 'acme-senior-engineer' } },
@@ -119,7 +125,7 @@ export const cmsPortfolioFixture: CmsPortfolioRaw = {
     title: 'Professional experience',
     page_intro: 'Evidence-based timeline of product and software delivery.',
     back_label: 'Back to featured work',
-    back_href: '/#featured-work',
+    back_href: '/#featured-projects',
     seo_description:
       'Professional timeline for Ada Example: digital products and software delivery.',
   },
@@ -138,6 +144,15 @@ export const cmsPortfolioFixture: CmsPortfolioRaw = {
     benefits_heading_default: 'Why use it',
     trust_heading: 'Product information',
     download_warning_title: 'Before you open the app',
+  },
+  projectsPage: {
+    status: 'published',
+    title: 'Projects',
+    description: 'Selected projects and case studies.',
+    seo_description: 'Selected projects by Ada Example.',
+    back_label: 'Back to homepage',
+    back_href: '/',
+    item_cta: 'View project',
   },
   experience: [
     {

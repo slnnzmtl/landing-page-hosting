@@ -31,13 +31,13 @@ describe('AppPageHeader', () => {
         kicker: 'Daniel Kazansky',
         title: 'Professional experience',
         description: 'Evidence-based timeline.',
-        back: { to: '/#featured-work', label: 'Back to featured work' },
+        back: { to: '/#featured-projects', label: 'Back to featured projects' },
       },
       global: { stubs: { NuxtLink: nuxtLinkStub } },
     })
 
-    expect(wrapper.get('a').attributes('href')).toBe('/#featured-work')
-    expect(wrapper.text()).toContain('Back to featured work')
+    expect(wrapper.get('a').attributes('href')).toBe('/#featured-projects')
+    expect(wrapper.text()).toContain('Back to featured projects')
     expect(wrapper.html()).not.toContain('contents')
     expect(wrapper.classes()).toContain('space-y-4')
   })

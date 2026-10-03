@@ -1,10 +1,16 @@
+<script setup lang="ts">
+import AppCard from '~/components/AppCard.vue'
+</script>
+
 <template>
-  <article
-    class="product-placeholder hidden h-full min-h-[24rem] items-center justify-center rounded-2xl border border-border bg-card p-6 shadow-sm sm:flex"
+  <AppCard
+    class="hidden sm:flex"
     aria-label="Product in progress"
   >
-    <p class="text-lg font-medium text-primary">
-      In progress
-    </p>
-  </article>
+    <div class="product-placeholder flex min-h-[24rem] items-center justify-center p-6">
+      <p class="text-lg font-medium text-primary">
+        In progress
+      </p>
+    </div>
+  </AppCard>
 </template>

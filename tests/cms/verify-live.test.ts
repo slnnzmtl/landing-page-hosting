@@ -52,32 +52,34 @@ describeLive('live Directus portfolio contract', () => {
     resetPortfolioCache()
     const config = resolveDirectusConfig()
     const mapped = await loadPortfolio(config)
-    const { homepage, experience, products, cases, experiencePage, productSlugs, caseSlugs } = mapped
+    const { homepage, experience, projects, products, cases, experiencePage, productSlugs, caseSlugs } = mapped
 
     expect(homepage.person.name.trim()).toBeTruthy()
     expect(homepage.siteName.trim()).toBeTruthy()
     expect(homepage.navItems.length).toBeGreaterThan(0)
     expect(homepage.proofHeading.trim()).toBeTruthy()
     expect(homepage.featuredWorkHeading.trim()).toBeTruthy()
-    expect(homepage.flagshipLabel.trim()).toBeTruthy()
+    expect(homepage.projectsCta.label.trim()).toBeTruthy()
+    expect(homepage.projectsCta.href).toBe('/projects')
     expect(homepage.pageCopy.products_index.title.trim()).toBeTruthy()
     expect(homepage.pageCopy.products_index.spotlight_cta.trim()).toBeTruthy()
     expect(experiencePage.title.trim()).toBeTruthy()
     expect(experiencePage.seo_description.trim()).toBeTruthy()
 
     expect(experience.length).toBeGreaterThan(0)
-    expect(homepage.featuredCases.length).toBeGreaterThan(0)
+    expect(homepage.featuredProjects.length).toBeGreaterThan(0)
+    expect(projects.length).toBeGreaterThan(0)
     expect(products.length).toBeGreaterThan(0)
     expect(homepage.proof.length).toBeGreaterThan(0)
 
-    const featuredSlugs = homepage.featuredCases.map(item => item.slug)
+    const featuredSlugs = homepage.featuredProjects.map(item => item.slug)
     const spotlightSlugs = homepage.products.items.map(item => item.slug)
     const previewKeys = homepage.experiencePreview.items.map(item => item.id)
     const experienceKeys = new Set(experience.map(role => role.id))
     const productSlugSet = new Set(productSlugs)
     const caseSlugSet = new Set(caseSlugs)
 
-    expect(featuredSlugs).toHaveLength(homepage.featuredCases.length)
+    expect(featuredSlugs).toHaveLength(homepage.featuredProjects.length)
     expect(spotlightSlugs.length).toBeGreaterThan(0)
     expect(previewKeys.length).toBeGreaterThan(0)
 
@@ -119,16 +121,25 @@ describeLive('live Directus portfolio contract', () => {
       }
     }
 
-    for (const item of homepage.featuredCases) {
+    for (const item of homepage.featuredProjects) {
+      expect(item.href).toBeTruthy()
+      expect(item.shortDescription).toBeTruthy()
+    }
+
+    for (const item of projects) {
+      expect(item.href).toBeTruthy()
+      expect(item.shortDescription).toBeTruthy()
+    }
+
+    for (const item of homepage.featuredProjects) {
       if (caseSlugSet.has(item.slug)) {
-        expect(item.href).toBe(`/work/${item.slug}`)
+        expect(item.href).toBe(`/projects/${item.slug}`)
       }
     }
 
     const serialized = JSON.stringify(mapped)
     expect(serialized).not.toMatch(/evidence_origin|evidence_note|confidentiality_notes|private_evidence/)
 
-    expect(homepage.featuredCases[0]?.featured).toBe(true)
     expect(homepage.products.items.length).toBe(spotlightSlugs.length)
     expect(products.length).toBe(productSlugSet.size)
     expect(mapped.experiencePage.title).toBe(experiencePage.title)

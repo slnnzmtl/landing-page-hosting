@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { ProjectMedia } from '../data/types'
+import type { ProductMedia } from '../data/types'
 
 defineProps<{
-  before: ProjectMedia
-  after: ProjectMedia
+  before: ProductMedia
+  after: ProductMedia
   heading: string
   intro?: string
 }>()

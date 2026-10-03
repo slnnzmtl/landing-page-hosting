@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { CaseClaim, CaseLink } from '../data/types'
-import { caseBodyText, caseStackTag } from '../utils/case-ui'
+import { caseBodyText, caseSecondaryCta, caseStackTag } from '../utils/case-ui'
 import { useHomepageUi } from '~/composables/useHomepageUi'
 import { homepageHrefKind, opensInNewTab } from '~/data/homepage'
 
@@ -19,6 +19,13 @@ const claims = computed(() => props.claims
   .filter(claim => Boolean(claim.publicWording)))
 
 const links = computed(() => props.links?.filter(link => link.label.trim() && link.href) || [])
+
+function isRepositoryLink(link: CaseLink): boolean {
+  return /repository|github\.com/i.test(`${link.label} ${link.href}`)
+}
+
+const repositoryLinks = computed(() => links.value.filter(isRepositoryLink))
+const resourceLinks = computed(() => links.value.filter(link => !isRepositoryLink(link)))
 
 const show = computed(() =>
   Boolean(claims.value.length || links.value.length || props.stackTags?.length),
@@ -52,7 +59,7 @@ const show = computed(() =>
     </div>
 
     <div
-      v-if="stackTags?.length || links.length"
+      v-if="stackTags?.length || resourceLinks.length"
       class="space-y-3 border-t border-border/50 pt-5"
     >
       <p class="text-xs font-semibold uppercase tracking-wide text-primary">
@@ -70,7 +77,7 @@ const show = computed(() =>
           {{ tag }}
         </li>
         <li
-          v-for="link in links"
+          v-for="link in resourceLinks"
           :key="link.href"
         >
           <a
@@ -94,7 +101,41 @@ const show = computed(() =>
           </NuxtLink>
         </li>
       </ul>
-      <!-- Keep every resource in the same CMS order; links follow stack tags. -->
+    </div>
+
+    <div
+      v-if="repositoryLinks.length"
+      class="border-t border-border/50 pt-5"
+    >
+      <ul
+        class="flex flex-wrap gap-2"
+        aria-label="Case repository links"
+      >
+        <li
+          v-for="link in repositoryLinks"
+          :key="link.href"
+        >
+          <a
+            v-if="homepageHrefKind(link.href) === 'native'"
+            :href="link.href"
+            v-bind="outboundAttrs(link.href)"
+            :class="[caseSecondaryCta, linkFocus]"
+          >
+            {{ link.label }}
+            <span
+              v-if="opensInNewTab(link.href)"
+              class="sr-only"
+            >(opens in a new tab)</span>
+          </a>
+          <NuxtLink
+            v-else
+            :to="link.href"
+            :class="[caseSecondaryCta, linkFocus]"
+          >
+            {{ link.label }}
+          </NuxtLink>
+        </li>
+      </ul>
     </div>
   </section>
 </template>

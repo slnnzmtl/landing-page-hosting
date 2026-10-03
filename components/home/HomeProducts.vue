@@ -3,12 +3,14 @@ import { computed } from 'vue'
 import type { ProductsSection } from '~/data/homepage'
 import HomeProductSpotlight from './HomeProductSpotlight.vue'
 import HomeProductPlaceholder from './HomeProductPlaceholder.vue'
+import { useHomepageUi } from '~/composables/useHomepageUi'
 
 const props = defineProps<{
   products: ProductsSection
 }>()
 
 const placeholderCount = computed(() => Math.max(0, 3 - props.products.items.length))
+const { interactiveTransition } = useHomepageUi()
 </script>
 
 <template>
@@ -30,11 +32,15 @@ const placeholderCount = computed(() => Math.max(0, 3 - props.products.items.len
         </p>
       </div>
       <NuxtLink
+        v-if="products.totalCount > 3"
         :to="products.allProductsCta.href"
-        class="inline-flex shrink-0 items-center gap-2 text-sm font-medium text-primary underline-offset-4 transition hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        :class="[
+          'inline-flex shrink-0 items-center gap-2 text-sm font-medium text-primary underline-offset-4 hover:underline',
+          interactiveTransition,
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+        ]"
       >
         {{ products.allProductsCta.label }}
-        <span aria-hidden="true">→</span>
       </NuxtLink>
     </div>
     <ul
