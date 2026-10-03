@@ -1,5 +1,4 @@
 import { defineNuxtConfig } from 'nuxt/config'
-import { getSurveyRoutes } from './domains/survey/survey-routes'
 import { getServiceRoutes } from './domains/service/service-routes'
 import { DEFAULT_DIRECTUS_URL, shouldFetchCmsPrerenderSlugs } from './utils/cms/client'
 
@@ -86,8 +85,6 @@ export default defineNuxtConfig({
         '/projects',
         '/projects/rekordbox-playlist-converter',
         '/experience',
-        '/survey',
-        ...getSurveyRoutes(),
         ...getServiceRoutes(),
         '/products',
         '/sitemap.xml',
