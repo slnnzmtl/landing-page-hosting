@@ -3,6 +3,7 @@ import type { ExperiencePreview } from '~/data/homepage'
 import { experienceRolePath } from '~/data/experience'
 import { useHomepageUi } from '~/composables/useHomepageUi'
 import AppCard from '~/components/AppCard.vue'
+import Button from '~/components/ui/button.vue'
 
 defineProps<{
   preview: ExperiencePreview
@@ -79,6 +80,15 @@ const { interactiveTransition, linkFocus } = useHomepageUi()
             >
               {{ item.summary }}
             </p>
+            <div class="mt-auto pt-5">
+              <Button
+                as="span"
+                variant="arrow"
+                aria-hidden="true"
+              >
+                View case
+              </Button>
+            </div>
           </div>
         </AppCard>
       </li>
