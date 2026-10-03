@@ -84,6 +84,7 @@ export default defineNuxtConfig({
       routes: [
         '/',
         '/projects',
+        '/projects/rekordbox-playlist-converter',
         '/experience',
         '/survey',
         ...getSurveyRoutes(),
