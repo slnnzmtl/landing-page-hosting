@@ -62,7 +62,7 @@ tests/
 
 ### Domain routing
 
-**`prefix-domain-pages`** — prefixes Nuxt pages contributed by a domain layer (`domains/<name>/pages/*` → `/<name>/...`), including the projects index collision with root `/`, and cases → `/work`.
+**`prefix-domain-pages`** — prefixes Nuxt pages contributed by a domain layer (`domains/<name>/pages/*` → `/<name>/...`), including the projects index collision with root `/`, and cases → `/projects`.
 
 ### Projects domain
 
@@ -70,7 +70,7 @@ tests/
 
 **GitHub releases** — mocked `fetch` for success, empty, 403/429, network error, prerelease, and stale localStorage cache. Notes are plain text.
 
-**SEO** — production site origin, canonical/OG tags, homepage Person/WebSite/CreativeWork JSON-LD, CollectionPage/SoftwareApplication for projects, sitemap and robots output (including `/work/:slug` case routes).
+**SEO** — production site origin, canonical/OG tags, homepage Person/WebSite/CreativeWork JSON-LD, CollectionPage/SoftwareApplication for projects, sitemap and robots output (including `/projects/:slug` case routes).
 
 ### Cases domain
 

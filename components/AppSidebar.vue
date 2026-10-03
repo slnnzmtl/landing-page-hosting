@@ -12,9 +12,9 @@ const { data: portfolio } = await usePortfolio()
 
 const routePath = computed(() => router.currentRoute.value.path)
 const routeHash = computed(() => router.currentRoute.value.hash)
-const isCaseRoute = computed(() => routePath.value.startsWith('/work/'))
+const isCaseRoute = computed(() => routePath.value.startsWith('/projects/'))
 const currentCase = computed(() => {
-  const slug = routePath.value.replace(/^\/work\//, '').split('/')[0]
+  const slug = routePath.value.replace(/^\/projects\//, '').split('/')[0]
   return portfolio.value?.cases.find(item => item.slug === slug)
 })
 

@@ -182,7 +182,7 @@ describe('homepage SEO', () => {
     expect(list.itemListElement.every(entry => entry.item['@type'] === 'CreativeWork')).toBe(true)
     expect(list.itemListElement.map(entry => entry.item.url)).toEqual(
       expect.arrayContaining([
-        'https://kazansky.dev/work/sample-flagship-case',
+        'https://kazansky.dev/projects/sample-flagship-case',
         'https://kazansky.dev/products/sample-converter',
       ]),
     )
@@ -255,13 +255,13 @@ describe('sitemap and robots', () => {
     expect(sitemapPaths(productSlugs, caseSlugs)).toContain('/projects')
     expect(sitemapPaths(productSlugs, caseSlugs)).toContain('/products')
     expect(sitemapPaths(productSlugs, caseSlugs)).toContain('/products/sample-converter')
-    expect(sitemapPaths(productSlugs, caseSlugs)).toContain('/work/sample-flagship-case')
+    expect(sitemapPaths(productSlugs, caseSlugs)).toContain('/projects/sample-flagship-case')
     expect(xml).toContain('<loc>https://kazansky.dev/</loc>')
     expect(xml).toContain('<loc>https://kazansky.dev/experience</loc>')
     expect(xml).toContain('<loc>https://kazansky.dev/projects</loc>')
     expect(xml).toContain('<loc>https://kazansky.dev/products</loc>')
     expect(xml).toContain('<loc>https://kazansky.dev/products/sample-converter</loc>')
-    expect(xml).toContain('<loc>https://kazansky.dev/work/sample-flagship-case</loc>')
+    expect(xml).toContain('<loc>https://kazansky.dev/projects/sample-flagship-case</loc>')
   })
 
   it('allows crawlers on /projects and /products and points at the sitemap', () => {

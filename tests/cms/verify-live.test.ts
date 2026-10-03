@@ -133,7 +133,7 @@ describeLive('live Directus portfolio contract', () => {
 
     for (const item of homepage.featuredProjects) {
       if (caseSlugSet.has(item.slug)) {
-        expect(item.href).toBe(`/work/${item.slug}`)
+        expect(item.href).toBe(`/projects/${item.slug}`)
       }
     }
 

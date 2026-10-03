@@ -78,7 +78,7 @@ describe('homepage content model (CMS-mapped)', () => {
 
   it('resolves case and evidence destinations', () => {
     const flagship = published.featuredProjects[0]
-    expect(flagship.href).toBe('/work/sample-flagship-case')
+    expect(flagship.href).toBe('/projects/sample-flagship-case')
     expect(flagship.hrefLabel).toBe('View case')
 
     const secondary = published.featuredProjects[1]
@@ -151,7 +151,7 @@ describe('homepage href helpers', () => {
     expect(conversionEventName('#contact')).toBe('contact')
     expect(conversionEventName('https://github.com/example-org', { contact: true })).toBe('contact')
     expect(conversionEventName('https://github.com/x', { project: true })).toBe('project-open')
-    expect(conversionEventName('/work/acme', { caseStudy: true })).toBe('case-study-open')
+    expect(conversionEventName('/projects/acme', { caseStudy: true })).toBe('case-study-open')
     expect(conversionEventName('/products/sample-converter', { product: true })).toBe('product-open')
   })
 

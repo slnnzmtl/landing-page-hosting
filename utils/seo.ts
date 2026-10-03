@@ -256,7 +256,7 @@ export function sitemapPaths(
     '/projects',
     '/products',
     ...productSlugs.map(slug => `/products/${slug}`),
-    ...caseSlugs.map(slug => `/work/${slug}`),
+    ...caseSlugs.map(slug => `/projects/${slug}`),
   ]
   return [...new Set(paths)]
 }

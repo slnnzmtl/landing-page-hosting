@@ -21,8 +21,8 @@ A Nuxt 3 + Vue 3 multi-domain app for landing pages, public product pages, JSON-
 |--------|--------|---------|
 | **Root** | `/` | Portfolio / landing homepage |
 | **products** | `/products`, `/products/:slug` | Public selected products (data-driven; layer folder is `domains/products`) |
-| **projects** | `/projects` | Published project summaries; case details remain under `/work/:slug` |
-| **cases** | `/work/:slug` | Directus-backed project case studies (`case_enabled`) |
+| **projects** | `/projects` | Published project summaries and case details under `/projects/:slug` |
+| **cases** | `/projects/:slug` | Directus-backed project case studies (`case_enabled`) |
 | **survey** | `/survey`, `/survey/:slug` | JSON-driven surveys with webhook submit |
 | **service** | `/service/:page` | Service landing pages |
 
@@ -52,7 +52,7 @@ Each domain lives under `domains/<name>/` as a Nuxt layer. Page routes are prefi
 │  │  ├─ data/                    # Product types + productPath
 │  │  └─ components/              # Gallery + GitHub releases
 │  ├─ cases/
-│  │  ├─ pages/                   # [slug] → /work/*
+│  │  ├─ pages/                   # [slug] → /projects/*
 │  │  ├─ data/                    # CaseStudy types + casePath
 │  │  └─ components/              # Hero, sections, claims
 │  ├─ survey/
@@ -146,7 +146,7 @@ First product: **Simple Rekordbox Converter** at `/products/rekordbox-playlist-c
 
 ## Case studies (`domains/cases`)
 
-Published Directus `projects` with `case_enabled=true` generate `/work/:slug` at build time. There is no `/work` index — the homepage Selected Work section is the entry point. Case copy, sections, media, and approved claims come from Directus; Nuxt maps section `kind` values to Vue components and never renders CMS HTML.
+Published Directus `projects` with `case_enabled=true` generate `/projects/:slug` at build time. The `/projects` index lists published project summaries. Case copy, sections, media, and approved claims come from Directus; Nuxt maps section `kind` values to Vue components and never renders CMS HTML.
 
 ### Add another case study
 
@@ -207,7 +207,7 @@ Surveys are JSON files in `domains/survey/data/`. Each file is eagerly loaded by
 
 Configured for Nuxt static generation. Prerender uses an explicit route list (`crawlLinks: false`) from:
 
-- `/`, `/experience`, `/survey`, `/products`, `/sitemap.xml`, `/robots.txt`, plus `getSurveyRoutes()`, `getServiceRoutes()`, CMS product slugs (`fetchProductSlugs`), and case-enabled project slugs (`fetchCaseSlugs` → `/work/:slug`) from Directus at generate time
+- `/`, `/experience`, `/survey`, `/products`, `/projects`, `/sitemap.xml`, `/robots.txt`, plus `getSurveyRoutes()`, `getServiceRoutes()`, CMS product slugs (`fetchProductSlugs`), and case-enabled project slugs (`fetchCaseSlugs` → `/projects/:slug`) from Directus at generate time
 
 Local preview:
 

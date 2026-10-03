@@ -185,7 +185,7 @@ describe('case SEO', () => {
       personName: 'Ada Example',
       featuredWorkHeading: 'Featured work',
     })
-    expect(seo.path).toBe('/work/sample-flagship-case')
+    expect(seo.path).toBe('/projects/sample-flagship-case')
     expect(seo.title).toContain('Sample Flagship Case')
     expect(seo.ogType).toBe('article')
     expect(seo.image?.src).toContain('social.webp')

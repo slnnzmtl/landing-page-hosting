@@ -6,11 +6,11 @@ const showSiteChrome = computed(() => {
   return !path.startsWith('/survey') && !path.startsWith('/service')
 })
 
-const isCaseRoute = computed(() => route.path.startsWith('/work/'))
+const isCaseRoute = computed(() => route.path.startsWith('/projects/'))
 
 /** Lower star density on long case-study reading pages. */
 const starDensityFactor = computed(() =>
-  route.path.startsWith('/work') ? 0.28 : 1,
+  route.path.startsWith('/projects/') ? 0.28 : 1,
 )
 </script>
 

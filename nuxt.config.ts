@@ -107,7 +107,7 @@ export default defineNuxtConfig({
         ])
         const routes = [
           ...productSlugs.map(slug => `/products/${slug}`),
-          ...caseSlugs.map(slug => `/work/${slug}`),
+          ...caseSlugs.map(slug => `/projects/${slug}`),
         ]
         nitroConfig.prerender = nitroConfig.prerender || {}
         const existing = nitroConfig.prerender.routes || []

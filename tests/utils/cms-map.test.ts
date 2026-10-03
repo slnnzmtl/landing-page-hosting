@@ -276,7 +276,7 @@ describe('CMS portfolio mappers', () => {
     )
     const featured = result.homepage.featuredProjects[0]
     expect(featured?.slug).toBe(project!.slug)
-    expect(featured?.href).toBe('/work/sample-flagship-case')
+    expect(featured?.href).toBe('/projects/sample-flagship-case')
     expect(featured?.hrefLabel).toBe('View case')
   })
 

@@ -8,7 +8,7 @@ const projects: ProjectSummary[] = [
     name: 'AI Appointment',
     shortDescription: 'Booking automation.',
     stackTags: ['TypeScript'],
-    href: '/work/appointment',
+    href: '/projects/appointment',
     hrefLabel: 'View case',
     hasCaseStudy: true,
   },
@@ -36,7 +36,7 @@ describe('Projects index SEO', () => {
     expect(page.jsonLd.mainEntity).toMatchObject({
       '@type': 'ItemList',
       'itemListElement': [
-        { url: 'https://example.test/work/appointment' },
+        { url: 'https://example.test/projects/appointment' },
         { url: 'https://github.com/example/builder' },
       ],
     })
