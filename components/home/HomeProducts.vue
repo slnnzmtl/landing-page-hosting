@@ -56,6 +56,7 @@ const { interactiveTransition } = useHomepageUi()
       <li
         v-for="index in placeholderCount"
         :key="`product-placeholder-${index}`"
+        class="hidden lg:block"
       >
         <HomeProductPlaceholder />
       </li>

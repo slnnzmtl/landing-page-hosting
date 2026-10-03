@@ -49,7 +49,7 @@ const { interactiveTransition } = useHomepageUi()
       </NuxtLink>
     </div>
 
-    <div class="mt-10 grid grid-cols-1 gap-5 lg:grid-cols-2">
+    <div class="mt-10 grid sm:grid-cols-2 gap-5 lg:grid-cols-2">
       <ProjectSummaryCard
         v-for="project in projects"
         :key="project.slug"

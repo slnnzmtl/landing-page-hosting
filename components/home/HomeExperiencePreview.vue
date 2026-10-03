@@ -63,7 +63,7 @@ const { interactiveTransition, linkFocus } = useHomepageUi()
                 />
               </div>
               <div>
-                <p class="text-sm font-semibold text-foreground">
+                <p class="text-lg font-semibold leading-tight text-foreground">
                   {{ item.organization }}
                 </p>
                 <p class="mt-1 text-sm text-primary">
