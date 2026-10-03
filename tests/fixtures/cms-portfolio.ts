@@ -81,7 +81,6 @@ export const cmsPortfolioFixture: CmsPortfolioRaw = {
     proof_heading: 'Selected outcomes',
     featured_work_heading: 'Featured work',
     featured_work_intro: 'One representative case from recent delivery.',
-    flagship_label: 'Flagship case',
     featured_projects: [
       { projects_id: { slug: 'sample-flagship-case' } },
       { projects_id: { slug: 'sample-secondary-case' } },
@@ -126,7 +125,7 @@ export const cmsPortfolioFixture: CmsPortfolioRaw = {
     title: 'Professional experience',
     page_intro: 'Evidence-based timeline of product and software delivery.',
     back_label: 'Back to featured work',
-    back_href: '/#featured-work',
+    back_href: '/#featured-projects',
     seo_description:
       'Professional timeline for Ada Example: digital products and software delivery.',
   },

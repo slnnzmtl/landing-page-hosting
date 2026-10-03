@@ -24,8 +24,8 @@ describe('AppBackLink', () => {
 
   it('passes path and hash separately so Vue Router does not remount on /#section', () => {
     const wrapper = mount(AppBackLink, {
-      props: { to: '/#featured-work' },
-      slots: { default: 'Back to featured work' },
+      props: { to: '/#featured-projects' },
+      slots: { default: 'Back to featured projects' },
       global: {
         stubs: {
           NuxtLink: {
@@ -36,6 +36,6 @@ describe('AppBackLink', () => {
       },
     })
 
-    expect(wrapper.get('a').attributes('href')).toBe('/#featured-work')
+    expect(wrapper.get('a').attributes('href')).toBe('/#featured-projects')
   })
 })

@@ -84,7 +84,6 @@ export interface CmsHomepageSettings {
   proof_heading: string
   featured_work_heading: string
   featured_work_intro: string
-  flagship_label: string
   featured_projects: CmsM2mProjectRow[]
   featured_projects_cta?: CmsButton | null
   experience_preview_heading: string

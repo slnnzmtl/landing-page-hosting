@@ -62,7 +62,7 @@ export function caseDetailSeo(
           '@type': 'ListItem',
           'position': 2,
           'name': options.featuredWorkHeading,
-          'item': absoluteUrl(siteUrl, '/#featured-work'),
+          'item': absoluteUrl(siteUrl, '/#featured-projects'),
         },
         {
           '@type': 'ListItem',

@@ -100,7 +100,7 @@ DIRECTUS_TOKEN=
 
 `DIRECTUS_URL` and `DIRECTUS_TOKEN` are **server-only** (never `NUXT_PUBLIC_*`). Use a Directus **static token** (Settings → Access Tokens) for a build-reader role with read access to published `site_settings`, `homepage_settings`, `experience_page_settings`, `experience_entries`, `projects`, `products`, `approved_claims`, and `files` (plus the `homepage_settings_*` junction collections) — not a session JWT (those expire and return `INVALID_CREDENTIALS`). Put the token in the host `.env` (gitignored); Docker Compose passes it as a BuildKit secret so it is not baked into image layers. A missing token or failed published-content fetch **fails `nuxt generate`**; the currently deployed container stays up until a successful rebuild. `pnpm install` / `nuxt prepare` do not call Directus. Directus is the only authoring source for homepage, experience, and product copy — do not dual-author in TypeScript. CMS edits appear only after the next successful generate (see rebuild below).
 
-`homepage_settings` must include chrome strings `proof_heading`, `featured_work_heading`, and `flagship_label` (in addition to composition fields). Grant the build-reader role read access to those fields.
+`homepage_settings` must include chrome strings `proof_heading` and `featured_work_heading` (in addition to composition fields). Grant the build-reader role read access to those fields.
 
 Verify the live Directus contract (published singletons, M2M links resolve, `mapPortfolio` succeeds):
 

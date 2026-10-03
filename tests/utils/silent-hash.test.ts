@@ -40,12 +40,12 @@ describe('silent homepage hash', () => {
 
   it('scrolls to an anchor even when the router still thinks the hash is #contact', async () => {
     const target = document.createElement('div')
-    target.id = 'featured-work'
+    target.id = 'featured-projects'
     target.scrollIntoView = vi.fn()
     document.body.appendChild(target)
 
     const replace = vi.fn()
-    const ok = await scrollToAnchor('#featured-work', {
+    const ok = await scrollToAnchor('#featured-projects', {
       path: '/',
       currentPath: '/',
       currentHash: '#contact',
@@ -57,7 +57,7 @@ describe('silent homepage hash', () => {
       behavior: 'smooth',
       block: 'start',
     })
-    expect(replace).toHaveBeenCalledWith({ path: '/', hash: '#featured-work' })
+    expect(replace).toHaveBeenCalledWith({ path: '/', hash: '#featured-projects' })
     expect(activeSection.value).toBe('')
     expect(isSilentAnchorSyncPaused()).toBe(true)
   })
@@ -83,9 +83,9 @@ describe('silent homepage hash', () => {
   })
 
   it('does not write the address bar when setting activeSection', () => {
-    window.history.replaceState(null, '', '/#featured-work')
+    window.history.replaceState(null, '', '/#featured-projects')
     setActiveSection('#contact')
     expect(activeSection.value).toBe('#contact')
-    expect(window.location.hash).toBe('#featured-work')
+    expect(window.location.hash).toBe('#featured-projects')
   })
 })

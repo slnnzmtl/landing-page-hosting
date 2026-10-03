@@ -7,9 +7,9 @@ describe('parseAppLink', () => {
   })
 
   it('splits a root hash used by back-to-homepage sections', () => {
-    expect(parseAppLink('/#featured-work')).toEqual({
+    expect(parseAppLink('/#featured-projects')).toEqual({
       path: '/',
-      hash: '#featured-work',
+      hash: '#featured-projects',
     })
   })
 
@@ -23,7 +23,7 @@ describe('parseAppLink', () => {
 
 describe('hashElementId', () => {
   it('strips the leading hash', () => {
-    expect(hashElementId('#featured-work')).toBe('featured-work')
+    expect(hashElementId('#featured-projects')).toBe('featured-projects')
   })
 })
 
