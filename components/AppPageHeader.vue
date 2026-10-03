@@ -5,6 +5,7 @@ defineProps<{
   kicker: string
   title: string
   description?: string
+  credibilityLine?: string
   back?: {
     to: string
     label: string
@@ -34,7 +35,7 @@ defineProps<{
           <p class="text-sm uppercase tracking-[0.35em] text-primary">
             {{ kicker }}
           </p>
-          <h1 class="text-4xl font-semibold leading-tight sm:text-5xl">
+          <h1 class="text-4xl font-semibold leading-tight max-w-[60%] sm:max-w-full sm:text-6xl">
             {{ title }}
           </h1>
         </div>
@@ -61,6 +62,9 @@ defineProps<{
             </p>
           </slot>
         </div>
+        <p v-if="credibilityLine" class="text-sm text-muted-foreground">
+          {{ credibilityLine }}
+        </p>
         <slot />
       </div>
     </div>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { HomepageContent, HomepageLink, HeroFocus } from '~/data/homepage'
+import type { HomepageContent, HomepageLink } from '~/data/homepage'
 import { useHomepageUi } from '~/composables/useHomepageUi'
 import { trackHomepageHref } from '~/composables/useHomepageConversion'
 import { scrollToAnchor } from '~/utils/silent-hash'
@@ -7,8 +7,8 @@ import { scrollToAnchor } from '~/utils/silent-hash'
 defineProps<{
   person: HomepageContent['person']
   valueProposition: string
+  credibilityLine?: string
   primaryCtas: HomepageLink[]
-  heroFocus: HeroFocus
 }>()
 
 const route = useRoute()
@@ -34,7 +34,7 @@ function ctaClass(index: number) {
     linkFocus,
   ]
   if (index === 0) {
-    return [...base, 'w-full bg-primary text-primary-foreground shadow hover:bg-primary/90 sm:w-auto']
+    return [...base, 'w-full bg-primary text-primary-foreground shadow hover:bg-primary/90 sm:w-auto mt-2']
   }
   return [...base, 'w-full border border-border text-foreground hover:border-primary hover:text-primary sm:w-auto']
 }
@@ -47,6 +47,7 @@ function ctaClass(index: number) {
       :kicker="person.name"
       :title="person.role"
       :description="valueProposition"
+      :credibility-line="credibilityLine"
     >
       <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
         <a
@@ -60,30 +61,5 @@ function ctaClass(index: number) {
         </a>
       </div>
     </AppPageHeader>
-
-    <aside
-      class="rounded-2xl border border-border bg-card p-6 shadow-sm sm:rounded-3xl sm:p-8 lg:col-span-5"
-      aria-labelledby="hero-focus-heading"
-    >
-      <h2
-        id="hero-focus-heading"
-        class="text-xs font-semibold uppercase tracking-wide text-primary sm:text-sm"
-      >
-        {{ heroFocus.heading }}
-      </h2>
-      <ul class="mt-5 space-y-2">
-        <li
-          v-for="item in heroFocus.items"
-          :key="item.title"
-        >
-          <p class="text-sm leading-relaxed text-foreground">
-            {{ item.title }}
-          </p>
-          <p v-if="item.summary" class="mt-1 text-sm leading-relaxed text-muted-foreground">
-            {{ item.summary }}
-          </p>
-        </li>
-      </ul>
-    </aside>
   </section>
 </template>

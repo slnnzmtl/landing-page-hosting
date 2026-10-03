@@ -45,16 +45,6 @@ export interface ProofItem {
   label: string
 }
 
-export interface HeroFocusItem {
-  title: string
-  summary: string
-}
-
-export interface HeroFocus {
-  heading: string
-  items: HeroFocusItem[]
-}
-
 export interface ExperiencePreviewItem {
   id: string
   organization: string
@@ -106,9 +96,9 @@ export interface HomepageContent {
     role: string
   }
   valueProposition: string
+  credibilityLine?: string
   primaryCtas: HomepageLink[]
   profileLinks: HomepageLink[]
-  heroFocus: HeroFocus
   proofHeading: string
   proof: ProofItem[]
   featuredWorkHeading: string

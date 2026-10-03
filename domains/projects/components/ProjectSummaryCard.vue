@@ -24,7 +24,7 @@ function onProjectClick(project: ProjectSummary) {
       <p class="text-xs font-semibold uppercase tracking-wide text-primary">
         {{ projectSummaryCategory(project) }}
       </p>
-      <h3 class="mt-2 text-lg font-semibold leading-snug text-foreground">
+      <h3 class="mt-2 text-3xl font-semibold leading-snug text-foreground">
         {{ project.name }}
       </h3>
       <p class="mt-3 text-sm leading-relaxed text-muted-foreground">
@@ -32,7 +32,7 @@ function onProjectClick(project: ProjectSummary) {
       </p>
       <div
         v-if="project.stackTags.length"
-        class="mt-4 flex flex-wrap gap-1.5"
+        class="mt-4 flex-wrap gap-1.5 hidden lg:flex"
       >
         <span
           v-for="tag in project.stackTags.slice(0, 3)"

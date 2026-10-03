@@ -13,7 +13,7 @@ export interface ProjectSummary {
 }
 
 export function projectSummaryCategory(project: Pick<ProjectSummary, 'track' | 'hasCaseStudy'>): string {
-  if (project.hasCaseStudy) return 'Case study'
+  if (project.hasCaseStudy) return 'Client case study'
   if (project.track === 'open_source') return 'Open-source platform'
   if (project.track === 'enterprise') return 'Enterprise project'
   return 'Independent project'
