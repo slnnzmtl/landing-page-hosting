@@ -32,7 +32,7 @@ defineProps<{
           : undefined"
       >
         <div class="min-w-0 space-y-4">
-          <p class="text-sm uppercase tracking-[0.35em] text-primary">
+          <p class="text-sm uppercase tracking-[0.25em] text-muted-foreground">
             {{ kicker }}
           </p>
           <h1 class="text-4xl font-semibold leading-tight max-w-[60%] sm:max-w-full sm:text-6xl">
