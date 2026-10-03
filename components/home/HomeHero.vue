@@ -43,7 +43,7 @@ function ctaClass(index: number) {
 <template>
   <section class="grid gap-16 lg:grid-cols-12 lg:items-start lg:gap-10">
     <AppPageHeader
-      class="lg:col-span-7"
+      class="lg:col-span-8"
       :kicker="person.name"
       :title="person.role"
       :description="valueProposition"
