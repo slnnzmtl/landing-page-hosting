@@ -860,7 +860,7 @@ function mapCmsProduct(
   }
 
   if (detailTemplate === 'extension') {
-    if (!product.kicker?.trim() || !product.software_requirements?.trim() || !product.media_heading?.trim()) {
+    if (!product.kicker?.trim() || !product.media_heading?.trim()) {
       throw new Error(`Extension product "${product.slug}" is missing required presentation fields`)
     }
     const price = productPrice(product)
@@ -871,7 +871,7 @@ function mapCmsProduct(
       detailTemplate: 'extension',
       kicker: product.kicker,
       price,
-      softwareRequirements: product.software_requirements,
+      softwareRequirements: product.software_requirements ?? '',
       mediaHeading: product.media_heading,
       mediaIntro: product.media_intro ?? undefined,
       media,
