@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import AppPageHeader from '~/components/AppPageHeader.vue'
 import AppCard from '~/components/AppCard.vue'
+import Button from '~/components/ui/button.vue'
 import { resolveSiteUrl } from '~/utils/seo'
 import { productPath } from '../data/types'
 import { productsIndexSeo } from '../utils/product-seo'
@@ -61,23 +62,14 @@ usePageSeo(
                 <p class="mt-2 flex-1 text-sm text-muted-foreground">
                   {{ product.shortDescription }}
                 </p>
-                <span class="mt-5 inline-flex items-center gap-2 text-sm font-medium text-primary">
+                <Button
+                  as="span"
+                  variant="arrow"
+                  aria-hidden="true"
+                  class="mt-5"
+                >
                   {{ pageCopy.products_index.item_cta }}
-                  <svg
-                    viewBox="0 0 20 20"
-                    fill="none"
-                    class="h-4 w-4"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M7 5l6 5-6 5"
-                      stroke="currentColor"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                </span>
+                </Button>
               </div>
             </div>
           </AppCard>

@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import type { ProductSpotlight } from '~/data/homepage'
 import { trackHomepageHref } from '~/composables/useHomepageConversion'
 import AppCard from '~/components/AppCard.vue'
+import Button from '~/components/ui/button.vue'
 
 const props = defineProps<{
   product: ProductSpotlight
@@ -14,10 +15,6 @@ const imageClass = computed(() => (
     ? 'object-contain p-8'
     : 'object-cover'
 ))
-
-const ctaClass = [
-  'inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground',
-].join(' ')
 
 function onProductCtaClick() {
   trackHomepageHref(ctaHref.value, { product: true, slug: props.product.slug })
@@ -52,9 +49,13 @@ function onProductCtaClick() {
       </p>
 
       <div class="mt-auto pt-5">
-        <span :class="ctaClass">
+        <Button
+          as="span"
+          variant="arrow"
+          aria-hidden="true"
+        >
           {{ product.cta.label }}
-        </span>
+        </Button>
       </div>
 
       <p

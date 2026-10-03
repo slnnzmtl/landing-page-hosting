@@ -3,6 +3,7 @@ import type { ProjectSummary } from '../data/types'
 import { projectSummaryCategory } from '../data/types'
 import { trackConversion } from '~/utils/track-conversion'
 import AppCard from '~/components/AppCard.vue'
+import Button from '~/components/ui/button.vue'
 
 defineProps<{
   project: ProjectSummary
@@ -54,10 +55,13 @@ function onProjectClick(project: ProjectSummary) {
         </span>
       </div>
       <div class="mt-auto pt-5">
-        <span class="inline-flex items-center gap-1.5 text-sm font-medium text-primary">
+        <Button
+          as="span"
+          variant="arrow"
+          aria-hidden="true"
+        >
           {{ project.hrefLabel }}
-          <span aria-hidden="true">↗</span>
-        </span>
+        </Button>
       </div>
     </div>
   </AppCard>
