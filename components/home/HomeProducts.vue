@@ -32,6 +32,7 @@ const { interactiveTransition } = useHomepageUi()
         </p>
       </div>
       <NuxtLink
+        v-if="products.totalCount > 3"
         :to="products.allProductsCta.href"
         :class="[
           'inline-flex shrink-0 items-center gap-2 text-sm font-medium text-primary underline-offset-4 hover:underline',
@@ -40,7 +41,6 @@ const { interactiveTransition } = useHomepageUi()
         ]"
       >
         {{ products.allProductsCta.label }}
-        <span aria-hidden="true">→</span>
       </NuxtLink>
     </div>
     <ul

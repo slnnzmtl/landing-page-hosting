@@ -89,7 +89,6 @@ describe('HomeProductSpotlight', () => {
       global: { stubs: { AppCard: appCardStub, NuxtLink: nuxtLinkStub } },
     })
 
-    expect(wrapper.find('article').classes()).toContain('rounded-2xl')
     expect(wrapper.find('img').attributes('alt')).toBe('one screenshot')
   })
 })

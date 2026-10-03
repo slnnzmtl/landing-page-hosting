@@ -30,12 +30,6 @@ function onProjectClick(project: ProjectSummary) {
       <p class="mt-3 text-sm leading-relaxed text-muted-foreground">
         {{ project.shortDescription }}
       </p>
-      <p
-        v-if="project.role"
-        class="mt-3 text-sm text-foreground"
-      >
-        My role: {{ project.role }}
-      </p>
       <div
         v-if="project.stackTags.length"
         class="mt-4 flex flex-wrap gap-1.5"

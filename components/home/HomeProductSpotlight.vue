@@ -57,13 +57,6 @@ function onProductCtaClick() {
           {{ product.cta.label }}
         </Button>
       </div>
-
-      <p
-        v-if="product.detail_template"
-        class="mt-4 line-clamp-2 text-xs leading-relaxed text-muted-foreground"
-      >
-        {{ product.detail_template }}
-      </p>
     </div>
   </AppCard>
 </template>

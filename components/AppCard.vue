@@ -10,9 +10,9 @@ const props = defineProps<{
 const isInteractive = computed(() => Boolean(props.href))
 const isNativeLink = computed(() => props.href ? homepageHrefKind(props.href) === 'native' : false)
 const cardClass = computed(() => [
-  'relative flex h-full overflow-hidden rounded-2xl border border-border bg-card shadow-sm',
+  'relative flex h-full overflow-hidden rounded-2xl border border-border bg-card',
   isInteractive.value
-    ? 'group transition-[transform,border-color,box-shadow] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:translate-x-1 hover:border-primary/50 hover:shadow-md'
+    ? 'group transition-[box-shadow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] shadow-sm hover:shadow-white/50 active:shadow-white'
     : undefined,
 ])
 const linkClass = 'absolute inset-0 z-0 rounded-[inherit] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'

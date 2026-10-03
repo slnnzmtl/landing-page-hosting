@@ -36,6 +36,7 @@ const { interactiveTransition } = useHomepageUi()
         </p>
       </div>
       <NuxtLink
+        v-if="projects.length > 2"
         :to="cta.href"
         :class="[
           'text-sm font-medium text-primary underline-offset-4 hover:underline',
