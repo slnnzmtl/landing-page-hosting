@@ -133,9 +133,9 @@ export type ConversionEventName
     | 'product-open'
     | 'contact'
 
-/** `native` = plain `<a>` (https, mailto, hash). `route` = in-app `NuxtLink`. */
+/** `native` = plain `<a>` (https, mailto, tel, hash). `route` = in-app `NuxtLink`. */
 export function homepageHrefKind(href: string): HomepageHrefKind {
-  return /^(?:https?:|mailto:|#)/i.test(href) ? 'native' : 'route'
+  return /^(?:https?:|mailto:|tel:|#)/i.test(href) ? 'native' : 'route'
 }
 
 export function opensInNewTab(href: string): boolean {

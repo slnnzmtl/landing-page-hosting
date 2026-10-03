@@ -13,13 +13,14 @@ const emit = defineEmits<{
   click: [event: MouseEvent]
 }>()
 
-const { outboundAttrs, linkFocus } = useHomepageUi()
+const { outboundAttrs, interactiveTransition, linkFocus } = useHomepageUi()
 
 const linkClass = computed(() => [
   'inline-flex items-center gap-1.5 text-sm underline-offset-4',
   props.muted
     ? 'text-muted-foreground hover:text-foreground hover:underline'
     : 'font-medium text-primary hover:underline',
+  interactiveTransition,
   linkFocus,
 ].join(' '))
 

@@ -14,7 +14,7 @@ const props = withDefaults(
   },
 )
 
-const { interactiveTransition, linkFocus, outboundAttrs, profileLinkAria } = useHomepageUi()
+const { interactiveTransition, linkFocus, profileLinkAria } = useHomepageUi()
 
 function itemKey(label: string) {
   return props.keyPrefix ? `${props.keyPrefix}${label}` : label
@@ -27,14 +27,13 @@ function itemKey(label: string) {
       v-for="link in links"
       :key="itemKey(link.label)"
     >
-      <a
+      <AppLink
         :href="link.href"
-        v-bind="outboundAttrs(link.href)"
         :aria-label="profileLinkAria(link.label)"
         :class="['font-medium text-primary underline-offset-4 hover:underline', interactiveTransition, linkFocus]"
       >
         {{ link.label }}
-      </a>
+      </AppLink>
     </li>
   </ul>
 </template>

@@ -10,10 +10,6 @@ const primaryCta = computed(() => props.launch.ctas.find(cta => cta.kind === 'pr
 const secondaryCtas = computed(() => props.launch.ctas.filter(cta => cta.kind === 'secondary'))
 const { interactiveTransition } = useHomepageUi()
 
-function isExternal(href: string): boolean {
-  return /^(?:https?:|mailto:|tel:)/i.test(href)
-}
-
 const primaryClass = [
   'inline-flex w-full items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 sm:w-auto',
   interactiveTransition,
@@ -29,24 +25,20 @@ const linkClass = [
 
 <template>
   <div class="flex w-full flex-col items-center gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-start sm:gap-x-5 sm:gap-y-3">
-    <a
+    <AppLink
       v-if="primaryCta"
       :href="primaryCta.href"
-      :target="isExternal(primaryCta.href) ? '_blank' : undefined"
-      :rel="isExternal(primaryCta.href) ? 'noopener noreferrer' : undefined"
       :class="primaryClass"
     >
       {{ primaryCta.label }}
-    </a>
-    <a
+    </AppLink>
+    <AppLink
       v-for="cta in secondaryCtas"
       :key="cta.label"
       :href="cta.href"
-      :target="isExternal(cta.href) ? '_blank' : undefined"
-      :rel="isExternal(cta.href) ? 'noopener noreferrer' : undefined"
       :class="linkClass"
     >
       {{ cta.label }}
-    </a>
+    </AppLink>
   </div>
 </template>

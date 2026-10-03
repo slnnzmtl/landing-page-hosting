@@ -27,18 +27,18 @@ const handleError = () => clearError({ redirect: '/' })
         {{ is404 ? 'That page is not in this site.' : 'An unexpected error occurred.' }}
       </p>
       <div class="flex flex-wrap items-center justify-center gap-3">
-        <NuxtLink
-          to="/"
+        <AppLink
+          href="/"
           class="rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           Homepage
-        </NuxtLink>
-        <NuxtLink
-          to="/products"
+        </AppLink>
+        <AppLink
+          href="/products"
           class="rounded-full border border-border px-6 py-3 text-sm font-medium transition hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           Selected products
-        </NuxtLink>
+        </AppLink>
         <button
           type="button"
           class="text-sm font-medium text-muted-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"

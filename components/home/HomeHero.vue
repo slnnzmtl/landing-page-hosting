@@ -50,7 +50,7 @@ function ctaClass(index: number) {
       :credibility-line="credibilityLine"
     >
       <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
-        <a
+        <AppLink
           v-for="(cta, index) in primaryCtas"
           :key="cta.href"
           :href="cta.href"
@@ -58,7 +58,7 @@ function ctaClass(index: number) {
           @click="onPrimaryCtaClick(cta.href, $event)"
         >
           {{ cta.label }}
-        </a>
+        </AppLink>
       </div>
     </AppPageHeader>
   </section>

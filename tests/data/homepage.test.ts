@@ -130,6 +130,7 @@ describe('homepage href helpers', () => {
   it('classifies native vs route hrefs', () => {
     expect(homepageHrefKind('https://github.com/example-org')).toBe('native')
     expect(homepageHrefKind('mailto:ada@example.test')).toBe('native')
+    expect(homepageHrefKind('tel:+1-555-0100')).toBe('native')
     expect(homepageHrefKind('#contact')).toBe('native')
     expect(homepageHrefKind('/experience')).toBe('route')
     expect(homepageHrefKind('/experience#acme-senior-engineer')).toBe('route')
