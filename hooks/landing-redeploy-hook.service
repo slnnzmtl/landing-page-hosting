@@ -9,6 +9,9 @@ WorkingDirectory=/root/containers/02-private/landing-page-hosting
 Environment=REDEPLOY_HOOK_HOST=127.0.0.1
 Environment=REDEPLOY_HOOK_PORT=8083
 ExecStart=/usr/bin/python3 /root/containers/02-private/landing-page-hosting/hooks/redeploy_hook.py
+SyslogIdentifier=landing-redeploy-hook
+StandardOutput=journal
+StandardError=journal
 Restart=on-failure
 RestartSec=3
 NoNewPrivileges=true

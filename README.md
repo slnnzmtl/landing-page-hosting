@@ -279,6 +279,15 @@ sudo systemctl enable --now landing-redeploy-hook
 cd ../../01-reverse-proxy && docker compose up -d --force-recreate
 ```
 
+Logs (Authorization is never written; Caddy redacts it):
+
+```bash
+journalctl -u landing-redeploy-hook -f
+tail -f logs/redeploy-hook.log          # accepted / queued / unauthorized
+tail -f logs/redeploy-rebuild.log       # rebuild.sh / docker compose output
+docker logs -f caddy 2>&1 | grep hooks  # public allowlist hits and 403s
+```
+
 Smoke (from this VPS, localhost health only — public POST is allowlisted to `13.140.158.49`):
 
 ```bash
