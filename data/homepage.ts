@@ -64,8 +64,6 @@ export interface ExperiencePreview {
 export interface ProductSpotlightImage {
   src: string
   srcThumb?: string
-  srcset?: string
-  sizes?: string
   alt: string
   width: number
   height: number

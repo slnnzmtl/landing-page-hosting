@@ -490,9 +490,6 @@ export const cmsPortfolioFixture: CmsPortfolioRaw = {
             image: {
               src: '/projects/sample-converter/main-window.webp',
               srcThumb: '/projects/sample-converter/main-window-600w.webp',
-              srcset:
-                '/projects/sample-converter/main-window-600w.webp 600w, /projects/sample-converter/main-window.webp 1200w',
-              sizes: '(max-width: 1024px) 100vw, 56rem',
               alt: 'Sample Converter main window',
               width: 1200,
               height: 800,

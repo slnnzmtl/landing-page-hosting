@@ -95,22 +95,6 @@ function rewritePublicPath(
   return path
 }
 
-function rewriteSrcset(
-  catalog: FileCatalog,
-  srcset?: string,
-): string | undefined {
-  if (!srcset) return undefined
-  return srcset
-    .split(',')
-    .map((part) => {
-      const trimmed = part.trim()
-      const [url, ...rest] = trimmed.split(/\s+/)
-      const rewritten = rewritePublicPath(catalog, url) || url
-      return [rewritten, ...rest].join(' ')
-    })
-    .join(', ')
-}
-
 function thumbTitle(title: string, marker: string): string {
   return title.replace(/(\.[a-z0-9]+)$/i, `${marker}$1`)
 }
@@ -136,15 +120,11 @@ function fileImage(
     : canUseThumb && file?.type?.startsWith('image/')
       ? publicPathForImageVariant(src, thumbWidth!)
       : undefined
-  const widthHint = thumbMarker === '-256w' ? 256 : thumbMarker === '-600w' ? 600 : undefined
   const width = file?.width || size.width
   const height = file?.height || size.height
   return {
     src,
     srcThumb,
-    srcset: srcThumb && widthHint
-      ? srcThumb + ' ' + widthHint + 'w, ' + src + ' ' + width + 'w'
-      : undefined,
     alt,
     width,
     height,
@@ -160,20 +140,15 @@ function productMediaImage(
   const src = publicPathForFile(file)
   const width = file.width || 1280
   const height = file.height || 800
-  const variantWidths = [640, 960].filter(variant => variant < width)
-  const variants = variantWidths.map((variant) => {
-    const existing = file.title
-      ? catalog.byTitle.get(publicPathForImageVariant(src, variant))
-      : undefined
-    return existing
-      ? publicPathForFile(existing)
-      : publicPathForImageVariant(src, variant)
-  })
+  let srcThumb: string | undefined
+  if (width > 640) {
+    const variant = publicPathForImageVariant(src, 640)
+    const existing = file.title ? catalog.byTitle.get(variant) : undefined
+    srcThumb = existing ? publicPathForFile(existing) : variant
+  }
   return {
     src,
-    srcThumb: variants[0],
-    srcset: [...variants.map((path, index) => path + ' ' + variantWidths[index] + 'w'), src + ' ' + width + 'w'].join(', '),
-    sizes: '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 40rem',
+    srcThumb,
     alt,
     width,
     height,
@@ -188,8 +163,6 @@ function rewriteGuideImage(
   return {
     src: rewritePublicPath(catalog, image.src) || image.src,
     srcThumb: rewritePublicPath(catalog, image.srcThumb) || image.srcThumb,
-    srcset: rewriteSrcset(catalog, image.srcset) || image.srcset,
-    sizes: image.sizes,
     alt: image.alt,
     width: image.width,
     height: image.height,
@@ -425,7 +398,6 @@ function imageForProductSpotlight(
   if (guideImage) {
     const rewritten = rewriteGuideImage(catalog, guideImage)
     const thumb = rewritten.srcThumb
-    // Homepage uses the 600w file only — CMS `sizes` would pick 2240w on DPR>1.
     return {
       src: thumb || rewritten.src,
       srcThumb: thumb,
@@ -453,8 +425,6 @@ function imageForProductSpotlight(
     return {
       src: image.src,
       srcThumb: image.srcThumb,
-      srcset: image.srcset,
-      sizes: image.sizes,
       alt: image.alt,
       width: image.width,
       height: image.height,
@@ -473,8 +443,6 @@ function imageForProductSpotlight(
     return {
       src: logo.src,
       srcThumb: logo.srcThumb,
-      srcset: logo.srcset,
-      sizes: logo.sizes,
       alt: logo.alt,
       width: logo.width,
       height: logo.height,
@@ -832,9 +800,7 @@ function mapCmsProduct(
     name: product.name,
     shortDescription: product.short_description,
     description: product.description ?? undefined,
-    logo: logo
-      ? { ...logo, sizes: '(max-width: 1024px) 14rem, 14rem' }
-      : undefined,
+    logo: logo || undefined,
     benefits: product.benefits ?? undefined,
     guide,
     links: product.evidence_links ?? undefined,

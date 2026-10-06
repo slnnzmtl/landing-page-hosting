@@ -299,7 +299,6 @@ describe('CMS portfolio mappers', () => {
   it('uses guide screenshot for product spotlight image', () => {
     const image = mapped.homepage.products.items[0]?.image
     expect(image?.src).toMatch(/main-window-600w\.webp/)
-    expect(image?.srcset).toBeUndefined()
     expect(image?.width).toBe(600)
   })
 

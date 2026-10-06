@@ -1,12 +1,29 @@
 <script setup lang="ts">
+import { computed, ref } from 'vue'
 import type { ProductMedia } from '../data/types'
+import MediaLightbox from '~/components/media/MediaLightbox.vue'
 
-defineProps<{
+const props = withDefaults(defineProps<{
   before: ProductMedia
   after: ProductMedia
   heading: string
   intro?: string
-}>()
+  /** Prefer high for the in-viewport before screenshot (LCP). */
+  priority?: boolean
+}>(), {
+  priority: false,
+})
+
+const images = computed(() => [props.before, props.after])
+const activeIndex = ref<number | null>(null)
+
+function open(index: number) {
+  activeIndex.value = index
+}
+
+function close() {
+  activeIndex.value = null
+}
 </script>
 
 <template>
@@ -26,44 +43,47 @@ defineProps<{
       </p>
     </div>
     <div class="grid gap-5 lg:grid-cols-2">
-      <figure class="space-y-2">
-        <div class="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+      <figure
+        v-for="(image, index) in images"
+        :key="image.src"
+        class="space-y-2"
+      >
+        <button
+          type="button"
+          class="group relative block w-full cursor-zoom-in overflow-hidden rounded-2xl border border-border bg-card text-left shadow-sm transition hover:ring-2 hover:ring-primary/40 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          :aria-label="`View full size: ${image.caption || image.alt}`"
+          @click="open(index)"
+        >
           <img
-            :src="before.srcThumb || before.src"
-            :srcset="before.srcset"
-            :sizes="before.sizes"
-            :alt="before.alt"
-            :width="before.width"
-            :height="before.height"
-            loading="lazy"
+            :src="image.srcThumb || image.src"
+            :alt="image.alt"
+            :width="image.width"
+            :height="image.height"
+            :loading="priority && index === 0 ? 'eager' : 'lazy'"
+            :fetchpriority="priority && index === 0 ? 'high' : undefined"
             decoding="async"
             class="h-auto w-full"
           />
-        </div>
+          <span
+            class="pointer-events-none absolute inset-0 flex items-end justify-end bg-gradient-to-t from-black/50 via-transparent to-transparent p-3 opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100"
+            aria-hidden="true"
+          >
+            <span class="rounded-full bg-black/70 px-3 py-1 text-xs font-medium text-white">
+              View
+            </span>
+          </span>
+        </button>
         <figcaption class="text-sm text-muted-foreground">
-          <span class="font-medium text-foreground">Before.</span>
-          {{ before.caption || before.alt }}
-        </figcaption>
-      </figure>
-      <figure class="space-y-2">
-        <div class="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-          <img
-            :src="after.srcThumb || after.src"
-            :srcset="after.srcset"
-            :sizes="after.sizes"
-            :alt="after.alt"
-            :width="after.width"
-            :height="after.height"
-            loading="lazy"
-            decoding="async"
-            class="h-auto w-full"
-          />
-        </div>
-        <figcaption class="text-sm text-muted-foreground">
-          <span class="font-medium text-foreground">After.</span>
-          {{ after.caption || after.alt }}
+          <span class="font-medium text-foreground">{{ index === 0 ? 'Before.' : 'After.' }}</span>
+          {{ image.caption || image.alt }}
         </figcaption>
       </figure>
     </div>
+
+    <MediaLightbox
+      v-model:active-index="activeIndex"
+      :images="images"
+      @close="close"
+    />
   </section>
 </template>

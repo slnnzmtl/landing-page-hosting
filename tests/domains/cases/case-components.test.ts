@@ -14,8 +14,7 @@ const nuxtLinkStub = {
 
 const image: CaseImage = {
   src: '/images/case.png',
-  srcset: '/images/case-600w.webp 600w, /images/case.png 1200w',
-  sizes: '(max-width: 768px) 100vw, 50vw',
+  srcThumb: '/images/case-600w.webp',
   alt: 'Case screenshot',
   width: 1200,
   height: 800,
@@ -76,13 +75,13 @@ describe('case composition', () => {
 describe('case media and layouts', () => {
   it('keeps hero sizing independent from presentation and exposes generated sources', () => {
     const wrapper = mount(CaseMedia, {
-      props: { image: { ...image, presentation: undefined, sizes: undefined }, size: 'hero' },
+      props: { image: { ...image, presentation: undefined }, size: 'hero' },
     })
     const img = wrapper.find('img')
     expect(wrapper.find('button').classes()).toContain('rounded-2xl')
     expect(wrapper.find('button').classes()).toContain('bg-card')
-    expect(img.attributes('srcset')).toContain('600w')
-    expect(img.attributes('sizes')).toContain('80vw')
+    expect(img.attributes('src')).toBe('/images/case-600w.webp')
+    expect(img.attributes('srcset')).toBeUndefined()
     expect(img.classes()).not.toContain('object-cover')
 
     const screenshot = mount(CaseMedia, {

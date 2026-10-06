@@ -51,17 +51,6 @@ function closeLightbox() {
   lightboxIndex.value = null
 }
 
-function showPrevious() {
-  if (lightboxIndex.value === null || lightboxImages.value.length === 0) return
-  lightboxIndex.value = (lightboxIndex.value + lightboxImages.value.length - 1)
-    % lightboxImages.value.length
-}
-
-function showNext() {
-  if (lightboxIndex.value === null || lightboxImages.value.length === 0) return
-  lightboxIndex.value = (lightboxIndex.value + 1) % lightboxImages.value.length
-}
-
 provide(openCaseLightboxKey, openLightbox)
 </script>
 
@@ -100,11 +89,9 @@ provide(openCaseLightboxKey, openLightbox)
     </div>
 
     <MediaLightbox
+      v-model:active-index="lightboxIndex"
       :images="lightboxImages"
-      :active-index="lightboxIndex"
       @close="closeLightbox"
-      @previous="showPrevious"
-      @next="showNext"
     />
   </article>
 </template>

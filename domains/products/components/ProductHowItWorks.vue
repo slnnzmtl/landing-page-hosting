@@ -27,18 +27,6 @@ function open(image: ProductImage) {
 function close() {
   activeIndex.value = null
 }
-
-function showPrevious() {
-  if (activeIndex.value === null || walkthroughImages.value.length === 0) return
-  activeIndex.value = (
-    activeIndex.value + walkthroughImages.value.length - 1
-  ) % walkthroughImages.value.length
-}
-
-function showNext() {
-  if (activeIndex.value === null || walkthroughImages.value.length === 0) return
-  activeIndex.value = (activeIndex.value + 1) % walkthroughImages.value.length
-}
 </script>
 
 <template>
@@ -85,8 +73,6 @@ function showNext() {
           >
             <img
               :src="step.image.srcThumb || step.image.src"
-              :srcset="step.image.srcset"
-              :sizes="step.image.sizes"
               :alt="step.image.alt"
               :width="step.image.width"
               :height="step.image.height"
@@ -101,11 +87,9 @@ function showNext() {
     </ol>
 
     <MediaLightbox
+      v-model:active-index="activeIndex"
       :images="walkthroughImages"
-      :active-index="activeIndex"
       @close="close"
-      @previous="showPrevious"
-      @next="showNext"
     />
   </section>
 </template>

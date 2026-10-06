@@ -133,7 +133,8 @@ describe('extension product mapping', () => {
       'comparison_after',
       'gallery',
     ])
-    expect(product.media[0]?.srcset).toContain('-640w.webp 640w')
+    expect(product.media[0]?.srcThumb).toContain('-640w.webp')
+    expect(product.media[0]?.src).toContain('before.png')
     expect(product.socialImage?.src).toContain('after.png')
     expect(product.logo?.src).toContain('soundcloud-ui-toolkit-icon-128.png')
     expect(product.logo?.srcThumb).toBeUndefined()

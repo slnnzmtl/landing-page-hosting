@@ -80,18 +80,12 @@ function resolveCaseImage(
   const height = file.height
   const isImage = file.type?.startsWith('image/')
     || /\.(?:avif|gif|jpe?g|png|webp)$/i.test(file.filename_download)
-  const variantWidths = isImage
-    ? [256, 600, 640, 960].filter(variant => variant < width)
-    : []
-  const srcset = variantWidths.length
-    ? [
-        ...variantWidths.map(variant => `${publicPathForImageVariant(src, variant)} ${variant}w`),
-        `${src} ${width}w`,
-      ].join(', ')
+  const srcThumb = isImage && width > 600
+    ? publicPathForImageVariant(src, 600)
     : undefined
   return {
     src,
-    ...(srcset ? { srcset } : {}),
+    ...(srcThumb ? { srcThumb } : {}),
     alt,
     width,
     height,

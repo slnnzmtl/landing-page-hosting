@@ -51,12 +51,6 @@ function imageClass() {
   }
   return 'mx-auto h-auto max-h-96 w-auto max-w-full object-contain'
 }
-
-const sizes = computed(() => props.image.sizes || (
-  props.size === 'screenshot'
-    ? '(max-width: 768px) 100vw, 50vw'
-    : '(max-width: 768px) 100vw, 80vw'
-))
 </script>
 
 <template>
@@ -73,12 +67,10 @@ const sizes = computed(() => props.image.sizes || (
       @click="emit('open')"
     >
       <img
-        :src="image.src"
+        :src="image.srcThumb || image.src"
         :alt="image.alt"
         :width="image.width"
         :height="image.height"
-        :srcset="image.srcset"
-        :sizes="sizes"
         :loading="priority ? 'eager' : 'lazy'"
         :fetchpriority="priority ? 'high' : undefined"
         decoding="async"

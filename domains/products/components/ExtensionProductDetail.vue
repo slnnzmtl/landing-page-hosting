@@ -37,12 +37,9 @@ function money(project: ExtensionProduct): string {
             <img
               v-if="project.logo"
               :src="project.logo.srcThumb || project.logo.src"
-              :srcset="project.logo.srcset"
-              :sizes="project.logo.sizes"
               :alt="project.logo.alt"
               :width="project.logo.width"
               :height="project.logo.height"
-              fetchpriority="high"
               decoding="async"
               class="h-auto w-full max-w-[14rem]"
             />
@@ -88,6 +85,7 @@ function money(project: ExtensionProduct): string {
         :after="project.media.find(item => item.presentation === 'comparison_after')!"
         :heading="project.mediaHeading"
         :intro="project.mediaIntro"
+        priority
       />
 
       <section

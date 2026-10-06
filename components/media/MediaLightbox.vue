@@ -8,9 +8,8 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  close: []
-  previous: []
-  next: []
+  'close': []
+  'update:activeIndex': [number | null]
 }>()
 
 const dialogEl = ref<HTMLElement | null>(null)
@@ -32,6 +31,14 @@ function focusableElements(): HTMLElement[] {
   )]
 }
 
+function step(delta: number) {
+  if (props.activeIndex === null || props.images.length < 2) return
+  emit(
+    'update:activeIndex',
+    (props.activeIndex + delta + props.images.length) % props.images.length,
+  )
+}
+
 function onKeydown(event: KeyboardEvent) {
   if (!open.value) return
   if (event.key === 'Escape') {
@@ -41,12 +48,12 @@ function onKeydown(event: KeyboardEvent) {
   }
   if (event.key === 'ArrowLeft' && props.images.length > 1) {
     event.preventDefault()
-    emit('previous')
+    step(-1)
     return
   }
   if (event.key === 'ArrowRight' && props.images.length > 1) {
     event.preventDefault()
-    emit('next')
+    step(1)
     return
   }
   if (event.key === 'Tab') {
@@ -140,14 +147,14 @@ onBeforeUnmount(() => {
             <button
               type="button"
               class="rounded-full border border-border px-3 py-1 text-sm text-foreground transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              @click="emit('previous')"
+              @click="step(-1)"
             >
               Previous
             </button>
             <button
               type="button"
               class="rounded-full border border-border px-3 py-1 text-sm text-foreground transition hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              @click="emit('next')"
+              @click="step(1)"
             >
               Next
             </button>

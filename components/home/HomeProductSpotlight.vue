@@ -30,8 +30,6 @@ function onProductCtaClick() {
     <div class="aspect-[16/10] border-b border-border bg-muted/40 p-3 sm:p-4">
       <img
         :src="product.image.srcThumb || product.image.src"
-        :srcset="product.image.srcset"
-        :sizes="product.image.sizes"
         :alt="product.image.alt"
         :width="product.image.width"
         :height="product.image.height"

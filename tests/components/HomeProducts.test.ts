@@ -22,6 +22,7 @@ function product(slug: string): ProductSpotlight {
     supportingLine: 'Built for real users.',
     image: {
       src: `/${slug}.png`,
+      srcThumb: `/${slug}-640w.webp`,
       alt: `${slug} screenshot`,
       width: 1280,
       height: 800,
@@ -90,5 +91,7 @@ describe('HomeProductSpotlight', () => {
     })
 
     expect(wrapper.find('img').attributes('alt')).toBe('one screenshot')
+    expect(wrapper.find('img').attributes('src')).toBe('/one-640w.webp')
+    expect(wrapper.find('img').attributes('srcset')).toBeUndefined()
   })
 })

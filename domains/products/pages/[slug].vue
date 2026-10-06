@@ -74,12 +74,9 @@ const benefitsHeading = computed(() => (
             <img
               v-if="project.logo"
               :src="project.logo.srcThumb || project.logo.src"
-              :srcset="project.logo.srcset"
-              :sizes="project.logo.sizes"
               :alt="project.logo.alt"
               :width="project.logo.width"
               :height="project.logo.height"
-              fetchpriority="high"
               decoding="async"
               class="h-auto w-full max-w-[14rem]"
             />

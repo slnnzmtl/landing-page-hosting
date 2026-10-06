@@ -51,7 +51,8 @@ describe('case CMS projection', () => {
     expect(caseStudy.heroMedia?.height).toBe(900)
     expect(caseStudy.heroMedia?.alt).toMatch(/Architecture diagram/)
     expect(caseStudy.heroMedia?.caption).toMatch(/Telegram, LangGraph/)
-    expect(caseStudy.heroMedia?.srcset).toContain('600w')
+    expect(caseStudy.heroMedia?.src).toContain('hero.webp')
+    expect(caseStudy.heroMedia?.srcThumb).toContain('-600w.webp')
     expect(caseStudy.engagementLabel).toMatch(/Independent product/)
     const gallery = caseStudy.sections.find(s => s.kind === 'gallery')!
     expect(gallery.media).toHaveLength(2)

@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import type { MediaImage } from './types'
 import MediaLightbox from './MediaLightbox.vue'
 
-const props = withDefaults(defineProps<{
+withDefaults(defineProps<{
   images: MediaImage[]
   /** Desktop grid columns. Cases use 2; products keep 2/3. */
   columns?: 'two' | 'three'
@@ -19,16 +19,6 @@ function open(index: number) {
 
 function close() {
   activeIndex.value = null
-}
-
-function showPrevious() {
-  if (activeIndex.value === null || props.images.length === 0) return
-  activeIndex.value = (activeIndex.value + props.images.length - 1) % props.images.length
-}
-
-function showNext() {
-  if (activeIndex.value === null || props.images.length === 0) return
-  activeIndex.value = (activeIndex.value + 1) % props.images.length
 }
 </script>
 
@@ -53,8 +43,6 @@ function showNext() {
           >
             <img
               :src="image.srcThumb || image.src"
-              :srcset="image.srcset"
-              :sizes="image.sizes"
               :alt="image.alt"
               :width="image.width"
               :height="image.height"
@@ -80,11 +68,9 @@ function showNext() {
     </ul>
 
     <MediaLightbox
+      v-model:active-index="activeIndex"
       :images="images"
-      :active-index="activeIndex"
       @close="close"
-      @previous="showPrevious"
-      @next="showNext"
     />
   </div>
 </template>

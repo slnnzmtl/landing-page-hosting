@@ -26,8 +26,7 @@ export type CaseMediaPresentation = 'diagram' | 'screenshot' | 'gallery' | 'code
 
 export interface CaseImage {
   src: string
-  srcset?: string
-  sizes?: string
+  srcThumb?: string
   alt: string
   width: number
   height: number
