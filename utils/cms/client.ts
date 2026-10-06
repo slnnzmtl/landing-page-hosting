@@ -108,3 +108,18 @@ export function publicPathForFile(file: CmsPublicFile): string {
 export function publicPathForImageVariant(path: string, width: number): string {
   return path.replace(/\.[a-z0-9]+$/i, `-${width}w.webp`)
 }
+
+/** In-page srcset rungs. Never include the original file (often a heavy PNG). */
+export const LAYOUT_WEBP_WIDTHS = [640, 960, 1280] as const
+
+export function layoutWebpSources(src: string, width: number): {
+  srcThumb?: string
+  srcset?: string
+} {
+  const widths = LAYOUT_WEBP_WIDTHS.filter(variant => variant < width)
+  if (!widths.length) return {}
+  return {
+    srcThumb: publicPathForImageVariant(src, widths[0]!),
+    srcset: widths.map(variant => `${publicPathForImageVariant(src, variant)} ${variant}w`).join(', '),
+  }
+}

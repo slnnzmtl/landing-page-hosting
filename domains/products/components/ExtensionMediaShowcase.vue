@@ -56,6 +56,8 @@ function close() {
         >
           <img
             :src="image.srcThumb || image.src"
+            :srcset="image.srcset"
+            sizes="(max-width: 1024px) calc(100vw - 3rem), 32rem"
             :alt="image.alt"
             :width="image.width"
             :height="image.height"

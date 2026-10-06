@@ -73,6 +73,8 @@ function close() {
           >
             <img
               :src="step.image.srcThumb || step.image.src"
+              :srcset="step.image.srcset"
+              sizes="(max-width: 1152px) calc(100vw - 3rem), 1056px"
               :alt="step.image.alt"
               :width="step.image.width"
               :height="step.image.height"

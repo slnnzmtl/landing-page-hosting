@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   DEFAULT_DIRECTUS_URL,
+  layoutWebpSources,
   normalizeDirectusToken,
   resolveDirectusConfig,
   shouldFetchCmsPrerenderSlugs,
@@ -55,5 +56,19 @@ describe('resolveDirectusConfig', () => {
       baseUrl: 'https://cms.example.test',
       token: 'secret',
     })
+  })
+})
+
+describe('layoutWebpSources', () => {
+  it('builds WebP-only srcset below the source width', () => {
+    expect(layoutWebpSources('/shot.png', 1400)).toEqual({
+      srcThumb: '/shot-640w.webp',
+      srcset: '/shot-640w.webp 640w, /shot-960w.webp 960w, /shot-1280w.webp 1280w',
+    })
+    expect(layoutWebpSources('/shot.png', 1280).srcset).toBe(
+      '/shot-640w.webp 640w, /shot-960w.webp 960w',
+    )
+    expect(layoutWebpSources('/shot.png', 1280).srcset).not.toContain('.png')
+    expect(layoutWebpSources('/shot.png', 500)).toEqual({})
   })
 })

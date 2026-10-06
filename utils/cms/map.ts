@@ -26,6 +26,7 @@ import {
   assetUrl,
   publicPathForFile,
   publicPathForImageVariant,
+  layoutWebpSources,
   type DirectusClientConfig,
 } from './client'
 import { mapCases } from './map-cases'
@@ -140,15 +141,11 @@ function productMediaImage(
   const src = publicPathForFile(file)
   const width = file.width || 1280
   const height = file.height || 800
-  let srcThumb: string | undefined
-  if (width > 640) {
-    const variant = publicPathForImageVariant(src, 640)
-    const existing = file.title ? catalog.byTitle.get(variant) : undefined
-    srcThumb = existing ? publicPathForFile(existing) : variant
-  }
+  const variants = layoutWebpSources(src, width)
   return {
     src,
-    srcThumb,
+    srcThumb: variants.srcThumb,
+    srcset: variants.srcset,
     alt,
     width,
     height,
@@ -160,9 +157,12 @@ function rewriteGuideImage(
   catalog: FileCatalog,
   image: NonNullable<NonNullable<CmsProduct['guide']>['steps'][number]['image']>,
 ): ProductImage {
+  const src = rewritePublicPath(catalog, image.src) || image.src
+  const variants = layoutWebpSources(src, image.width)
   return {
-    src: rewritePublicPath(catalog, image.src) || image.src,
-    srcThumb: rewritePublicPath(catalog, image.srcThumb) || image.srcThumb,
+    src,
+    srcThumb: rewritePublicPath(catalog, image.srcThumb) || image.srcThumb || variants.srcThumb,
+    srcset: variants.srcset,
     alt: image.alt,
     width: image.width,
     height: image.height,

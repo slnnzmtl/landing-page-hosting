@@ -15,6 +15,7 @@ const nuxtLinkStub = {
 const image: CaseImage = {
   src: '/images/case.png',
   srcThumb: '/images/case-600w.webp',
+  srcset: '/images/case-640w.webp 640w, /images/case-960w.webp 960w',
   alt: 'Case screenshot',
   width: 1200,
   height: 800,
@@ -81,7 +82,8 @@ describe('case media and layouts', () => {
     expect(wrapper.find('button').classes()).toContain('rounded-2xl')
     expect(wrapper.find('button').classes()).toContain('bg-card')
     expect(img.attributes('src')).toBe('/images/case-600w.webp')
-    expect(img.attributes('srcset')).toBeUndefined()
+    expect(img.attributes('srcset')).toContain('960w')
+    expect(img.attributes('sizes')).toBe('(max-width: 1024px) 92vw, 40rem')
     expect(img.classes()).not.toContain('object-cover')
 
     const screenshot = mount(CaseMedia, {

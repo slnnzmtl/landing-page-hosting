@@ -6,6 +6,7 @@ export interface ProductImage {
   caption?: string
   /** Optional smaller source for grid/hero; full `src` stays for lightbox. */
   srcThumb?: string
+  srcset?: string
 }
 
 export interface ProductLink {

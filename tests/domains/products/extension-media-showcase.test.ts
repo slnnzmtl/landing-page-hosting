@@ -7,6 +7,7 @@ function media(presentation: ProductMedia['presentation'], label: string): Produ
   return {
     src: `/${label}.png`,
     srcThumb: `/${label}-640w.webp`,
+    srcset: `/${label}-640w.webp 640w, /${label}-960w.webp 960w`,
     alt: `${label} screenshot`,
     width: 1280,
     height: 800,
@@ -29,12 +30,14 @@ function mountShowcase(priority = false) {
 }
 
 describe('ExtensionMediaShowcase', () => {
-  it('renders thumbs without srcset and eager-loads the LCP preview', () => {
+  it('renders thumbs with layout srcset and eager-loads the LCP preview', () => {
     const wrapper = mountShowcase(true)
     const images = wrapper.findAll('img')
     expect(images).toHaveLength(2)
     expect(images[0]?.attributes('src')).toBe('/before-640w.webp')
-    expect(images[0]?.attributes('srcset')).toBeUndefined()
+    expect(images[0]?.attributes('srcset')).toContain('640w')
+    expect(images[0]?.attributes('srcset')).not.toContain('.png')
+    expect(images[0]?.attributes('sizes')).toBe('(max-width: 1024px) calc(100vw - 3rem), 32rem')
     expect(images[0]?.attributes('loading')).toBe('eager')
     expect(images[0]?.attributes('fetchpriority')).toBe('high')
     expect(images[1]?.attributes('src')).toBe('/after-640w.webp')

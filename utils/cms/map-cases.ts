@@ -13,7 +13,7 @@ import {
   type CaseMediaPresentation,
 } from '../../domains/cases/data/types'
 import type { DirectusClientConfig } from './client'
-import { publicPathForFile, publicPathForImageVariant } from './client'
+import { publicPathForFile, publicPathForImageVariant, layoutWebpSources } from './client'
 import type {
   CmsFile,
   CmsProject,
@@ -83,9 +83,11 @@ function resolveCaseImage(
   const srcThumb = isImage && width > 600
     ? publicPathForImageVariant(src, 600)
     : undefined
+  const variants = isImage ? layoutWebpSources(src, width) : {}
   return {
     src,
     ...(srcThumb ? { srcThumb } : {}),
+    ...(variants.srcset ? { srcset: variants.srcset } : {}),
     alt,
     width,
     height,

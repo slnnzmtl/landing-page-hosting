@@ -192,7 +192,7 @@ async function materializeCmsFiles(
     const isImage = file.type?.startsWith('image/')
       || /\.(?:avif|gif|jpe?g|png|webp)$/i.test(file.filename_download)
     if (!isImage || !file.width || /-\d+w\.[a-z0-9]+$/i.test(pub)) continue
-    const widths = [256, 600, 640].filter(width => width < file.width!)
+    const widths = [256, 600, 640, 960, 1280].filter(width => width < file.width!)
     await Promise.all(widths.map(width => materialize(
       file,
       publicPathForImageVariant(pub, width),

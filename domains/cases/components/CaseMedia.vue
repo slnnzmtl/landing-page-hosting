@@ -51,6 +51,16 @@ function imageClass() {
   }
   return 'mx-auto h-auto max-h-96 w-auto max-w-full object-contain'
 }
+
+const sizes = computed(() => {
+  if (props.size === 'screenshot' || props.image.presentation === 'screenshot' || props.image.presentation === 'gallery') {
+    return '(max-width: 1024px) 92vw, 50vw'
+  }
+  if (props.size === 'hero' || props.size === 'wide') {
+    return '(max-width: 1024px) 92vw, 40rem'
+  }
+  return '(max-width: 1024px) 92vw, 40rem'
+})
 </script>
 
 <template>
@@ -68,6 +78,8 @@ function imageClass() {
     >
       <img
         :src="image.srcThumb || image.src"
+        :srcset="image.srcset"
+        :sizes="sizes"
         :alt="image.alt"
         :width="image.width"
         :height="image.height"

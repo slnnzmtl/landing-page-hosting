@@ -1,15 +1,21 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import type { MediaImage } from './types'
 import MediaLightbox from './MediaLightbox.vue'
 
-withDefaults(defineProps<{
+const props = withDefaults(defineProps<{
   images: MediaImage[]
   /** Desktop grid columns. Cases use 2; products keep 2/3. */
   columns?: 'two' | 'three'
 }>(), {
   columns: 'three',
 })
+
+const sizes = computed(() => (
+  props.columns === 'two'
+    ? '(max-width: 640px) calc(100vw - 3rem), 50vw'
+    : '(max-width: 640px) calc(100vw - 3rem), (max-width: 1024px) 50vw, 33vw'
+))
 
 const activeIndex = ref<number | null>(null)
 
@@ -43,6 +49,8 @@ function close() {
           >
             <img
               :src="image.srcThumb || image.src"
+              :srcset="image.srcset"
+              :sizes="sizes"
               :alt="image.alt"
               :width="image.width"
               :height="image.height"

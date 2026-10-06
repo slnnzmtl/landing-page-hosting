@@ -6,4 +6,5 @@ export interface MediaImage {
   height: number
   caption?: string
   srcThumb?: string
+  srcset?: string
 }

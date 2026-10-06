@@ -54,6 +54,8 @@ describe('product mapping (CMS-mapped)', () => {
     images.forEach((image) => {
       expect(image?.src).toMatch(/^\/projects\/sample-converter\//)
       expect(image?.srcThumb).toMatch(/-600w\.webp/)
+      expect(image?.srcset).toContain('-960w.webp 960w')
+      expect(image?.srcset).not.toContain('.png')
     })
   })
 })
