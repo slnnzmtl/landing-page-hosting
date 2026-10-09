@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { starBackdropClass } from '~/utils/star-backdrop'
+import BackgroundPixelStars from '~/components/BackgroundPixelStars.vue'
 
 const props = withDefaults(defineProps<{
   densityFactor?: number
@@ -11,14 +12,20 @@ const starsReady = ref(false)
 
 onMounted(() => {
   const enable = () => {
+    let started = false
     const start = () => {
+      if (started) return
+      started = true
       starsReady.value = true
     }
+    // Always arm a hard timeout so stars start even when native
+    // requestIdleCallback exists but never invokes the callback.
+    const hardTimeoutId = setTimeout(start, 6000)
     if (typeof requestIdleCallback !== 'undefined') {
-      requestIdleCallback(start, { timeout: 6000 })
-    }
-    else {
-      setTimeout(start, 6000)
+      requestIdleCallback(() => {
+        clearTimeout(hardTimeoutId)
+        start()
+      }, { timeout: 6000 })
     }
   }
 
@@ -33,7 +40,7 @@ onMounted(() => {
     :class="starBackdropClass"
     aria-hidden="true"
   />
-  <LazyBackgroundPixelStars
+  <BackgroundPixelStars
     v-else
     :density-factor="props.densityFactor"
   />
